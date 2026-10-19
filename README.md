@@ -4,6 +4,23 @@ Wakil répond aux clients d'une entreprise sur WhatsApp et dans un chat sur son 
 
 Premier client : **SICAR SARL**. Le catalogue est lu directement sur le site (`data/products.json` et `data/site.json`), donc une modification faite dans l'administration du site est prise en compte par Wakil en moins de 5 minutes.
 
+## L'application (`/app`) : votre espace de travail
+
+À l'adresse `https://wakil-whatsapp.<votre-compte>.workers.dev/app/`, sur ordinateur ou téléphone, protégée par un mot de passe :
+
+| Onglet | Ce que vous y faites |
+|---|---|
+| **Accueil** | Ce qui demande votre attention : commandes à traiter, clients qui attendent l'équipe |
+| **Conversations** | Tout ce que les clients ont écrit et ce que Wakil a répondu. **Prendre la main** (Wakil se tait), **Rendre à Wakil**, **répondre au client** sur WhatsApp depuis l'application |
+| **Commandes** | Confirmer, marquer livrée, annuler ; écrire au client |
+| **Tester** | Parler à votre assistant comme un client, avant vos clients. Rien n'est enregistré, personne n'est prévenu |
+| **Demandes** | Les entreprises qui ont rempli « Essayer Wakil » sur le site de Wakil |
+| **Réglages** | L'adresse du webhook et la ligne du chat à copier, le catalogue que Wakil connaît |
+
+Pour l'activer : `npx wrangler secret put ADMIN_PASSWORD` (choisissez un mot de passe long). Changer ce mot de passe déconnecte tous les appareils.
+
+**Une journée type** : le matin, ouvrez **Accueil** ; confirmez les commandes de la nuit, rappelez les clients qui attendent l'équipe. Dans la journée, les notifications WhatsApp vous préviennent ; quand vous voulez répondre vous-même, **Prendre la main**, puis **Rendre à Wakil**. Après chaque changement de catalogue, un tour dans **Tester**.
+
 ## Ce que fait la version actuelle (MVP)
 
 | Fonction | Détail |
@@ -38,6 +55,9 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | Fichier | Rôle |
 |---|---|
 | `src/index.ts` | Webhook (vérification Meta, signature), commandes du patron |
+| `src/api.ts`, `src/auth.ts` | API de l'application, connexion par mot de passe |
+| `src/inbox-do.ts` | Boîte de réception (SQLite) : conversations, commandes, demandes |
+| `public/app/index.html` | L'application |
 | `src/web.ts` | Chat du site web : `/chat` et `/chat/config`, contrôle du site d'origine et du débit |
 | `public/wakil-chat.js` | Le chat à intégrer dans un site (une seule balise `<script>`) |
 | `public/index.html` | Le site de Wakil (servi à l'adresse du Worker) |
@@ -74,6 +94,7 @@ npx wrangler secret put ANTHROPIC_API_KEY      # clé de console.anthropic.com
 npx wrangler secret put WHATSAPP_TOKEN         # jeton permanent (étape 1.3)
 npx wrangler secret put WHATSAPP_APP_SECRET    # App secret (étape 1.4)
 npx wrangler secret put WHATSAPP_VERIFY_TOKEN  # un mot de passe que vous choisissez
+npx wrangler secret put ADMIN_PASSWORD         # le mot de passe de l'application /app
 npm run deploy
 ```
 
@@ -164,6 +185,7 @@ Dans `wrangler.jsonc`, section `vars` :
 | Variable | Défaut | Rôle |
 |---|---|---|
 | `CLAUDE_MODEL` | `claude-opus-5-5` | Modèle utilisé |
+| `ANTHROPIC_BASE_URL` | (vide) | Facultatif : adresse d'un Cloudflare AI Gateway, pour suivre les appels et leur coût |
 | `CLAUDE_EFFORT` | `low` | Profondeur de réflexion (`low` suffit pour une conversation commerciale) |
 | `DEBOUNCE_MS` | `4000` | Attente avant de répondre à un client qui écrit en plusieurs messages |
 | `GRAPH_API_VERSION` | `v23.0` | Version de l'API WhatsApp |

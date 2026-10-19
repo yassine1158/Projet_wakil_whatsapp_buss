@@ -1,5 +1,6 @@
 import wakil from "../config/wakil.json";
 import { normalizePhone } from "./engine";
+import { INBOX_NAME } from "./names";
 import type { Env } from "./types";
 import { WhatsAppClient } from "./whatsapp";
 
@@ -76,7 +77,7 @@ export async function handleLead(request: Request, env: Env, url: URL): Promise<
   const lead = parseLead(body, Date.now());
   if ("error" in lead) return json(lead, 400);
 
-  await env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName("wakil:leads")).saveLead(lead);
+  await env.INBOX.get(env.INBOX.idFromName(INBOX_NAME)).addLead(lead);
 
   const { ownerPhone, senderPhoneNumberId } = wakil.leads;
   if (!isPlaceholder(ownerPhone) && !isPlaceholder(senderPhoneNumberId)) {

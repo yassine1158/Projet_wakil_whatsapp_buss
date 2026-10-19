@@ -1,3 +1,4 @@
+import { webConversation } from "./names";
 import { findTenantById, isKnownWebOrigin } from "./tenants";
 import type { Env, Tenant } from "./types";
 
@@ -70,7 +71,7 @@ export async function handleChat(request: Request, env: Env, url: URL): Promise<
     if (!success) return json({ error: "rate_limited" }, 429, origin);
   }
 
-  const stub = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(`web:${found.tenant.id}:${session}`));
+  const stub = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(webConversation(found.tenant.id, session)));
   try {
     const replies = await stub.chat(found.phoneNumberId, session, text);
     return json({ replies }, 200, origin);

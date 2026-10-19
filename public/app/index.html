@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wakil · Mon espace</title>
+<meta name="theme-color" content="#1b2066">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F4B23A'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%231B2066' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+  /* Indigo (teinture adire) et souci (or des marchés) ; menu à gauche sur ordinateur, onglets en bas sur téléphone. */
+  :root {
+    --bg: #f4f3ee; --surface: #ffffff; --surface-2: #eceaf4; --ink: #15193a; --muted: #5b5f80; --line: #e1e0ea;
+    --indigo: #2d3a9e; --on-indigo: #ffffff; --indigo-soft: #e6e8fa; --deep: #1b2066;
+    --gold: #f4b23a; --on-gold: #1b2066; --gold-soft: #fcefd2; --gold-ink: #8a5800;
+    --ok: #1d7a4f; --ok-soft: #dcf1e5; --danger: #b2372b; --danger-soft: #fae3df; --wa: #1b8a52;
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --r: 18px; color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d0f23; --surface: #161935; --surface-2: #1f2348; --ink: #eceef8; --muted: #a2a6c6; --line: #2a2e58;
+      --indigo: #8e9bff; --on-indigo: #0d0f23; --indigo-soft: #252b63; --deep: #0a0c1d;
+      --gold-soft: #3a2f16; --gold-ink: #f4c76a; --ok: #5fd39a; --ok-soft: #173a2a; --danger: #ff8a7d; --danger-soft: #42201d; --wa: #4fd08f;
+      color-scheme: dark;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  #app { min-height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--body); -webkit-font-smoothing: antialiased; }
+  button, input, textarea, select { font: inherit; color: inherit; }
+  button { cursor: pointer; }
+  a { color: var(--indigo); }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; border-radius: 8px; }
+  [hidden] { display: none !important; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; line-height: 1.1; text-wrap: balance; }
+  h1 { font-size: clamp(26px, 4vw, 34px); font-weight: 800; }
+  h2 { font-size: 19px; font-weight: 600; }
+  .muted { color: var(--muted); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  svg.i { width: 20px; height: 20px; flex: none; }
+
+  /* Boutons, pastilles */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 12px;
+         border: 1.5px solid var(--line); background: var(--surface); font-weight: 700; text-decoration: none; color: var(--ink); white-space: nowrap; }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary { background: var(--indigo); border-color: var(--indigo); color: var(--on-indigo); }
+  .btn.gold { background: var(--gold); border-color: var(--gold); color: var(--on-gold); }
+  .btn.ghost { background: transparent; }
+  .btn.danger { color: var(--danger); }
+  .btn.small { min-height: 38px; padding: 0 14px; font-size: 14px; border-radius: 10px; }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .pill.wakil { background: var(--indigo-soft); color: var(--indigo); }
+  .pill.equipe, .pill.nouvelle { background: var(--gold-soft); color: var(--gold-ink); }
+  .pill.confirmee { background: var(--indigo-soft); color: var(--indigo); }
+  .pill.livree, .pill.contactee { background: var(--ok-soft); color: var(--ok); }
+  .pill.annulee { background: var(--surface-2); color: var(--muted); }
+  .chan { font-size: 12px; font-weight: 700; color: var(--muted); display: inline-flex; gap: 4px; align-items: center; }
+  .chan.whatsapp { color: var(--wa); }
+  .chan svg { width: 14px; height: 14px; }
+
+  /* Connexion */
+  .login { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 24px max(16px, env(safe-area-inset-left));
+           background: var(--deep); }
+  .login form { width: min(100%, 400px); background: var(--surface); border-radius: 24px; padding: 32px 28px; display: grid; gap: 18px; box-shadow: 0 30px 80px -30px rgba(0,0,0,.6); }
+  .login .logo { display: flex; align-items: center; gap: 10px; }
+  .login .logo svg { width: 44px; height: 44px; }
+  .login .logo b { font: 800 32px/1 var(--display); letter-spacing: -1px; }
+  label { display: grid; gap: 6px; font-weight: 600; font-size: 14px; }
+  input[type=password], input[type=search], input[type=text], textarea, select {
+    width: 100%; min-height: 46px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--indigo); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 45%, transparent); }
+  .error { color: var(--danger); font-weight: 600; min-height: 1.4em; margin: 0; }
+
+  /* Coquille */
+  .shell { min-height: 100%; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+  .side { background: var(--deep); color: #e8e9f7; padding: 22px 14px; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 0; height: 100vh; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; color: #fff; text-decoration: none; }
+  .brand svg { width: 34px; height: 34px; }
+  .brand b { font: 800 26px/1 var(--display); letter-spacing: -1px; }
+  .tenant select { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.16); color: #fff; min-height: 42px; font-weight: 600; }
+  .tenant select option { color: #15193a; }
+  .nav { display: grid; gap: 4px; }
+  .nav a { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 12px; color: #c9cbe8; text-decoration: none; font-weight: 600; }
+  .nav a:hover { background: rgba(255,255,255,.06); color: #fff; }
+  .nav a[aria-current="page"] { background: var(--gold); color: #1b2066; }
+  .nav .badge { margin-left: auto; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--gold); color: #1b2066; font-size: 12px; font-weight: 800; display: grid; place-items: center; }
+  .nav a[aria-current="page"] .badge { background: #1b2066; color: var(--gold); }
+  .side .bottom { margin-top: auto; display: grid; gap: 6px; }
+  .side .bottom button { background: none; border: 0; color: #c9cbe8; text-align: left; padding: 10px 12px; border-radius: 10px; display: flex; gap: 10px; align-items: center; font-weight: 600; }
+  .side .bottom button:hover { background: rgba(255,255,255,.06); color: #fff; }
+
+  .topbar { display: none; }
+  main { padding: 32px clamp(16px, 4vw, 44px) 48px; min-width: 0; }
+  .view { max-width: 1040px; margin: 0 auto; display: grid; gap: 22px; }
+  .head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; }
+  .head p { margin: 4px 0 0; }
+
+  .tabs { display: none; }
+  @media (max-width: 899px) {
+    .shell { display: block; }
+    .side { display: none; }
+    .topbar { display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 20; background: var(--deep);
+              padding: calc(10px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left)); }
+    .topbar .brand b { font-size: 22px; }
+    .topbar .tenant { margin-left: auto; max-width: 56%; }
+    main { padding: 20px max(16px, env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+    .tabs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: fixed; inset: auto 0 0; z-index: 20; background: var(--surface);
+            border-top: 1px solid var(--line); padding: 6px max(6px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left)); }
+    .tabs a, .tabs button { display: grid; justify-items: center; gap: 2px; padding: 6px 2px; border: 0; background: none; color: var(--muted);
+                            font-size: 11.5px; font-weight: 700; text-decoration: none; position: relative; border-radius: 12px; }
+    .tabs [aria-current="page"] { color: var(--indigo); background: var(--indigo-soft); }
+    .tabs .dot { position: absolute; top: 4px; right: calc(50% - 18px); width: 9px; height: 9px; border-radius: 50%; background: var(--gold); border: 2px solid var(--surface); }
+  }
+
+  /* Cartes et listes */
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+  .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 4px; text-decoration: none; color: var(--ink); }
+  .stat b { font: 800 38px/1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+  .stat span { color: var(--muted); font-weight: 600; font-size: 14px; }
+  .stat.hot { background: var(--gold); border-color: var(--gold); color: #1b2066; }
+  .stat.hot span { color: #1b2066; }
+  .list { display: grid; gap: 10px; }
+  .row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line);
+         border-radius: 16px; padding: 14px 16px; text-decoration: none; color: var(--ink); }
+  a.row:hover { border-color: var(--indigo); }
+  .av { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: var(--indigo-soft); color: var(--indigo); }
+  .av.equipe { background: var(--gold-soft); color: var(--gold-ink); }
+  .row .who { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+  .row .who b { font-size: 15.5px; }
+  .row .last { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .row time { color: var(--muted); font-size: 13px; white-space: nowrap; align-self: start; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 14px; font-weight: 700; font-size: 14px; color: var(--muted); }
+  .chip[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .chip .n { margin-left: 6px; opacity: .8; font-variant-numeric: tabular-nums; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); display: grid; gap: 8px; justify-items: center; }
+  .empty svg { width: 40px; height: 40px; color: var(--indigo); }
+  .empty b { color: var(--ink); font-size: 17px; }
+
+  /* Commandes */
+  .orders { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .order { display: grid; gap: 12px; align-content: start; }
+  .order .top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .order .ref { font: 700 15px/1 var(--display); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+  .order ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .order li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; background: var(--surface-2); border-radius: 10px; }
+  .order li b { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .order dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; font-size: 14px; }
+  .order dt { color: var(--muted); }
+  .order dd { margin: 0; overflow-wrap: anywhere; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+  /* Conversation */
+  .conv { display: grid; gap: 14px; }
+  .conv-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .conv-head h1 { overflow-wrap: anywhere; }
+  @media (max-width: 600px) { .conv-head .wa-open span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } .conv-head .wa-open { padding: 0 12px; } }
+  .back { width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); display: grid; place-items: center; text-decoration: none; color: var(--ink); }
+  .status { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; border-radius: 16px; padding: 14px 16px; }
+  .status.wakil { background: var(--indigo-soft); }
+  .status.equipe { background: var(--gold-soft); }
+  .status p { margin: 0; font-weight: 600; }
+  .thread { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 14px; display: flex; flex-direction: column; gap: 8px;
+            max-height: min(60vh, 640px); overflow-y: auto; overscroll-behavior: contain; }
+  .msg { max-width: 80%; padding: 9px 13px; border-radius: 16px; overflow-wrap: anywhere; display: grid; gap: 2px; }
+  .msg small { font-size: 11.5px; opacity: .75; font-weight: 700; }
+  .msg.client { align-self: flex-start; background: var(--surface-2); border-bottom-left-radius: 5px; }
+  .msg.wakil { align-self: flex-end; background: var(--indigo); color: var(--on-indigo); border-bottom-right-radius: 5px; }
+  .msg.equipe { align-self: flex-end; background: var(--gold); color: #1b2066; border-bottom-right-radius: 5px; }
+  .msg a { color: inherit; }
+  .composer { display: flex; gap: 10px; align-items: flex-end; }
+  .composer textarea { resize: none; min-height: 48px; max-height: 160px; }
+  .note { border-radius: 14px; padding: 12px 14px; background: var(--surface-2); color: var(--muted); font-weight: 500; margin: 0; }
+
+  /* Essai */
+  .tester { display: grid; grid-template-rows: minmax(0, 1fr) auto; height: min(68vh, 680px); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+  .tester .thread { border: 0; border-radius: 0; max-height: none; height: 100%; }
+  .tester form { border-top: 1px solid var(--line); padding: 10px; }
+  .typing { align-self: flex-end; display: flex; gap: 4px; padding: 12px 14px; border-radius: 16px; background: var(--indigo-soft); }
+  .typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--indigo); animation: dot 1.2s infinite ease-in-out; }
+  .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes dot { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .typing i { animation: none; opacity: .7; } }
+
+  /* Réglages */
+  .settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 14px; align-items: start; }
+  .settings .card { display: grid; gap: 12px; min-width: 0; }
+  .settings .card > * { min-width: 0; overflow-wrap: anywhere; }
+  .copy { display: flex; gap: 8px; align-items: stretch; }
+  .copy code { flex: 1; min-width: 0; background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 13px; overflow-x: auto; white-space: nowrap; }
+  .products { display: grid; gap: 6px; max-height: 320px; overflow-y: auto; }
+  .products div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); font-size: 14px; }
+  .ok { color: var(--ok); font-weight: 700; } .ko { color: var(--danger); font-weight: 700; }
+
+  /* Feuille « Plus » et notifications */
+  .sheet { position: fixed; inset: 0; z-index: 40; background: rgba(10, 12, 30, .45); display: grid; align-items: end; }
+  .sheet div { background: var(--surface); border-radius: 22px 22px 0 0; padding: 14px max(16px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); display: grid; gap: 6px; }
+  .sheet a, .sheet button { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 14px; border: 0; background: var(--surface-2); text-decoration: none; color: var(--ink); font-weight: 700; text-align: left; }
+  .toast { position: fixed; z-index: 50; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--ink); color: var(--bg);
+           padding: 12px 18px; border-radius: 999px; font-weight: 700; box-shadow: 0 12px 30px -10px rgba(0,0,0,.5); max-width: calc(100vw - 32px); }
+  @media (min-width: 900px) { .toast { bottom: 28px; } }
+  .loading { color: var(--muted); padding: 30px 0; text-align: center; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/></g></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0M16 4.5a3.5 3.5 0 0 1 0 7M18 20a6 6 0 0 0-2.5-4.9"/></g></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></g></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><g fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></g></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l-4-4 4-4M6 12h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-web" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></g></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<div id="app"></div>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(() => {
+  const app = document.getElementById("app");
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const icon = (id, cls = "i") => `<svg class="${cls}" aria-hidden="true"><use href="#${id}"/></svg>`;
+  const store = {
+    get: (k) => { try { return localStorage.getItem("wakil-app:" + k); } catch { return null; } },
+    set: (k, v) => { try { v == null ? localStorage.removeItem("wakil-app:" + k) : localStorage.setItem("wakil-app:" + k, v); } catch {} },
+  };
+  const digits = (s) => String(s ?? "").replace(/\D/g, "");
+  const waLink = (phone) => `https://wa.me/${digits(phone)}`;
+  const format = (t) => esc(t)
+    .replace(/(https?:\/\/[^\s<]+[^\s<.,;:!?)])/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+    .replace(/(^|[\s(])\*([^*\n]+)\*/g, "$1<strong>$2</strong>")
+    .replace(/\n/g, "<br>");
+
+  const state = { token: store.get("token"), tenants: [], tenant: store.get("tenant"), overview: null, filter: {} };
+  let refreshTimer = null;
+
+  /* ---------- API ---------- */
+  async function api(path, body) {
+    const res = await fetch("/api/" + path, {
+      method: body ? "POST" : "GET",
+      headers: { "content-type": "application/json", ...(state.token ? { authorization: "Bearer " + state.token } : {}) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401 && path !== "login") { logout(); throw new Error("unauthorized"); }
+    if (!res.ok) throw Object.assign(new Error(data.error || "error"), { code: data.error || "error", data });
+    return data;
+  }
+  const withTenant = (path) => `${path}${path.includes("?") ? "&" : "?"}tenant=${encodeURIComponent(state.tenant)}`;
+
+  function toast(text) {
+    const t = document.getElementById("toast");
+    t.textContent = text; t.hidden = false;
+    clearTimeout(t._h); t._h = setTimeout(() => (t.hidden = true), 3200);
+  }
+
+  /* ---------- Dates ---------- */
+  const time = (ms) => new Date(ms).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  function ago(ms) {
+    const d = Date.now() - ms, min = Math.round(d / 60000);
+    if (min < 1) return "à l'instant";
+    if (min < 60) return `il y a ${min} min`;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (ms >= today.getTime()) return time(ms);
+    if (ms >= today.getTime() - 86400000) return `hier ${time(ms)}`;
+    return new Date(ms).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  }
+
+  /* ---------- Connexion ---------- */
+  function renderLogin(message = "") {
+    stopRefresh();
+    app.innerHTML = `
+      <div class="login">
+        <form id="login-form">
+          <div class="logo">${icon("logo", "")}<b>wakil</b></div>
+          <div><h1>Votre espace</h1><p class="muted" style="margin:6px 0 0">Suivez vos conversations, vos commandes et testez votre assistant.</p></div>
+          <label for="password">Mot de passe<input id="password" type="password" autocomplete="current-password" required></label>
+          <p class="error" role="alert">${esc(message)}</p>
+          <button class="btn primary" type="submit">Se connecter</button>
+        </form>
+      </div>`;
+    const form = document.getElementById("login-form");
+    form.password.focus();
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = form.querySelector("button"); btn.disabled = true;
+      try {
+        const { token } = await api("login", { password: form.password.value });
+        state.token = token; store.set("token", token);
+        await start();
+      } catch (err) {
+        const msg = {
+          wrong_password: "Mot de passe incorrect.",
+          rate_limited: "Trop d'essais. Patientez une minute.",
+          not_configured: "Le mot de passe n'est pas encore défini : ajoutez le secret ADMIN_PASSWORD sur Cloudflare.",
+        }[err.code] || "Connexion impossible. Vérifiez votre réseau et réessayez.";
+        form.querySelector(".error").textContent = msg;
+        btn.disabled = false;
+      }
+    });
+  }
+
+  function logout() {
+    state.token = null; store.set("token", null);
+    renderLogin();
+  }
+
+  /* ---------- Coquille ---------- */
+  const NAV = [
+    { id: "accueil", label: "Accueil", icon: "i-home" },
+    { id: "conversations", label: "Conversations", short: "Messages", icon: "i-chat" },
+    { id: "commandes", label: "Commandes", icon: "i-box" },
+    { id: "tester", label: "Tester", icon: "i-spark" },
+    { id: "demandes", label: "Demandes", icon: "i-users" },
+    { id: "reglages", label: "Réglages", icon: "i-gear" },
+  ];
+  const badgeFor = (id) => {
+    const o = state.overview; if (!o) return 0;
+    return { commandes: o.newOrders, conversations: o.waitingForTeam, demandes: o.newLeads }[id] || 0;
+  };
+
+  function renderShell() {
+    const options = state.tenants.map((t) => `<option value="${esc(t.id)}" ${t.id === state.tenant ? "selected" : ""}>${esc(t.businessName)}${t.demo ? " (démo)" : ""}</option>`).join("");
+    const tenantSelect = (id) => `<label class="tenant"><span class="sr">Entreprise</span><select id="${id}">${options}</select></label>`;
+    app.innerHTML = `
+      <div class="shell">
+        <aside class="side">
+          <a class="brand" href="#accueil">${icon("logo", "")}<b>wakil</b></a>
+          ${tenantSelect("tenant-side")}
+          <nav class="nav" aria-label="Menu" id="nav"></nav>
+          <div class="bottom"><button type="button" id="logout">${icon("i-out")}Se déconnecter</button></div>
+        </aside>
+        <header class="topbar"><a class="brand" href="#accueil">${icon("logo", "")}<b>wakil</b></a>${tenantSelect("tenant-top")}</header>
+        <main id="main"></main>
+        <nav class="tabs" aria-label="Menu" id="tabs"></nav>
+      </div>`;
+    for (const id of ["tenant-side", "tenant-top"]) {
+      document.getElementById(id).addEventListener("change", (e) => {
+        state.tenant = e.target.value; store.set("tenant", state.tenant);
+        document.querySelectorAll(".tenant select").forEach((s) => (s.value = state.tenant));
+        location.hash = "#accueil"; route();
+      });
+    }
+    document.getElementById("logout").addEventListener("click", logout);
+    paintNav();
+  }
+
+  function paintNav() {
+    const current = (location.hash.slice(1) || "accueil").split("/")[0];
+    const nav = document.getElementById("nav"), tabs = document.getElementById("tabs");
+    if (!nav) return;
+    nav.innerHTML = NAV.map((n) => {
+      const b = badgeFor(n.id);
+      return `<a href="#${n.id}" ${n.id === current ? 'aria-current="page"' : ""}>${icon(n.icon)}${n.label}${b ? `<span class="badge">${b}</span>` : ""}</a>`;
+    }).join("");
+    const main = NAV.slice(0, 4);
+    const moreActive = !main.some((n) => n.id === current);
+    tabs.innerHTML = main.map((n) => `<a href="#${n.id}" ${n.id === current ? 'aria-current="page"' : ""}>${icon(n.icon)}${n.short || n.label}${badgeFor(n.id) ? '<span class="dot" aria-label="à traiter"></span>' : ""}</a>`).join("")
+      + `<button type="button" id="more" ${moreActive ? 'aria-current="page"' : ""}>${icon("i-more")}Plus${badgeFor("demandes") ? '<span class="dot"></span>' : ""}</button>`;
+    document.getElementById("more").addEventListener("click", openMore);
+  }
+
+  function openMore() {
+    const sheet = document.createElement("div");
+    sheet.className = "sheet";
+    sheet.innerHTML = `<div role="dialog" aria-label="Plus">
+      <a href="#demandes">${icon("i-users")}Demandes${badgeFor("demandes") ? ` (${badgeFor("demandes")})` : ""}</a>
+      <a href="#reglages">${icon("i-gear")}Réglages</a>
+      <button type="button" data-out>${icon("i-out")}Se déconnecter</button></div>`;
+    const close = () => sheet.remove();
+    sheet.addEventListener("click", (e) => {
+      if (e.target === sheet || e.target.closest("a")) close();
+      if (e.target.closest("[data-out]")) { close(); logout(); }
+    });
+    document.body.appendChild(sheet);
+    sheet.querySelector("a").focus();
+  }
+
+  async function refreshOverview() {
+    try { state.overview = await api(withTenant("overview")); paintNav(); } catch {}
+  }
+
+  function stopRefresh() { clearInterval(refreshTimer); refreshTimer = null; }
+  function every(ms, fn) { stopRefresh(); refreshTimer = setInterval(() => { if (!document.hidden) fn(); }, ms); }
+
+  /* ---------- Vues ---------- */
+  const main = () => document.getElementById("main");
+  const tenantInfo = () => state.tenants.find((t) => t.id === state.tenant) || {};
+
+  async function viewAccueil() {
+    const t = tenantInfo();
+    main().innerHTML = `<div class="view"><div class="loading">Chargement…</div></div>`;
+    const [o, orders, convs] = await Promise.all([api(withTenant("overview")), api(withTenant("orders")), api(withTenant("conversations"))]);
+    state.overview = o; paintNav();
+    const hour = new Date().getHours();
+    const todo = [
+      ...convs.filter((c) => c.status === "equipe" && !c.test).map((c) => ({ at: c.lastAt, html: convRow(c, "Attend une réponse de l'équipe") })),
+      ...orders.filter((x) => x.status === "nouvelle").map((x) => ({ at: x.createdAt, html: orderRow(x) })),
+    ].sort((a, b) => b.at - a.at).slice(0, 8);
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>${hour < 18 ? "Bonjour" : "Bonsoir"}</h1><p class="muted">${esc(t.businessName)}${t.demo ? " · entreprise de démonstration" : ""} · ${new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</p></div></div>
+        <div class="stats">
+          <a class="stat ${o.newOrders ? "hot" : ""}" href="#commandes"><b>${o.newOrders}</b><span>Commandes à traiter</span></a>
+          <a class="stat ${o.waitingForTeam ? "hot" : ""}" href="#conversations"><b>${o.waitingForTeam}</b><span>Clients qui attendent l'équipe</span></a>
+          <a class="stat" href="#conversations"><b>${o.conversationsToday}</b><span>Conversations aujourd'hui</span></a>
+          <a class="stat" href="#commandes"><b>${o.ordersThisWeek}</b><span>Commandes sur 7 jours</span></a>
+        </div>
+        <section class="list" aria-labelledby="todo"><h2 id="todo">À faire maintenant</h2>
+          ${todo.length ? todo.map((x) => x.html).join("") : `<div class="card empty">${icon("i-check")}<b>Tout est à jour.</b><span>Wakil s'occupe de vos clients. Les nouvelles commandes et les clients qui demandent l'équipe apparaîtront ici.</span></div>`}
+        </section>
+      </div>`;
+    every(20000, () => location.hash.startsWith("#accueil") || !location.hash ? viewAccueil().catch(() => {}) : null);
+  }
+
+  function initials(c) {
+    const n = c.name || (c.channel === "web" ? "Site" : c.phone || "?");
+    return esc(n.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase());
+  }
+  const convName = (c) => c.name || (c.phone ? "+" + c.phone : "Visiteur du site");
+  const chan = (c) => c.channel === "web" ? `<span class="chan">${icon("i-web")}Site web</span>` : `<span class="chan whatsapp">${icon("i-wa")}WhatsApp</span>`;
+  const statusPill = (s) => s === "equipe" ? `<span class="pill equipe">Équipe</span>` : `<span class="pill wakil">Wakil répond</span>`;
+  const fromLabel = { client: "", wakil: "Wakil : ", equipe: "Vous : " };
+
+  function convRow(c, override) {
+    return `<a class="row" href="#conversations/${encodeURIComponent(c.key)}">
+      <div class="av ${c.status}">${initials(c)}</div>
+      <div style="min-width:0"><div class="who"><b>${esc(convName(c))}</b>${chan(c)}${statusPill(c.status)}${c.test ? '<span class="pill annulee">Essai</span>' : ""}</div>
+      <div class="last">${override ? esc(override) : esc(fromLabel[c.lastFrom] + c.lastText)}</div></div>
+      <time datetime="${new Date(c.lastAt).toISOString()}">${ago(c.lastAt)}</time></a>`;
+  }
+
+  function orderRow(o) {
+    const items = o.items.map((i) => `${i.quantity} ${i.unit}${i.quantity > 1 ? "s" : ""} ${i.productName}`).join(", ");
+    return `<a class="row" href="#commandes">
+      <div class="av equipe">${icon("i-box")}</div>
+      <div style="min-width:0"><div class="who"><b>${esc(o.customerName)}</b><span class="pill nouvelle">Nouvelle commande</span></div>
+      <div class="last">${esc(items)}</div></div>
+      <time>${ago(o.createdAt)}</time></a>`;
+  }
+
+  async function viewConversations() {
+    const q = state.filter.q || "", only = state.filter.only || "all";
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>Conversations</h1><p class="muted">Tout ce que vos clients ont écrit, et ce que Wakil a répondu.</p></div></div>
+        <label for="search"><span class="sr">Rechercher</span><input id="search" type="search" placeholder="Rechercher un nom, un numéro, un mot…" value="${esc(q)}"></label>
+        <div class="chips" role="group" aria-label="Filtrer">
+          <button class="chip" type="button" data-only="all" aria-pressed="${only === "all"}">Toutes</button>
+          <button class="chip" type="button" data-only="equipe" aria-pressed="${only === "equipe"}">Attendent l'équipe</button>
+          <button class="chip" type="button" data-only="whatsapp" aria-pressed="${only === "whatsapp"}">WhatsApp</button>
+          <button class="chip" type="button" data-only="web" aria-pressed="${only === "web"}">Site web</button>
+        </div>
+        <div class="list" id="conv-list"><div class="loading">Chargement…</div></div>
+      </div>`;
+    const search = document.getElementById("search");
+    let debounce;
+    search.addEventListener("input", () => { clearTimeout(debounce); debounce = setTimeout(() => { state.filter.q = search.value; loadList(); }, 250); });
+    main().querySelectorAll("[data-only]").forEach((b) => b.addEventListener("click", () => { state.filter.only = b.dataset.only; viewConversations(); }));
+    async function loadList() {
+      const list = await api(withTenant(`conversations?q=${encodeURIComponent(state.filter.q || "")}`));
+      const shown = list.filter((c) => only === "all" || c.status === only || c.channel === only);
+      const el = document.getElementById("conv-list"); if (!el) return;
+      el.innerHTML = shown.length ? shown.map((c) => convRow(c)).join("")
+        : `<div class="card empty">${icon("i-chat")}<b>${state.filter.q ? "Aucun résultat." : "Pas encore de conversation."}</b><span>${state.filter.q ? "Essayez un autre mot." : "Les messages de vos clients sur WhatsApp et sur votre site apparaîtront ici."}</span></div>`;
+    }
+    await loadList();
+    every(15000, loadList);
+  }
+
+  async function viewConversation(key) {
+    main().innerHTML = `<div class="view"><div class="loading">Chargement…</div></div>`;
+    const draw = async (keepDraft) => {
+      const c = await api(`conversations/${encodeURIComponent(key)}`);
+      const draft = keepDraft ? document.getElementById("reply")?.value : "";
+      const paused = c.handoffUntil > Date.now();
+      main().innerHTML = `
+        <div class="view conv">
+          <div class="conv-head">
+            <a class="back" href="#conversations" aria-label="Retour aux conversations">${icon("i-back")}</a>
+            <div class="av ${paused ? "equipe" : ""}">${initials(c)}</div>
+            <div style="min-width:0;flex:1"><h1 style="font-size:22px">${esc(convName(c))}</h1><div class="who" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">${chan(c)}${c.test ? '<span class="pill annulee">Essai</span>' : ""}</div></div>
+            ${c.phone ? `<a class="btn small wa-open" href="${waLink(c.phone)}" target="_blank" rel="noopener">${icon("i-wa")}<span>Ouvrir dans WhatsApp</span></a>` : ""}
+          </div>
+          <div class="status ${paused ? "equipe" : "wakil"}">
+            <p>${paused ? `Vous avez la main jusqu'à ${time(c.handoffUntil)} : Wakil ne répond pas à ce client.` : "Wakil répond à ce client."}</p>
+            <button class="btn small ${paused ? "primary" : "gold"}" type="button" id="toggle">${paused ? "Rendre à Wakil" : "Prendre la main"}</button>
+          </div>
+          <div class="thread" id="thread" role="log" aria-label="Messages">
+            ${c.log.length ? c.log.map((m) => `<div class="msg ${m.from}"><small>${{ client: esc(convName(c)), wakil: "Wakil", equipe: "Vous" }[m.from]} · ${ago(m.at)}</small><span>${format(m.text)}</span></div>`).join("") : '<p class="muted">Aucun message.</p>'}
+          </div>
+          ${c.channel === "whatsapp" ? `
+            <form class="composer" id="reply-form">
+              <label for="reply" class="sr">Votre réponse</label>
+              <textarea id="reply" rows="1" maxlength="4000" placeholder="Répondre au client sur WhatsApp…">${esc(draft)}</textarea>
+              <button class="btn primary" type="submit" aria-label="Envoyer">${icon("i-send")}</button>
+            </form>
+            <p class="muted" style="margin:0;font-size:13px">Quand vous répondez, Wakil se met en retrait pour vous laisser continuer.</p>`
+          : `<p class="note">Ce client écrit depuis le site web : vous ne pouvez pas lui répondre d'ici. ${c.phone ? `Contactez-le au <b>+${esc(c.phone)}</b>.` : "Wakil lui demandera son numéro s'il passe commande."}</p>`}
+        </div>`;
+      const thread = document.getElementById("thread"); thread.scrollTop = thread.scrollHeight;
+      document.getElementById("toggle").addEventListener("click", async (e) => {
+        e.target.disabled = true;
+        try { await api(`conversations/${encodeURIComponent(key)}/${paused ? "resume" : "pause"}`, {}); toast(paused ? "Wakil reprend la conversation." : "Vous avez la main."); }
+        catch { toast("L'action n'a pas abouti. Réessayez."); }
+        await draw(true); refreshOverview();
+      });
+      const form = document.getElementById("reply-form");
+      if (form) {
+        const ta = form.reply;
+        const grow = () => { ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 160) + "px"; };
+        ta.addEventListener("input", grow); grow();
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const text = ta.value.trim(); if (!text) return;
+          const btn = form.querySelector("button"); btn.disabled = true;
+          try {
+            await api(`conversations/${encodeURIComponent(key)}/reply`, { text });
+            ta.value = ""; toast("Message envoyé."); await draw(false); refreshOverview();
+          } catch (err) {
+            btn.disabled = false;
+            toast({
+              window_closed: "Le client n'a pas écrit depuis plus de 24 h : WhatsApp bloque les messages libres. Appelez-le ou écrivez-lui depuis votre téléphone.",
+              send_failed: "WhatsApp a refusé l'envoi. Vérifiez la configuration du numéro.",
+            }[err.code] || "Envoi impossible. Réessayez.");
+          }
+        });
+      }
+    };
+    await draw(false);
+    every(10000, () => { if (document.activeElement?.id !== "reply") draw(true).catch(() => {}); });
+  }
+
+  const ORDER_LABEL = { nouvelle: "Nouvelle", confirmee: "Confirmée", livree: "Livrée", annulee: "Annulée" };
+  async function viewCommandes() {
+    const only = state.filter.order || "nouvelle";
+    main().innerHTML = `<div class="view"><div class="head"><div><h1>Commandes</h1><p class="muted">Les demandes que Wakil a prises, à confirmer avec vos clients.</p></div></div><div class="loading">Chargement…</div></div>`;
+    const orders = await api(withTenant("orders"));
+    const count = (s) => orders.filter((o) => s === "toutes" || o.status === s).length;
+    const shown = orders.filter((o) => only === "toutes" || o.status === only);
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>Commandes</h1><p class="muted">Les demandes que Wakil a prises, à confirmer avec vos clients.</p></div></div>
+        <div class="chips" role="group" aria-label="Filtrer">
+          ${["nouvelle", "confirmee", "livree", "annulee", "toutes"].map((s) => `<button class="chip" type="button" data-s="${s}" aria-pressed="${only === s}">${s === "toutes" ? "Toutes" : ORDER_LABEL[s] + "s"}<span class="n">${count(s)}</span></button>`).join("")}
+        </div>
+        ${shown.length ? `<div class="orders">${shown.map(orderCard).join("")}</div>`
+          : `<div class="card empty">${icon("i-box")}<b>${only === "nouvelle" ? "Aucune commande à traiter." : "Rien ici pour le moment."}</b><span>Quand un client confirme une commande avec Wakil, elle arrive ici et sur votre WhatsApp.</span></div>`}
+      </div>`;
+    main().querySelectorAll("[data-s]").forEach((b) => b.addEventListener("click", () => { state.filter.order = b.dataset.s; viewCommandes(); }));
+    main().querySelectorAll("[data-set]").forEach((b) => b.addEventListener("click", async () => {
+      b.disabled = true;
+      try { await api(`orders/${encodeURIComponent(b.dataset.ref)}`, { status: b.dataset.set }); toast(`Commande ${b.dataset.ref} : ${ORDER_LABEL[b.dataset.set].toLowerCase()}.`); }
+      catch { toast("La mise à jour n'a pas abouti. Réessayez."); }
+      await viewCommandes(); refreshOverview();
+    }));
+  }
+
+  function orderCard(o) {
+    const next = { nouvelle: [["confirmee", "Confirmer", "primary"], ["annulee", "Annuler", "danger"]],
+                   confirmee: [["livree", "Marquer livrée", "primary"], ["annulee", "Annuler", "danger"]],
+                   livree: [], annulee: [["nouvelle", "Remettre à traiter", ""]] }[o.status];
+    return `<article class="card order">
+      <div class="top"><span class="ref">${esc(o.reference)}</span><span class="pill ${o.status}">${ORDER_LABEL[o.status]}</span></div>
+      <div><b>${esc(o.customerName)}</b> <span class="muted">· +${esc(o.customerPhone)} · ${ago(o.createdAt)}</span></div>
+      <ul>${o.items.map((i) => `<li><span>${esc(i.productName)}</span><b>${esc(i.quantity)} ${esc(i.unit)}${i.quantity > 1 ? "s" : ""}</b></li>`).join("")}</ul>
+      <dl>
+        <dt>${o.fulfilment === "livraison" ? "Livraison" : "Retrait"}</dt><dd>${o.fulfilment === "livraison" ? esc(o.deliveryLocation) : "Enlèvement sur site"}</dd>
+        ${o.desiredDate ? `<dt>Date</dt><dd>${esc(o.desiredDate)}</dd>` : ""}
+        ${o.notes ? `<dt>Notes</dt><dd>${esc(o.notes)}</dd>` : ""}
+        <dt>Canal</dt><dd>${o.channel === "web" ? "Site web" : "WhatsApp"}</dd>
+      </dl>
+      <div class="actions">
+        ${next.map(([s, label, cls]) => `<button class="btn small ${cls}" type="button" data-set="${s}" data-ref="${esc(o.reference)}">${label}</button>`).join("")}
+        <a class="btn small ghost" href="${waLink(o.customerPhone)}" target="_blank" rel="noopener">${icon("i-wa")}Écrire</a>
+        ${o.conversationKey ? `<a class="btn small ghost" href="#conversations/${encodeURIComponent(o.conversationKey)}">Conversation</a>` : ""}
+      </div>
+    </article>`;
+  }
+
+  async function viewDemandes() {
+    main().innerHTML = `<div class="view"><div class="head"><div><h1>Demandes</h1></div></div><div class="loading">Chargement…</div></div>`;
+    const leads = await api("leads");
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>Demandes</h1><p class="muted">Les entreprises qui veulent essayer Wakil (formulaire du site de Wakil).</p></div></div>
+        ${leads.length ? `<div class="orders">${leads.map((l) => `
+          <article class="card order">
+            <div class="top"><b>${esc(l.company)}</b><span class="pill ${l.status}">${l.status === "nouvelle" ? "À contacter" : "Contactée"}</span></div>
+            <div>${esc(l.name)} <span class="muted">· ${ago(l.createdAt)}</span></div>
+            <dl>
+              ${l.sector ? `<dt>Secteur</dt><dd>${esc(l.sector)}</dd>` : ""}
+              ${l.city ? `<dt>Ville</dt><dd>${esc(l.city)}</dd>` : ""}
+              <dt>WhatsApp</dt><dd>+${esc(l.phone)}</dd>
+              ${l.message ? `<dt>Message</dt><dd>${esc(l.message)}</dd>` : ""}
+            </dl>
+            <div class="actions">
+              <a class="btn small primary" href="${waLink(l.phone)}" target="_blank" rel="noopener">${icon("i-wa")}Écrire sur WhatsApp</a>
+              <button class="btn small" type="button" data-lead="${l.id}" data-status="${l.status === "nouvelle" ? "contactee" : "nouvelle"}">${l.status === "nouvelle" ? "Marquer contactée" : "Remettre à contacter"}</button>
+            </div>
+          </article>`).join("")}</div>`
+        : `<div class="card empty">${icon("i-users")}<b>Pas encore de demande.</b><span>Les entreprises qui remplissent « Essayer Wakil » sur votre site apparaîtront ici.</span></div>`}
+      </div>`;
+    main().querySelectorAll("[data-lead]").forEach((b) => b.addEventListener("click", async () => {
+      b.disabled = true;
+      try { await api(`leads/${b.dataset.lead}`, { status: b.dataset.status }); } catch { toast("La mise à jour n'a pas abouti."); }
+      await viewDemandes(); refreshOverview();
+    }));
+  }
+
+  const TRIES = ["Bonjour, vous avez quoi comme gravier ?", "Il me faut du sable pour un mur de 10 m", "C'est combien la tonne ?", "Je veux parler à quelqu'un"];
+  function viewTester() {
+    let session = sessionStorage.getItem("wakil-app:test-" + state.tenant);
+    if (!session) { session = crypto.randomUUID().replace(/-/g, ""); sessionStorage.setItem("wakil-app:test-" + state.tenant, session); }
+    const t = tenantInfo();
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>Tester mon assistant</h1><p class="muted">Écrivez comme un client de ${esc(t.businessName)}. Les commandes d'essai ne sont pas enregistrées et personne n'est prévenu.</p></div>
+          <button class="btn small" type="button" id="restart">Recommencer</button></div>
+        <div class="chips">${TRIES.map((q) => `<button class="chip" type="button" data-q="${esc(q)}">${esc(q)}</button>`).join("")}</div>
+        <div class="tester">
+          <div class="thread" id="test-thread" role="log" aria-live="polite"><p class="muted" style="margin:auto;text-align:center">Votre conversation d'essai apparaîtra ici.</p></div>
+          <form class="composer" id="test-form"><label for="test-input" class="sr">Message</label>
+            <textarea id="test-input" rows="1" maxlength="1000" placeholder="Écrire un message…"></textarea>
+            <button class="btn primary" type="submit" aria-label="Envoyer">${icon("i-send")}</button></form>
+        </div>
+      </div>`;
+    const thread = document.getElementById("test-thread"), form = document.getElementById("test-form"), input = form.querySelector("textarea");
+    let busy = false;
+    const add = (cls, html) => {
+      thread.querySelector("p.muted")?.remove();
+      const d = document.createElement("div"); d.className = cls; d.innerHTML = html; thread.appendChild(d); thread.scrollTop = thread.scrollHeight; return d;
+    };
+    async function send(text) {
+      if (busy || !text) return; busy = true;
+      add("msg client", `<small>Vous (client)</small><span>${format(text)}</span>`);
+      const typing = add("typing", "<i></i><i></i><i></i>");
+      try {
+        const { replies } = await api("test-chat", { tenant: state.tenant, session, text });
+        typing.remove();
+        for (const r of replies) add("msg wakil", r.type === "image"
+          ? `<small>Wakil · photo</small><img src="${esc(r.url)}" alt="${esc(r.caption || "Photo du produit")}" style="max-width:220px;border-radius:10px">${r.caption ? `<span>${format(r.caption)}</span>` : ""}`
+          : `<small>Wakil</small><span>${format(r.text)}</span>`);
+      } catch {
+        typing.remove(); add("note", "Pas de réponse. Vérifiez la clé ANTHROPIC_API_KEY et réessayez.");
+      }
+      busy = false; input.focus();
+    }
+    form.addEventListener("submit", (e) => { e.preventDefault(); const v = input.value.trim(); input.value = ""; send(v); });
+    input.addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); form.requestSubmit(); } });
+    main().querySelectorAll("[data-q]").forEach((b) => b.addEventListener("click", () => send(b.dataset.q)));
+    document.getElementById("restart").addEventListener("click", () => { sessionStorage.removeItem("wakil-app:test-" + state.tenant); viewTester(); });
+    stopRefresh();
+  }
+
+  async function viewReglages() {
+    main().innerHTML = `<div class="view"><div class="head"><div><h1>Réglages</h1></div></div><div class="loading">Chargement…</div></div>`;
+    const s = await api(withTenant("settings"));
+    const copyBox = (id, text) => `<div class="copy"><code id="${id}">${esc(text)}</code><button class="btn small" type="button" data-copy="${id}">Copier</button></div>`;
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>Réglages</h1><p class="muted">${esc(s.businessName)} · assistant « ${esc(s.assistantName)} »</p></div></div>
+        <div class="settings">
+          <section class="card"><h2>WhatsApp</h2>
+            <p>${s.whatsappConfigured ? '<span class="ok">Numéro relié.</span>' : '<span class="ko">Numéro pas encore relié.</span> Ajoutez votre Phone number ID dans config/tenants.json.'}</p>
+            <p class="muted" style="margin:0">Adresse du webhook, à coller dans Meta → WhatsApp → Configuration :</p>
+            ${copyBox("webhook", s.webhookUrl)}
+            <p class="muted" style="margin:0">Commandes et alertes envoyées à : <b>${s.ownerPhone ? "+" + esc(s.ownerPhone) : "personne (démonstration)"}</b></p>
+          </section>
+          <section class="card"><h2>Chat sur votre site</h2>
+            <p class="muted" style="margin:0">Collez cette ligne avant &lt;/body&gt; sur votre site :</p>
+            ${copyBox("snippet", s.widgetSnippet)}
+            <p class="muted" style="margin:0">Sites autorisés : ${s.webOrigins.length ? s.webOrigins.map((o) => `<b>${esc(o)}</b>`).join(", ") : "aucun pour l'instant"}.</p>
+          </section>
+          <section class="card"><h2>Catalogue</h2>
+            ${s.catalogError ? '<p class="ko">Catalogue introuvable : vérifiez son adresse.</p>' : `<p><b>${s.products.length}</b> produits connus de Wakil. <a href="${esc(s.catalogUrl)}" target="_blank" rel="noopener">Voir la source</a></p>`}
+            <div class="products">${s.products.map((p) => `<div><span>${esc(p.name)}</span><span class="${p.available ? "muted" : "ko"}">${p.available ? (p.price ? esc(p.price) + " FCFA / " + esc(p.unit) : "sur devis") : "indisponible"}</span></div>`).join("")}</div>
+          </section>
+          <section class="card"><h2>Assistant</h2>
+            <p style="margin:0">Modèle : <b>${esc(s.model)}</b></p>
+            <p class="muted" style="margin:0">Ces réglages se changent dans les fichiers du projet (config/tenants.json, wrangler.jsonc).</p>
+          </section>
+        </div>
+      </div>`;
+    main().querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
+      const code = document.getElementById(b.dataset.copy);
+      try { await navigator.clipboard.writeText(code.textContent); toast("Copié."); }
+      catch { const r = document.createRange(); r.selectNodeContents(code); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Texte sélectionné : copiez-le."); }
+    }));
+    stopRefresh();
+  }
+
+  /* ---------- Navigation ---------- */
+  async function route() {
+    if (!state.token) return renderLogin();
+    if (!document.getElementById("main")) renderShell();
+    paintNav();
+    const [view, arg] = (location.hash.slice(1) || "accueil").split("/");
+    stopRefresh();
+    try {
+      if (view === "conversations" && arg) await viewConversation(decodeURIComponent(arg));
+      else await ({ accueil: viewAccueil, conversations: viewConversations, commandes: viewCommandes, tester: viewTester, demandes: viewDemandes, reglages: viewReglages }[view] || viewAccueil)();
+      main().querySelector("h1")?.setAttribute("tabindex", "-1");
+    } catch (err) {
+      if (err.message !== "unauthorized") main().innerHTML = `<div class="view"><div class="card empty"><b>Impossible de charger cette page.</b><span>Vérifiez votre connexion, puis réessayez.</span><button class="btn" type="button" onclick="location.reload()">Réessayer</button></div></div>`;
+    }
+  }
+
+  async function start() {
+    try {
+      state.tenants = await api("tenants");
+    } catch (err) {
+      if (err.message !== "unauthorized") renderLogin(err.code === "not_configured" ? "Le mot de passe n'est pas encore défini : ajoutez le secret ADMIN_PASSWORD sur Cloudflare." : "");
+      return;
+    }
+    if (!state.tenants.some((t) => t.id === state.tenant)) {
+      state.tenant = (state.tenants.find((t) => !t.demo) || state.tenants[0])?.id;
+      store.set("tenant", state.tenant);
+    }
+    renderShell();
+    await route();
+    refreshOverview();
+  }
+
+  addEventListener("hashchange", route);
+  state.token ? start() : renderLogin();
+})();
+</script>
+</body>
+</html>

@@ -368,6 +368,88 @@ describe("démonstration", () => {
   });
 });
 
+describe("fil de conversation et boîte de réception", () => {
+  it("garde le fil, signale la conversation et la commande", async () => {
+    const updates: unknown[] = [];
+    const orders: Order[] = [];
+    const inbox = {
+      conversation: async (u: unknown) => void updates.push(u),
+      order: async (o: Order) => void orders.push(o),
+    };
+    await enqueueMessage(storage, "PNID", msg("m1", { text: "1 tonne de 15/25, je viens chercher" }), NOW, 4000);
+    const { client } = fakeClaude([
+      {
+        stop_reason: "tool_use",
+        content: [
+          {
+            type: "tool_use",
+            id: "t1",
+            name: "record_order",
+            input: { customer_name: "K", items: [{ product_id: "gravier-15-25", quantity: 1 }], fulfilment: "enlevement" },
+          } as Anthropic.Beta.BetaContentBlock,
+        ],
+      },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "C'est noté." } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    await processPending(deps(client, { inbox }));
+    expect(await storage.get("log")).toEqual([
+      { from: "client", text: "1 tonne de 15/25, je viens chercher", at: NOW },
+      { from: "wakil", text: "C'est noté.", at: NOW },
+    ]);
+    expect(updates).toEqual([
+      { meta: expect.objectContaining({ customerId: CLIENT }), lastText: "C'est noté.", lastFrom: "wakil", at: NOW, status: "wakil" },
+    ]);
+    expect(orders.map((o) => o.channel)).toEqual(["whatsapp"]);
+  });
+
+  it("en mode essai, ne prévient personne et ne compte pas la commande", async () => {
+    const orders: Order[] = [];
+    const inbox = { conversation: async () => {}, order: async (o: Order) => void orders.push(o) };
+    await addIncoming(storage, { channel: "web", phoneNumberId: "PNID", customerId: "test-abcdefghijklmnop", test: true }, msg("m1", { from: "test-abcdefghijklmnop" }));
+    const { client } = fakeClaude([
+      {
+        stop_reason: "tool_use",
+        content: [
+          {
+            type: "tool_use",
+            id: "t1",
+            name: "record_order",
+            input: { customer_name: "K", items: [{ product_id: "gravier-15-25", quantity: 1 }], fulfilment: "enlevement", customer_phone: "+22507070707" },
+          } as Anthropic.Beta.BetaContentBlock,
+        ],
+      },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Noté." } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    const { replies, sink } = { replies: [] as string[], sink: { sendText: async (t: string) => void replies.push(t), sendImage: async () => {} } };
+    await processPending(deps(client, { inbox, sink }));
+    expect(replies).toEqual(["Noté."]);
+    expect(whatsapp.sent).toEqual([]);
+    expect(orders).toEqual([]);
+  });
+});
+
+describe("numéro du client sur WhatsApp", () => {
+  it("garde le numéro WhatsApp même si le modèle en donne un autre", async () => {
+    await enqueueMessage(storage, "PNID", msg("m1"), NOW, 4000);
+    const { client } = fakeClaude([
+      {
+        stop_reason: "tool_use",
+        content: [
+          {
+            type: "tool_use",
+            id: "t1",
+            name: "record_order",
+            input: { customer_name: "K", items: [{ product_id: "gravier-15-25", quantity: 1 }], fulfilment: "enlevement", customer_phone: "+225 05 05 05 05 05" },
+          } as Anthropic.Beta.BetaContentBlock,
+        ],
+      },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Noté." } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    await processPending(deps(client));
+    expect((await storage.get<Order[]>("orders"))![0].customerPhone).toBe(CLIENT);
+  });
+});
+
 describe("normalizePhone", () => {
   it("garde le format international et complète les numéros locaux", () => {
     expect(normalizePhone("07 07 07 07 07", "225")).toBe("2250707070707");

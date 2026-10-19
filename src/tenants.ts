@@ -20,3 +20,7 @@ export function findTenantById(id: string): { phoneNumberId: string; tenant: Ten
 export function isKnownWebOrigin(origin: string): boolean {
   return Object.values(TENANTS).some((t) => t.webOrigins?.includes(origin));
 }
+
+export function allTenants(): { phoneNumberId: string; tenant: Tenant }[] {
+  return Object.entries(TENANTS).map(([phoneNumberId, tenant]) => ({ phoneNumberId, tenant }));
+}

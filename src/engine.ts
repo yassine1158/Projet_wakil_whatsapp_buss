@@ -4,7 +4,7 @@ import { sanitizeHistory, trimHistory } from "./history";
 import { buildSystemPrompt, buildTurnContext } from "./prompt";
 import type { ToolContext } from "./tools";
 import type { Transcriber } from "./transcribe";
-import type { Catalog, ConversationMeta, IncomingMessage, Order, Tenant } from "./types";
+import type { Catalog, ConversationMeta, IncomingMessage, LogEntry, Order, Tenant } from "./types";
 import { bytesToBase64 } from "./encoding";
 
 type MessageParam = Anthropic.Beta.BetaMessageParam;
@@ -34,6 +34,7 @@ export interface ReplySink {
 }
 
 const MAX_SEEN = 100;
+const MAX_LOG = 200;
 const MAX_ORDERS = 50;
 /** Délai maximal d'attente avant de répondre quand le client enchaîne les messages. */
 const MAX_WAIT_MS = 15_000;
@@ -94,6 +95,25 @@ export async function enqueueMessage(
   return true;
 }
 
+/** Ajoute des lignes au fil de conversation lu par l'application. */
+export async function appendLog(storage: ConversationStorage, entries: LogEntry[]) {
+  if (!entries.length) return;
+  const log = (await storage.get<LogEntry[]>("log")) ?? [];
+  await storage.put("log", [...log, ...entries].slice(-MAX_LOG));
+}
+
+/** Ce que le moteur signale à la boîte de réception de l'application. */
+export interface InboxReporter {
+  conversation(update: {
+    meta: ConversationMeta;
+    lastText: string;
+    lastFrom: LogEntry["from"];
+    at: number;
+    status: "wakil" | "equipe";
+  }): Promise<void>;
+  order(order: Order): Promise<void>;
+}
+
 export async function pauseAssistant(storage: ConversationStorage, until: number) {
   await storage.put("handoffUntil", until);
 }
@@ -114,6 +134,7 @@ export interface EngineDeps {
   transcribe: Transcriber;
   loadCatalog: () => Promise<Catalog>;
   now: () => number;
+  inbox?: InboxReporter;
   log?: (message: string, err?: unknown) => void;
 }
 
@@ -133,10 +154,15 @@ export async function processPending(deps: EngineDeps): Promise<void> {
     sendText: (text) => whatsapp.sendText(meta.customerId, text),
     sendImage: (link, caption) => whatsapp.sendImage(meta.customerId, link, caption),
   };
-  const reply = (text: string) => sink.sendText(text).catch((e) => log("Envoi au client échoué", e));
   const now = deps.now();
+  const sent: LogEntry[] = [];
+  const reply = (text: string) => {
+    sent.push({ from: "wakil", text, at: now });
+    return sink.sendText(text).catch((e) => log("Envoi au client échoué", e));
+  };
   const history = (await storage.get<MessageParam[]>("history")) ?? [];
-  const notifyOwner = (text: string) => sendToOwner(deps, text).catch((e) => log("Notification patron échouée", e));
+  const notifyOwner = (text: string) =>
+    meta.test ? Promise.resolve() : sendToOwner(deps, text).catch((e) => log("Notification patron échouée", e));
 
   let catalog: Catalog | undefined;
   try {
@@ -146,7 +172,23 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   }
   const hint = catalog ? catalog.products.map((p) => p.name).join(", ") : "";
   const blocks: BlockParam[] = [];
-  for (const m of pending) blocks.push(...(await toContentBlocks(m, whatsapp, deps.transcribe, hint, log)));
+  const received: LogEntry[] = [];
+  for (const m of pending) {
+    const converted = await toContentBlocks(m, whatsapp, deps.transcribe, hint, log);
+    blocks.push(...converted);
+    received.push({ from: "client", text: blocksToText(converted) || `[${m.rawType}]`, at: m.timestamp || now });
+  }
+
+  // À chaque sortie : fil de conversation à jour et résumé envoyé à l'application.
+  const finish = async () => {
+    await appendLog(storage, [...received, ...sent]);
+    if (!deps.inbox) return;
+    const last = sent.at(-1) ?? received.at(-1)!;
+    const paused = now < ((await storage.get<number>("handoffUntil")) ?? 0);
+    await deps.inbox
+      .conversation({ meta, lastText: last.text, lastFrom: last.from, at: now, status: paused ? "equipe" : "wakil" })
+      .catch((e) => log("Mise à jour de la boîte de réception échouée", e));
+  };
 
   // Conversation confiée à un conseiller : l'assistant se tait et fait suivre au patron.
   const handoffUntil = (await storage.get<number>("handoffUntil")) ?? 0;
@@ -154,6 +196,7 @@ export async function processPending(deps: EngineDeps): Promise<void> {
     await notifyOwner(`💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}${contactLine(meta)}`);
     if (isWeb) await reply(WEB_HANDOFF_REPLY);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
+    await finish();
     return;
   }
 
@@ -165,12 +208,15 @@ export async function processPending(deps: EngineDeps): Promise<void> {
     await reply(TECHNICAL_ISSUE_REPLY);
     await notifyOwner(`⚠️ Wakil n'a pas pu charger le catalogue. Message de ${who(meta)} :\n${blocksToText(blocks)}${contactLine(meta)}`);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
+    await finish();
     return;
   }
 
   const userContent: BlockParam[] = [{ type: "text", text: buildTurnContext(tenant, meta, now) }, ...blocks];
 
+  // Sur WhatsApp, le numéro du client est celui qui écrit : il ne change pas.
   const rememberPhone = async (raw: string | undefined) => {
+    if (meta.channel === "whatsapp") return meta.customerPhone;
     const phone = normalizePhone(raw, tenant.defaultCountryCode);
     if (phone && phone !== meta.customerPhone) {
       meta.customerPhone = phone;
@@ -181,7 +227,10 @@ export async function processPending(deps: EngineDeps): Promise<void> {
 
   const toolContext: ToolContext = {
     catalog,
-    sendImage: (link, caption) => sink.sendImage(link, caption),
+    sendImage: (link, caption) => {
+      sent.push({ from: "wakil", text: `[Photo] ${caption ?? ""}`.trim(), at: now });
+      return sink.sendImage(link, caption);
+    },
     saveOrder: async (data, phone) => {
       const customerPhone = await rememberPhone(phone);
       if (!customerPhone) return null;
@@ -195,6 +244,7 @@ export async function processPending(deps: EngineDeps): Promise<void> {
       const orders = (await storage.get<Order[]>("orders")) ?? [];
       await storage.put("orders", [...orders, order].slice(-MAX_ORDERS));
       await notifyOwner(formatOrderForOwner(order));
+      if (!meta.test) await deps.inbox?.order(order).catch((e) => log("Commande non transmise à l'application", e));
       return order;
     },
     requestHuman: async (reason, summary, phone) => {
@@ -224,11 +274,13 @@ export async function processPending(deps: EngineDeps): Promise<void> {
     await reply(TECHNICAL_ISSUE_REPLY);
     await notifyOwner(`⚠️ Wakil n'a pas pu répondre à ${who(meta)} :\n${blocksToText(blocks)}${contactLine(meta)}`);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
+    await finish();
     return;
   }
 
   for (const text of result.replies.length ? result.replies : [TECHNICAL_ISSUE_REPLY]) await reply(text);
   await saveHistory(storage, [...history, ...result.newMessages]);
+  await finish();
 }
 
 async function saveHistory(storage: ConversationStorage, messages: MessageParam[]) {

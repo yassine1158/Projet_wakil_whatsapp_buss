@@ -1,12 +1,18 @@
 import type { ConversationDO } from "./conversation-do";
+import type { InboxDO } from "./inbox-do";
 
 /** Bindings et variables du Worker (voir wrangler.jsonc et .dev.vars.example). */
 export interface Env {
   CONVERSATIONS: DurableObjectNamespace<ConversationDO>;
+  INBOX: DurableObjectNamespace<InboxDO>;
+  /** Mot de passe de l'application (/app). */
+  ADMIN_PASSWORD?: string;
   AI: Ai;
   /** Limite le nombre de messages du chat web par adresse IP (facultatif). */
   CHAT_LIMITER?: RateLimit;
   ANTHROPIC_API_KEY: string;
+  /** Facultatif : passer les appels au modèle par Cloudflare AI Gateway (suivi des coûts). */
+  ANTHROPIC_BASE_URL?: string;
   WHATSAPP_TOKEN: string;
   WHATSAPP_APP_SECRET: string;
   WHATSAPP_VERIFY_TOKEN: string;
@@ -59,6 +65,15 @@ export interface ConversationMeta {
   /** Connu d'office sur WhatsApp ; demandé au client sur le chat web. */
   customerPhone?: string;
   customerName?: string;
+  /** Conversation d'essai lancée depuis l'application : personne n'est prévenu. */
+  test?: boolean;
+}
+
+/** Une ligne du fil de conversation affiché dans l'application. */
+export interface LogEntry {
+  from: "client" | "wakil" | "equipe";
+  text: string;
+  at: number;
 }
 
 export type IncomingKind = "text" | "audio" | "image" | "location" | "unsupported";

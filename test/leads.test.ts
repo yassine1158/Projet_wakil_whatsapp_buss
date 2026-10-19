@@ -7,9 +7,9 @@ const SITE = "https://wakil.example";
 function fakeEnv(limited = false) {
   const saved: Lead[] = [];
   const env = {
-    CONVERSATIONS: {
+    INBOX: {
       idFromName: (n: string) => n,
-      get: () => ({ saveLead: async (l: Lead) => void saved.push(l) }),
+      get: () => ({ addLead: async (l: Lead) => void saved.push(l) }),
     },
     CHAT_LIMITER: { limit: async () => ({ success: !limited }) },
   } as unknown as Env;

@@ -16,7 +16,7 @@
   const API = new URL(script.src).origin;
   const tenant = script.dataset.tenant;
   if (!tenant) return console.warn("Wakil : attribut data-tenant manquant");
-  const accent = /^#[0-9a-f]{3,8}$/i.test(script.dataset.accent || "") ? script.dataset.accent : "#155e46";
+  const accent = /^#[0-9a-f]{3,8}$/i.test(script.dataset.accent || "") ? script.dataset.accent : "#2d3a9e";
   const onAccent = /^#[0-9a-f]{3,8}$/i.test(script.dataset.onAccent || "") ? script.dataset.onAccent : "#ffffff";
   const side = script.dataset.position === "right" ? "right" : "left";
   const offset = Math.max(0, Math.min(400, parseInt(script.dataset.offset, 10) || 24));

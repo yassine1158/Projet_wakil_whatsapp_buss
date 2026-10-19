@@ -5,19 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wakil · Votre commercial IA sur WhatsApp</title>
 <meta name="description" content="Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Pour les commerces et PME d'Afrique.">
-<meta name="theme-color" content="#0e2a23">
+<meta name="theme-color" content="#1b2066">
 <meta property="og:title" content="Wakil · Votre commercial IA sur WhatsApp">
 <meta property="og:description" content="Il répond, il conseille, il vend. Même à 3 h du matin.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F2A93B'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%230E2A23' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F4B23A'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%231B2066' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Kufi+Arabic:wght@700&display=swap">
 <style>
   :root {
-    --green: #0e2a23; --green-2: #12392f; --green-3: #1b4a3d;
-    --cream: #f6f1e7; --paper: #fffdf8; --ink: #0e2a23; --ink-2: #3c544c;
-    --sand: #f2a93b; --sand-ink: #8a5300; --mist: #b9c7bf; --light: #f4efe6;
-    --line: rgba(14, 42, 35, .12); --line-d: rgba(244, 239, 230, .14);
+    --deep: #1b2066; --deep-2: #232a7a; --deep-3: #2f3796;
+    --cream: #f4f3ee; --paper: #ffffff; --ink: #15193a; --ink-2: #4a4f73;
+    --gold: #f4b23a; --gold-ink: #8a5800; --mist: #c3c6e8; --light: #f4f3ee;
+    --line: rgba(21, 25, 58, .12); --line-d: rgba(244, 239, 230, .14);
     --display: "Bricolage Grotesque", system-ui, sans-serif;
     --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
     --radius: 22px; --wrap: 1180px;
@@ -28,31 +28,31 @@
   body { margin: 0; font-family: var(--body); color: var(--ink); background: var(--cream); line-height: 1.55; -webkit-font-smoothing: antialiased; }
   img, svg { display: block; }
   a { color: inherit; }
-  :focus-visible { outline: 3px solid var(--sand); outline-offset: 3px; border-radius: 6px; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
   .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
   h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; line-height: 1.02; }
   h2 { font-size: clamp(34px, 5vw, 56px); font-weight: 800; }
   h3 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
   p { margin: 0; }
-  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--sand-ink); }
-  .dark .eyebrow { color: var(--sand); }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-ink); }
+  .dark .eyebrow { color: var(--gold); }
   .lead { font-size: clamp(18px, 2vw, 21px); color: var(--ink-2); max-width: 640px; }
-  .dark .lead { color: #d6ded9; }
+  .dark .lead { color: #d9dbf0; }
   section { padding: clamp(72px, 10vw, 120px) 0; }
-  .dark { background: var(--green); color: var(--light); }
+  .dark { background: var(--deep); color: var(--light); }
   .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 26px; border-radius: 999px;
          font: 700 16px/1 var(--body); text-decoration: none; border: 2px solid transparent; cursor: pointer; transition: transform .2s ease, background .2s ease; }
   .btn:hover { transform: translateY(-2px); }
-  .btn-sand { background: var(--sand); color: var(--green); }
-  .btn-sand:hover { background: #f7c477; }
+  .btn-gold { background: var(--gold); color: var(--deep); }
+  .btn-gold:hover { background: #f7c770; }
   .btn-ghost { border-color: var(--line-d); color: var(--light); }
   .btn-ghost:hover { border-color: var(--light); }
-  .btn-green { background: var(--green); color: var(--light); }
-  .btn-green:hover { background: var(--green-3); }
+  .btn-deep { background: var(--deep); color: var(--light); }
+  .btn-deep:hover { background: var(--deep-3); }
   .btn svg { width: 18px; height: 18px; }
 
   /* En-tête */
-  .top { position: sticky; top: 0; z-index: 50; background: rgba(14, 42, 35, .92); backdrop-filter: blur(10px); color: var(--light); border-bottom: 1px solid var(--line-d); }
+  .top { position: sticky; top: 0; z-index: 50; background: rgba(27, 32, 102, .94); backdrop-filter: blur(10px); color: var(--light); border-bottom: 1px solid var(--line-d); }
   .top .wrap { display: flex; align-items: center; gap: 24px; min-height: 72px; }
   .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-right: auto; }
   .brand svg { width: 40px; height: 40px; }
@@ -64,27 +64,27 @@
   @media (max-width: 860px) { .nav { display: none; } }
 
   /* Accueil */
-  .hero { background: var(--green); color: var(--light); padding: clamp(56px, 8vw, 96px) 0 clamp(72px, 9vw, 110px); overflow: hidden; position: relative; }
+  .hero { background: var(--deep); color: var(--light); padding: clamp(56px, 8vw, 96px) 0 clamp(72px, 9vw, 110px); overflow: hidden; position: relative; }
   .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; border: 2px solid rgba(242, 169, 59, .16); pointer-events: none; }
   .hero::before { width: 620px; height: 620px; top: -260px; right: -220px; }
   .hero::after { width: 420px; height: 420px; top: -160px; right: -120px; }
   .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 56px; align-items: center; position: relative; }
   .hero h1 { font-size: clamp(46px, 7.4vw, 92px); font-weight: 800; letter-spacing: -.035em; line-height: .96; margin: 18px 0 24px; }
-  .hero h1 span { color: var(--sand); }
+  .hero h1 span { color: var(--gold); }
   .hero .lead { margin-bottom: 34px; }
   .cta { display: flex; flex-wrap: wrap; gap: 14px; }
   .meaning { margin-top: 40px; display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 16px; background: rgba(244, 239, 230, .06); max-width: 560px; }
-  .meaning .ar { font: 700 34px/1.2 "Noto Kufi Arabic", sans-serif; color: var(--sand); }
+  .meaning .ar { font: 700 34px/1.2 "Noto Kufi Arabic", sans-serif; color: var(--gold); }
   .meaning p { font-size: 16px; color: var(--mist); }
   .meaning b { color: var(--light); }
   @media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } .phone { margin: 0 auto; } }
 
   /* Téléphone de démonstration */
-  .phone { width: min(100%, 370px); border-radius: 46px; background: #061712; padding: 12px; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .6); }
+  .phone { width: min(100%, 370px); border-radius: 46px; background: #0b0e2e; padding: 12px; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .6); }
   .screen { border-radius: 36px; overflow: hidden; background: #efe8dd; color: #1b1f1d; font-size: 14px; line-height: 1.42; }
-  .screen .bar { background: var(--green-2); color: var(--light); padding: 20px 18px 14px; display: flex; align-items: center; gap: 12px; }
-  .screen .av { width: 40px; height: 40px; border-radius: 50%; background: var(--green-3); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
-  .screen .bar small { display: block; color: #a9c2b8; font-size: 12px; }
+  .screen .bar { background: var(--deep-2); color: var(--light); padding: 20px 18px 14px; display: flex; align-items: center; gap: 12px; }
+  .screen .av { width: 40px; height: 40px; border-radius: 50%; background: var(--deep-3); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .screen .bar small { display: block; color: #b9bde6; font-size: 12px; }
   .chat { padding: 16px 12px 20px; display: flex; flex-direction: column; gap: 9px; }
   .bub { max-width: 84%; padding: 9px 12px; border-radius: 14px; }
   .bub.in { align-self: flex-start; background: #fff; border-bottom-left-radius: 4px; }
@@ -96,10 +96,10 @@
   .wave i { width: 3px; border-radius: 2px; background: #2c5a4c; }
   .voice small { color: #3e5a50; font-size: 12px; }
   .trans { font-size: 12.5px; font-style: italic; color: #3e5a50; margin-top: 6px; }
-  .pay { margin-top: 9px; background: var(--green); color: var(--light); border-radius: 10px; padding: 9px; text-align: center; font-weight: 700; font-size: 13px; }
+  .pay { margin-top: 9px; background: var(--deep); color: var(--light); border-radius: 10px; padding: 9px; text-align: center; font-weight: 700; font-size: 13px; }
 
   /* Bandeau secteurs */
-  .sectors { background: var(--green-2); color: var(--mist); padding: 22px 0; border-top: 1px solid var(--line-d); }
+  .sectors { background: var(--deep-2); color: var(--mist); padding: 22px 0; border-top: 1px solid var(--line-d); }
   .sectors .wrap { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; justify-content: center; font-weight: 500; }
   .sectors b { color: var(--light); }
 
@@ -118,36 +118,36 @@
   @media (max-width: 620px) { .grid3 { grid-template-columns: 1fr; } }
   .card { background: rgba(244, 239, 230, .06); border: 1px solid var(--line-d); border-radius: var(--radius); padding: 28px; display: grid; gap: 12px; align-content: start; }
   .card p { color: var(--mist); }
-  .ic { width: 52px; height: 52px; border-radius: 14px; background: var(--sand); color: var(--green); display: grid; place-items: center; }
+  .ic { width: 52px; height: 52px; border-radius: 14px; background: var(--gold); color: var(--deep); display: grid; place-items: center; }
   .ic svg { width: 26px; height: 26px; }
   .soon { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 24px; border-radius: var(--radius); border: 1px dashed rgba(242, 169, 59, .5); color: var(--mist); }
-  .soon b { color: var(--sand); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
+  .soon b { color: var(--gold); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
 
   /* Étapes */
   .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; counter-reset: s; }
   @media (max-width: 780px) { .steps { grid-template-columns: 1fr; } }
   .step { border-top: 2px solid var(--ink); padding-top: 20px; display: grid; gap: 10px; }
-  .step::before { counter-increment: s; content: "0" counter(s); font: 800 52px/1 var(--display); color: var(--sand-ink); }
+  .step::before { counter-increment: s; content: "0" counter(s); font: 800 52px/1 var(--display); color: var(--gold-ink); }
   .step p { color: var(--ink-2); }
 
   /* Démo */
-  .demo .box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; background: var(--green-2); border-radius: 32px; padding: clamp(28px, 5vw, 56px); }
+  .demo .box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; background: var(--deep-2); border-radius: 32px; padding: clamp(28px, 5vw, 56px); }
   @media (max-width: 860px) { .demo .box { grid-template-columns: 1fr; } }
   .demo .box > div { display: grid; gap: 18px; }
   .tries { display: grid; gap: 10px; }
   .try { text-align: left; background: rgba(244, 239, 230, .07); border: 1px solid var(--line-d); color: var(--light); border-radius: 16px; padding: 14px 18px;
          font: 500 16px/1.4 var(--body); cursor: pointer; display: flex; gap: 12px; align-items: center; transition: background .2s, border-color .2s; }
-  .try:hover { background: rgba(244, 239, 230, .12); border-color: var(--sand); }
-  .try svg { width: 18px; height: 18px; color: var(--sand); flex: none; margin-left: auto; }
+  .try:hover { background: rgba(244, 239, 230, .12); border-color: var(--gold); }
+  .try svg { width: 18px; height: 18px; color: var(--gold); flex: none; margin-left: auto; }
   .note { font-size: 14px; color: var(--mist); }
 
   /* Tarifs */
   .price { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 32px; overflow: hidden; }
   @media (max-width: 860px) { .price { grid-template-columns: 1fr; } }
   .price > div { padding: clamp(28px, 4vw, 48px); display: grid; gap: 18px; align-content: start; }
-  .price .side { background: var(--green); color: var(--light); }
+  .price .side { background: var(--deep); color: var(--light); }
   .price .side p { color: var(--mist); }
-  .tag { display: inline-block; justify-self: start; background: var(--sand); color: var(--green); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
+  .tag { display: inline-block; justify-self: start; background: var(--gold); color: var(--deep); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
   .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
   .checks li { display: flex; gap: 12px; align-items: flex-start; }
   .checks svg { width: 22px; height: 22px; flex: none; color: #1f7a55; margin-top: 1px; }
@@ -157,7 +157,7 @@
   details { border-bottom: 1px solid var(--line); }
   summary { cursor: pointer; list-style: none; padding: 22px 44px 22px 0; position: relative; font: 600 20px/1.3 var(--display); }
   summary::-webkit-details-marker { display: none; }
-  summary::after { content: "+"; position: absolute; right: 6px; top: 16px; font: 400 30px/1 var(--body); color: var(--sand-ink); transition: transform .2s; }
+  summary::after { content: "+"; position: absolute; right: 6px; top: 16px; font: 400 30px/1 var(--body); color: var(--gold-ink); transition: transform .2s; }
   details[open] summary::after { transform: rotate(45deg); }
   details p { padding: 0 0 22px; color: var(--ink-2); max-width: 720px; }
 
@@ -169,8 +169,8 @@
   label { display: grid; gap: 7px; font-weight: 600; font-size: 15px; }
   label small { font-weight: 400; color: var(--ink-2); }
   .full { grid-column: 1 / -1; }
-  input, select, textarea { font: 400 16px/1.4 var(--body); color: var(--ink); background: #fff; border: 1.5px solid rgba(14, 42, 35, .22); border-radius: 12px; padding: 12px 14px; min-height: 50px; width: 100%; }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(242, 169, 59, .45); }
+  input, select, textarea { font: 400 16px/1.4 var(--body); color: var(--ink); background: #fff; border: 1.5px solid rgba(21, 25, 58, .22); border-radius: 12px; padding: 12px 14px; min-height: 50px; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--deep); box-shadow: 0 0 0 3px rgba(242, 169, 59, .45); }
   textarea { resize: vertical; min-height: 96px; }
   .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
   form .btn { justify-self: start; }
@@ -179,18 +179,18 @@
   .thanks { background: var(--paper); color: var(--ink); border-radius: 28px; padding: 40px; display: grid; gap: 12px; }
   .thanks[hidden] { display: none; }
 
-  footer { background: #071a15; color: var(--mist); padding: 40px 0; font-size: 15px; }
+  footer { background: #10143f; color: var(--mist); padding: 40px 0; font-size: 15px; }
   footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; }
   footer .brand b { color: var(--light); font-size: 24px; }
   footer .brand svg { width: 32px; height: 32px; }
-  footer .ar { font-family: "Noto Kufi Arabic", sans-serif; color: var(--sand); }
+  footer .ar { font-family: "Noto Kufi Arabic", sans-serif; color: var(--gold); }
 </style>
 </head>
 <body>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F2A93B"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#0E2A23" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".15"/><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
@@ -205,7 +205,7 @@
       <a href="#tarifs">Tarifs</a>
       <a href="#faq">Questions</a>
     </nav>
-    <a class="btn btn-sand" href="#essayer">Essayer Wakil</a>
+    <a class="btn btn-gold" href="#essayer">Essayer Wakil</a>
   </div>
 </header>
 
@@ -217,7 +217,7 @@
         <h1 id="titre">Votre meilleur commercial <span>ne dort jamais.</span></h1>
         <p class="lead">Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Vous recevez chaque demande sur votre téléphone.</p>
         <div class="cta">
-          <a class="btn btn-sand" href="#essayer">Essayer Wakil <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+          <a class="btn btn-gold" href="#essayer">Essayer Wakil <svg aria-hidden="true"><use href="#arrow"/></svg></a>
           <a class="btn btn-ghost" href="#demo">Parler à Wakil maintenant</a>
         </div>
         <div class="meaning">
@@ -313,7 +313,7 @@
           <button class="try" type="button" data-q="Quelle est la différence entre le gravier 5/10 et le 15/25 ?">« Quelle différence entre le 5/10 et le 15/25 ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
           <button class="try" type="button" data-q="Vous livrez à Yopougon ? C'est combien la tonne ?">« Vous livrez à Yopougon ? C'est combien la tonne ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
           <button class="try" type="button" data-q="Je veux parler à quelqu'un de l'équipe">« Je veux parler à quelqu'un de l'équipe »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="btn btn-sand" type="button" id="open-demo">Écrire ma propre question</button>
+          <button class="btn btn-gold" type="button" id="open-demo">Écrire ma propre question</button>
         </div>
       </div>
     </div>
@@ -341,7 +341,7 @@
         <div class="side">
           <h3>Parlons de votre entreprise</h3>
           <p>Dites-nous ce que vous vendez et combien de messages vous recevez : nous vous proposons un tarif clair, en FCFA.</p>
-          <a class="btn btn-sand" href="#essayer">Demander un tarif <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+          <a class="btn btn-gold" href="#essayer">Demander un tarif <svg aria-hidden="true"><use href="#arrow"/></svg></a>
         </div>
       </div>
     </div>
@@ -385,7 +385,7 @@
           <label class="full">Numéro WhatsApp <small>avec l'indicatif du pays</small><input name="phone" type="tel" autocomplete="tel" required placeholder="+225 07 00 00 00 00"></label>
           <label class="full">Ce que vous vendez, ce que vous attendez de Wakil <small>(facultatif)</small><textarea name="message" maxlength="1000"></textarea></label>
           <label class="hp" aria-hidden="true">Site web<input name="website" tabindex="-1" autocomplete="off"></label>
-          <button class="btn btn-green" type="submit">Envoyer ma demande <svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <button class="btn btn-deep" type="submit">Envoyer ma demande <svg aria-hidden="true"><use href="#arrow"/></svg></button>
           <p class="status" role="status" aria-live="polite"></p>
         </form>
         <div class="thanks" hidden tabindex="-1">
@@ -401,11 +401,11 @@
   <div class="wrap">
     <a class="brand" href="#" aria-label="Wakil, haut de page"><svg aria-hidden="true"><use href="#logo"/></svg><b>wakil</b></a>
     <p><span class="ar" lang="ar" dir="rtl">وكيل</span> · le commercial qui agit en votre nom</p>
-    <p>© <span id="year">2026</span> Wakil</p>
+    <p><a href="/app/" style="color:inherit">Espace client</a> · © <span id="year">2026</span> Wakil</p>
   </div>
 </footer>
 
-<script src="/wakil-chat.js" data-tenant="demo" data-accent="#f2a93b" data-on-accent="#0e2a23" data-position="right" data-title="Wakil · Carrière Démo" data-teaser="Essayez-moi : posez une question comme un client." defer></script>
+<script src="/wakil-chat.js" data-tenant="demo" data-accent="#f4b23a" data-on-accent="#1b2066" data-position="right" data-title="Wakil · Carrière Démo" data-teaser="Essayez-moi : posez une question comme un client." defer></script>
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
 

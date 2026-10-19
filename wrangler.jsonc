@@ -8,9 +8,13 @@
   "ai": { "binding": "AI" },
   // Un Durable Object par conversation client
   "durable_objects": {
-    "bindings": [{ "name": "CONVERSATIONS", "class_name": "ConversationDO" }]
+    "bindings": [
+      { "name": "CONVERSATIONS", "class_name": "ConversationDO" },
+      // Boîte de réception lue par l'application (/app)
+      { "name": "INBOX", "class_name": "InboxDO" }
+    ]
   },
-  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ConversationDO"] }],
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ConversationDO", "InboxDO"] }],
   // Le script du chat web (public/wakil-chat.js), servi tel quel
   "assets": { "directory": "./public" },
   // Chat web : 20 messages par minute au plus par adresse IP
