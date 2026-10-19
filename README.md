@@ -86,6 +86,7 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/conversation-do.ts` | Durable Object : une conversation par client, traitée dans l'ordre |
 | `src/engine.ts` | File d'attente, vocaux/photos, réponse, notifications au patron |
 | `src/agent.ts` | Appel à Claude et boucle d'outils |
+| `src/free-model.ts` | Relais gratuit (Workers AI) quand Claude ne répond pas |
 | `src/tools.ts` | Outils : `send_product_photo`, `record_order`, `request_human` |
 | `src/prompt.ts` | Le « caractère » du commercial et ses règles |
 | `src/catalog.ts` | Lecture et mise en forme du catalogue |
@@ -232,6 +233,11 @@ Dans `wrangler.jsonc`, section `vars` :
 | `CLAUDE_EFFORT` | `low` | Profondeur de réflexion (`low` suffit pour une conversation commerciale) |
 | `DEBOUNCE_MS` | `4000` | Attente avant de répondre à un client qui écrit en plusieurs messages |
 | `GRAPH_API_VERSION` | `v23.0` | Version de l'API WhatsApp |
+| `FREE_MODEL` | `@cf/google/gemma-4-26b-a4b-it` | Modèle gratuit de Cloudflare qui prend le relais quand Claude ne répond pas |
+
+### Relais gratuit
+
+Sans clé Anthropic, sans crédit, ou pendant une panne de Claude, Wakil répond avec un modèle gratuit de Cloudflare (Workers AI) : les 10 000 « neurones » offerts chaque jour couvrent une centaine de réponses environ, remis à zéro chaque nuit (minuit UTC). Les réponses sont plus simples et les photos envoyées par les clients ne sont pas vues. Dès que du crédit est ajouté sur console.anthropic.com, Claude reprend la main tout seul (au plus tard 10 minutes après). **Réglages → Vérifier la connexion à Claude** indique lequel des deux répond.
 
 Coût du modèle : `claude-opus-5-5` coûte 4 $ / 20 $ par million de jetons (entrée / sortie), `claude-haiku-5-5` 0,10 $ / 0,50 $. Le prompt et le catalogue sont mis en cache, ce qui réduit fortement le coût d'une conversation. Pour passer à Haiku, changer `CLAUDE_MODEL` puis comparer la qualité des réponses sur de vraies conversations avant de garder ce choix.
 

@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { SERVER_FALLBACK_MODELS } from "./agent";
+import { DEFAULT_FREE_MODEL, workersAiClient } from "./free-model";
 import type { Env } from "./types";
 
 export interface Diagnostic {
@@ -9,6 +10,8 @@ export interface Diagnostic {
   message: string;
   /** Détail technique renvoyé par l'API, pour le support. */
   detail?: string;
+  /** Quand Claude ne répond pas : état du modèle gratuit qui prend le relais. */
+  free?: { ok: boolean; model: string; message: string; detail?: string };
 }
 
 /** Traduit une erreur de l'API Claude en une consigne compréhensible. */
@@ -36,8 +39,26 @@ export function explainError(status: number | undefined, type: string | undefine
   return "Connexion à Anthropic impossible. Réessayez ; si cela dure, envoyez le détail ci-dessous au support.";
 }
 
-/** Petit appel au modèle, avec les mêmes réglages que les vraies conversations. */
+/** Vérifie Claude, puis, s'il ne répond pas, le modèle gratuit qui prend alors le relais. */
 export async function checkClaude(env: Env): Promise<Diagnostic> {
+  const claude = await checkClaudeOnly(env);
+  return claude.ok ? claude : { ...claude, free: await checkFreeModel(env) };
+}
+
+export async function checkFreeModel(env: Env): Promise<NonNullable<Diagnostic["free"]>> {
+  const model = env.FREE_MODEL || DEFAULT_FREE_MODEL;
+  try {
+    const client = workersAiClient((m, input) => env.AI.run(m as never, input as never), model);
+    const reply = await client.beta.messages.create({ model, max_tokens: 64, messages: [{ role: "user", content: "Réponds seulement : OK" }] });
+    if (!reply.content.some((b) => b.type === "text")) throw new Error("réponse vide");
+    return { ok: true, model, message: "En attendant, Wakil répond avec le modèle gratuit de Cloudflare : réponses plus simples, et une centaine par jour environ." };
+  } catch (err) {
+    return { ok: false, model, message: "Le modèle gratuit de Cloudflare ne répond pas non plus : Wakil ne peut pas répondre aux clients pour l'instant.", detail: String(err) };
+  }
+}
+
+/** Petit appel au modèle, avec les mêmes réglages que les vraies conversations. */
+async function checkClaudeOnly(env: Env): Promise<Diagnostic> {
   const model = env.CLAUDE_MODEL ?? "claude-opus-5-5";
   if (!env.ANTHROPIC_API_KEY) {
     return { ok: false, model, message: "Aucune clé : ajoutez le secret ANTHROPIC_API_KEY dans GitHub, puis relancez « Mettre en ligne »." };

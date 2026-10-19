@@ -22,6 +22,8 @@ export interface Env {
   GRAPH_API_VERSION?: string;
   CLAUDE_MODEL?: string;
   CLAUDE_EFFORT?: string;
+  /** Modèle gratuit de Workers AI qui prend le relais quand Claude ne répond pas. */
+  FREE_MODEL?: string;
   DEBOUNCE_MS?: string;
 }
 

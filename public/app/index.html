@@ -766,7 +766,8 @@
       e.target.disabled = true; out.innerHTML = '<p class="muted" style="margin:0">Vérification…</p>';
       try {
         const d = await api("diagnostic");
-        out.innerHTML = `<p class="${d.ok ? "ok" : "ko"}" style="margin:0">${d.ok ? "✓ " : ""}${esc(d.message)}</p>${d.detail ? `<p class="muted" style="margin:6px 0 0;font-size:13px;overflow-wrap:anywhere">Détail : ${esc(d.detail)}</p>` : ""}`;
+        const line = (r, label) => `<p class="${r.ok ? "ok" : "ko"}" style="margin:0">${r.ok ? "✓ " : ""}${label}${esc(r.message)}</p>${r.detail ? `<p class="muted" style="margin:6px 0 0;font-size:13px;overflow-wrap:anywhere">Détail : ${esc(r.detail)}</p>` : ""}`;
+        out.innerHTML = line(d, d.free ? "Claude : " : "") + (d.free ? `<div style="margin-top:10px">${line(d.free, "Relais gratuit : ")}</div>` : "");
       } catch { out.innerHTML = '<p class="ko" style="margin:0">La vérification n\'a pas abouti. Réessayez.</p>'; }
       e.target.disabled = false;
     });

@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { DurableObject } from "cloudflare:workers";
 import type { Effort } from "./agent";
+import { DEFAULT_FREE_MODEL, withFreeFallback, workersAiClient } from "./free-model";
 import { loadCatalog } from "./catalog";
 import {
   addIncoming,
@@ -200,7 +201,12 @@ export class ConversationDO extends DurableObject<Env> {
       storage: this.ctx.storage,
       tenant,
       whatsapp: await whatsappFor(this.env, tenant),
-      claude: new Anthropic({ apiKey: this.env.ANTHROPIC_API_KEY, baseURL: this.env.ANTHROPIC_BASE_URL || undefined }),
+      claude: withFreeFallback(
+        this.env.ANTHROPIC_API_KEY
+          ? new Anthropic({ apiKey: this.env.ANTHROPIC_API_KEY, baseURL: this.env.ANTHROPIC_BASE_URL || undefined })
+          : null,
+        workersAiClient((model, input) => this.env.AI.run(model as never, input as never), this.env.FREE_MODEL || DEFAULT_FREE_MODEL),
+      ),
       agentConfig: {
         model: this.env.CLAUDE_MODEL ?? "claude-opus-5-5",
         effort: (this.env.CLAUDE_EFFORT ?? "low") as Effort,

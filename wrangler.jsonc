@@ -4,7 +4,7 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-09-01",
   "observability": { "enabled": true },
-  // Whisper (transcription des vocaux) sur Workers AI
+  // Workers AI : Whisper (vocaux) et le modèle gratuit de relais
   "ai": { "binding": "AI" },
   // Un Durable Object par conversation client
   "durable_objects": {
@@ -23,6 +23,8 @@
   "vars": {
     "CLAUDE_MODEL": "claude-opus-5-5",
     "CLAUDE_EFFORT": "low",
+    // Relais gratuit (Workers AI) quand Claude ne répond pas : pas de clé, crédit épuisé, panne
+    "FREE_MODEL": "@cf/google/gemma-4-26b-a4b-it",
     "GRAPH_API_VERSION": "v23.0",
     "DEBOUNCE_MS": "4000"
   }
