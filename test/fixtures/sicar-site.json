@@ -1,0 +1,65 @@
+{
+  "company": "SICAR SARL",
+  "tagline": "Société Ivoirienne des Carrières",
+  "heroTitle": "Granulats de qualité pour bâtir la Côte d'Ivoire",
+  "heroText": "Extraction, concassage et livraison de gravier, sable et moellons pour vos chantiers de bâtiment, routes et génie civil.",
+  "about": "SICAR SARL exploite sa propre carrière et sa station de concassage. Nous produisons des granulats calibrés et contrôlés, disponibles en grande quantité, avec un parc d'engins prêt à charger et livrer vos camions.",
+  "stats": [
+    {
+      "value": 5,
+      "suffix": "+",
+      "label": "Calibres de granulats"
+    },
+    {
+      "value": 100,
+      "suffix": "%",
+      "label": "Roche concassée sur site"
+    },
+    {
+      "value": 7,
+      "suffix": "j/7",
+      "label": "Chargement sur rendez-vous"
+    },
+    {
+      "value": 24,
+      "suffix": "h",
+      "label": "Réponse aux devis"
+    }
+  ],
+  "phone": "+225 00 00 00 00 00",
+  "whatsapp": "2250000000000",
+  "email": "contact@sicar-sarl.ci",
+  "address": "Côte d'Ivoire",
+  "hours": "Lundi – Samedi : 7h00 – 18h00",
+  "mapQuery": "Abidjan, Côte d'Ivoire",
+  "wakilChatUrl": "",
+  "gallery": [
+    "assets/img/station-concassage.jpg",
+    "assets/img/extraction.jpg",
+    "assets/img/chargeuse.jpg",
+    "assets/img/convoyeur.jpg",
+    "assets/img/stock-sable.jpg"
+  ],
+  "faq": [
+    {
+      "q": "Comment passer commande ?",
+      "a": "Ajoutez les produits souhaités à votre demande de devis (depuis le catalogue ou la fiche de chaque produit), puis envoyez-la par WhatsApp ou par e-mail. Vous pouvez aussi nous appeler directement."
+    },
+    {
+      "q": "Livrez-vous sur les chantiers ?",
+      "a": "Oui, la livraison est possible. Indiquez le lieu de votre chantier dans la demande de devis : nous vous communiquons les conditions et le tarif de transport."
+    },
+    {
+      "q": "Puis-je venir charger moi-même ?",
+      "a": "Oui. Nos engins chargent vos camions directement sur site, aux horaires d'ouverture. Prévenez-nous à l'avance pour organiser le chargement."
+    },
+    {
+      "q": "Quels granulats choisir pour un béton ?",
+      "a": "Pour un béton courant, on associe un sable de concassage et un gravier (par exemple 5/10 ou 10/15). Notre équipe peut vous conseiller sur les calibres et les quantités selon votre ouvrage."
+    },
+    {
+      "q": "Comment sont vendus vos produits ?",
+      "a": "Tous nos produits sont vendus à la tonne. Pour estimer vos besoins à partir d'un volume : 1 m³ de granulats pèse environ 1,4 à 1,7 tonne selon le produit."
+    }
+  ]
+}

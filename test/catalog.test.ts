@@ -3,9 +3,9 @@ import { formatBusinessInfo, formatCatalog, normalizeInfo, normalizeProducts } f
 import { buildSystemPrompt } from "../src/prompt";
 import tenants from "../config/tenants.json";
 import type { Tenant } from "../src/types";
-// Les vraies données du site SICAR, à la racine du dépôt.
-import products from "../../data/products.json";
-import site from "../../data/site.json";
+// Copie des vraies données du site SICAR (data/products.json et data/site.json du dépôt SICAR_SARL).
+import products from "./fixtures/sicar-products.json";
+import site from "./fixtures/sicar-site.json";
 
 const tenant = Object.values(tenants)[0] as unknown as Tenant;
 

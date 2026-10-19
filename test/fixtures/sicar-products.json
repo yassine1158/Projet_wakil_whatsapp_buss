@@ -1,0 +1,189 @@
+[
+  {
+    "id": "sable-de-concassage-0-5",
+    "name": "Sable de concassage 0/5",
+    "category": "sable",
+    "granulometrie": "0/5 mm",
+    "description": "Sable issu du concassage de roche granitique. Idéal pour béton, mortier, enduits et parpaings.",
+    "usages": [
+      "Béton",
+      "Mortier",
+      "Parpaings"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/stock-sable.jpg",
+    "available": true,
+    "featured": true
+  },
+  {
+    "id": "gravier-5-10",
+    "name": "Gravier 5/10",
+    "category": "gravier",
+    "granulometrie": "5/10 mm",
+    "description": "Gravillon fin et calibré pour bétons fins, hourdis, prédalles et éléments préfabriqués.",
+    "usages": [
+      "Béton fin",
+      "Hourdis",
+      "Préfabrication"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/chargeuse.jpg",
+    "available": true,
+    "featured": true
+  },
+  {
+    "id": "gravier-10-15",
+    "name": "Gravier 10/15",
+    "category": "gravier",
+    "granulometrie": "10/15 mm",
+    "description": "Gravier polyvalent pour béton armé : dalles, poteaux, poutres et linteaux.",
+    "usages": [
+      "Béton armé",
+      "Dalles",
+      "Poteaux"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/convoyeur.jpg",
+    "available": true,
+    "featured": true
+  },
+  {
+    "id": "gravier-15-25",
+    "name": "Gravier 15/25",
+    "category": "gravier",
+    "granulometrie": "15/25 mm",
+    "description": "Gravier concassé pour gros béton, fondations, semelles et ouvrages de génie civil.",
+    "usages": [
+      "Fondations",
+      "Gros béton",
+      "Génie civil"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/station-concassage.jpg",
+    "available": true,
+    "featured": false
+  },
+  {
+    "id": "gravier-25-40",
+    "name": "Gravier 25/40",
+    "category": "gravier",
+    "granulometrie": "25/40 mm",
+    "description": "Gros gravier pour bétons de masse, drainage et couches de propreté.",
+    "usages": [
+      "Béton de masse",
+      "Drainage",
+      "Propreté"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/convoyeur.jpg",
+    "available": true,
+    "featured": false
+  },
+  {
+    "id": "ballast-31-5-50",
+    "name": "Ballast 31,5/50",
+    "category": "gravier",
+    "granulometrie": "31,5/50 mm",
+    "description": "Pierre concassée anguleuse pour voies ferrées, drainage, plates-formes et assainissement.",
+    "usages": [
+      "Voies ferrées",
+      "Drainage",
+      "Assainissement"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/station-concassage.jpg",
+    "available": true,
+    "featured": false
+  },
+  {
+    "id": "caillou-40-70",
+    "name": "Caillou 40/70",
+    "category": "gravier",
+    "granulometrie": "40/70 mm",
+    "description": "Gros cailloux concassés pour béton cyclopéen, hérissonnage et empierrement.",
+    "usages": [
+      "Hérissonnage",
+      "Béton cyclopéen",
+      "Empierrement"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/extraction.jpg",
+    "available": true,
+    "featured": false
+  },
+  {
+    "id": "grave-non-traitee-0-31-5",
+    "name": "Grave non traitée 0/31,5",
+    "category": "grave",
+    "granulometrie": "0/31,5 mm",
+    "description": "Grave concassée (GNT) pour couches de fondation et de base des chaussées et plates-formes.",
+    "usages": [
+      "Routes",
+      "Plates-formes",
+      "Parkings"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/station-concassage.jpg",
+    "available": true,
+    "featured": false
+  },
+  {
+    "id": "tout-venant-de-carriere",
+    "name": "Tout-venant de carrière",
+    "category": "grave",
+    "granulometrie": "0/80 mm",
+    "description": "Matériau non criblé, économique, pour remblais, couches de forme et pistes de chantier.",
+    "usages": [
+      "Remblais",
+      "Couche de forme",
+      "Pistes"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/extraction.jpg",
+    "available": true,
+    "featured": false
+  },
+  {
+    "id": "moellons",
+    "name": "Moellons",
+    "category": "roche",
+    "granulometrie": "100/300 mm",
+    "description": "Blocs de roche pour murs en pierre, soutènements, fondations cyclopéennes et gabions.",
+    "usages": [
+      "Murs en pierre",
+      "Soutènement",
+      "Gabions"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/extraction.jpg",
+    "available": true,
+    "featured": false
+  },
+  {
+    "id": "blocs-d-enrochement",
+    "name": "Blocs d'enrochement",
+    "category": "roche",
+    "granulometrie": "> 300 mm",
+    "description": "Gros blocs pour protections de berges, digues, enrochements et ouvrages hydrauliques.",
+    "usages": [
+      "Berges",
+      "Digues",
+      "Enrochement"
+    ],
+    "price": "",
+    "unit": "tonne",
+    "image": "assets/img/extraction.jpg",
+    "available": true,
+    "featured": false
+  }
+]
