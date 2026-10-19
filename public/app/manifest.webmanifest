@@ -1,0 +1,21 @@
+{
+  "name": "Wakil · Mon espace",
+  "short_name": "Wakil",
+  "description": "Vos conversations, vos commandes et votre assistant Wakil.",
+  "lang": "fr",
+  "id": "/app/",
+  "start_url": "/app/",
+  "scope": "/app/",
+  "display": "standalone",
+  "background_color": "#1b2066",
+  "theme_color": "#1b2066",
+  "icons": [
+    { "src": "/app/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/app/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/app/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Commandes", "url": "/app/#commandes" },
+    { "name": "Conversations", "url": "/app/#conversations" }
+  ]
+}
