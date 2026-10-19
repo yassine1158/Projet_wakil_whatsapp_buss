@@ -72,6 +72,27 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/whatsapp.ts` | Client de l'API WhatsApp Cloud |
 | `config/tenants.json` | Les entreprises clientes (une par numéro WhatsApp) |
 
+## Mise en ligne depuis GitHub (recommandé)
+
+Tout se règle dans GitHub ; Cloudflare fait tourner Wakil sans qu'on ait à y retourner.
+
+**Une seule fois, sur Cloudflare** (compte gratuit) :
+1. Créer un compte sur dash.cloudflare.com, puis ouvrir **Workers & Pages** une fois pour choisir le sous-domaine `workers.dev`.
+2. Noter l'**Account ID** (colonne de droite de **Workers & Pages**).
+3. **My Profile → API Tokens → Create Token** → modèle **Edit Cloudflare Workers** → **Create Token**, et copier le jeton.
+
+**Dans GitHub** : **Settings → Secrets and variables → Actions → New repository secret**, un par un :
+
+| Nom | Valeur | Obligatoire |
+|---|---|---|
+| `CLOUDFLARE_API_TOKEN` | le jeton créé ci-dessus | oui |
+| `CLOUDFLARE_ACCOUNT_ID` | l'Account ID | oui |
+| `ANTHROPIC_API_KEY` | la clé de console.anthropic.com | oui |
+| `ADMIN_PASSWORD` | le mot de passe de l'application | oui |
+| `WHATSAPP_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` | les valeurs de Meta | quand WhatsApp est prêt |
+
+**Lancer** : onglet **Actions → Mettre en ligne → Run workflow**. Ensuite, chaque changement sur `main` est vérifié (tests) puis mis en ligne tout seul. Le résumé de chaque mise en ligne donne les adresses du site, de l'application et du webhook. Une clé ajoutée ou changée dans GitHub part au prochain lancement.
+
 ## Mise en route
 
 ### 1. Meta (WhatsApp Cloud API)
