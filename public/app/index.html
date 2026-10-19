@@ -704,10 +704,21 @@
           </section>
           <section class="card"><h2>Assistant</h2>
             <p style="margin:0">Modèle : <b>${esc(s.model)}</b></p>
+            <button class="btn small gold" type="button" id="check-claude">Vérifier la connexion à Claude</button>
+            <div id="check-result" role="status" aria-live="polite"></div>
             <p class="muted" style="margin:0">Ces réglages se changent dans les fichiers du projet (config/tenants.json, wrangler.jsonc).</p>
           </section>
         </div>
       </div>`;
+    document.getElementById("check-claude").addEventListener("click", async (e) => {
+      const out = document.getElementById("check-result");
+      e.target.disabled = true; out.innerHTML = '<p class="muted" style="margin:0">Vérification…</p>';
+      try {
+        const d = await api("diagnostic");
+        out.innerHTML = `<p class="${d.ok ? "ok" : "ko"}" style="margin:0">${d.ok ? "✓ " : ""}${esc(d.message)}</p>${d.detail ? `<p class="muted" style="margin:6px 0 0;font-size:13px;overflow-wrap:anywhere">Détail : ${esc(d.detail)}</p>` : ""}`;
+      } catch { out.innerHTML = '<p class="ko" style="margin:0">La vérification n\'a pas abouti. Réessayez.</p>'; }
+      e.target.disabled = false;
+    });
     main().querySelectorAll("[data-copy]").forEach((b) => b.addEventListener("click", async () => {
       const code = document.getElementById(b.dataset.copy);
       try { await navigator.clipboard.writeText(code.textContent); toast("Copié."); }

@@ -26,7 +26,7 @@ export interface AgentResult {
 }
 
 /** Modèles qui acceptent le repli automatique côté serveur en cas de refus. */
-const SERVER_FALLBACK_MODELS = new Set(["claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5", "claude-fable-5-1"]);
+export const SERVER_FALLBACK_MODELS = new Set(["claude-opus-5-5", "claude-opus-5", "claude-sonnet-5-5", "claude-fable-5-1"]);
 
 export const REFUSAL_REPLY =
   "Je ne peux pas répondre à cette demande. Un conseiller de l'équipe peut vous aider si besoin.";

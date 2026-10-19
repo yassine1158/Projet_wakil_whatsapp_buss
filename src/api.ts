@@ -1,5 +1,6 @@
 import { createToken, samePassword, verifyToken } from "./auth";
 import { loadCatalog } from "./catalog";
+import { checkClaude } from "./diagnostic";
 import { LEAD_STATUSES, ORDER_STATUSES, type LeadStatus, type OrderStatus } from "./inbox-do";
 import { INBOX_NAME, webConversation } from "./names";
 import { allTenants, findTenantById } from "./tenants";
@@ -120,6 +121,9 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
       const stub = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(webConversation(found.tenant.id, `test-${session}`)));
       return json({ replies: await stub.chat(found.phoneNumberId, `test-${session}`, text, { test: true }) });
     }
+
+    case "GET diagnostic":
+      return json(await checkClaude(env));
 
     case "GET settings": {
       if (!found) return json({ error: "unknown_tenant" }, 404);
