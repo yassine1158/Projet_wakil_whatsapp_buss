@@ -1,0 +1,6 @@
+# Copier ce fichier en .dev.vars pour tester en local (npm run dev).
+# En production, chaque valeur se met avec : npx wrangler secret put NOM
+ANTHROPIC_API_KEY=
+WHATSAPP_TOKEN=
+WHATSAPP_APP_SECRET=
+WHATSAPP_VERIFY_TOKEN=

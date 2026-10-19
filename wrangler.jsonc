@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wakil-whatsapp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+  // Whisper (transcription des vocaux) sur Workers AI
+  "ai": { "binding": "AI" },
+  // Un Durable Object par conversation client
+  "durable_objects": {
+    "bindings": [{ "name": "CONVERSATIONS", "class_name": "ConversationDO" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ConversationDO"] }],
+  // Les secrets (clés) se mettent avec `npx wrangler secret put NOM`, jamais ici.
+  "vars": {
+    "CLAUDE_MODEL": "claude-opus-5-5",
+    "CLAUDE_EFFORT": "low",
+    "GRAPH_API_VERSION": "v23.0",
+    "DEBOUNCE_MS": "4000"
+  }
+}
