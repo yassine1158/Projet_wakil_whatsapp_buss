@@ -1,8 +1,13 @@
 import { findTenantById, isKnownWebOrigin } from "./tenants";
-import type { Env } from "./types";
+import type { Env, Tenant } from "./types";
 
 const MAX_TEXT = 1000;
 const SESSION_RE = /^[A-Za-z0-9_-]{16,64}$/;
+
+/** Le site doit être déclaré par l'entreprise ; la démo est servie par le Worker lui-même. */
+function allowed(tenant: Tenant, origin: string | null, url: URL): origin is string {
+  return !!origin && (!!tenant.webOrigins?.includes(origin) || (!!tenant.demo && origin === url.origin));
+}
 
 function cors(origin: string | null): Record<string, string> {
   return origin
@@ -38,7 +43,8 @@ export async function handleChat(request: Request, env: Env, url: URL): Promise<
 
   if (url.pathname === "/chat/config" && request.method === "GET") {
     const found = findTenantById(url.searchParams.get("tenant") ?? "");
-    if (!found || !origin || !found.tenant.webOrigins?.includes(origin)) return json({ error: "forbidden" }, 403, null);
+    // Sans en-tête Origin (requête GET depuis le même site), la réponse n'a rien de sensible.
+    if (!found || (origin !== null && !allowed(found.tenant, origin, url))) return json({ error: "forbidden" }, 403, null);
     const { businessName, assistantName } = found.tenant;
     return json({ businessName, assistantName }, 200, origin);
   }
@@ -52,7 +58,7 @@ export async function handleChat(request: Request, env: Env, url: URL): Promise<
     return json({ error: "bad_request" }, 400, null);
   }
   const found = typeof body.tenant === "string" ? findTenantById(body.tenant) : undefined;
-  if (!found || !origin || !found.tenant.webOrigins?.includes(origin)) return json({ error: "forbidden" }, 403, null);
+  if (!found || !allowed(found.tenant, origin, url)) return json({ error: "forbidden" }, 403, null);
 
   const session = typeof body.session === "string" ? body.session : "";
   const text = typeof body.text === "string" ? body.text.trim() : "";

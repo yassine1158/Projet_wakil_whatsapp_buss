@@ -351,6 +351,23 @@ describe("chat du site web", () => {
   });
 });
 
+describe("démonstration", () => {
+  it("ne prévient personne quand l'entreprise n'a pas de patron", async () => {
+    await enqueueMessage(storage, "PNID", msg("m1"), NOW, 4000);
+    const { client } = fakeClaude([
+      {
+        stop_reason: "tool_use",
+        content: [
+          { type: "tool_use", id: "t1", name: "request_human", input: { reason: "r", summary: "s" } } as Anthropic.Beta.BetaContentBlock,
+        ],
+      },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Ok." } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    await processPending(deps(client, { tenant: { ...tenant, ownerPhone: "" } }));
+    expect(whatsapp.sent).toEqual([{ to: CLIENT, kind: "text", body: "Ok." }]);
+  });
+});
+
 describe("normalizePhone", () => {
   it("garde le format international et complète les numéros locaux", () => {
     expect(normalizePhone("07 07 07 07 07", "225")).toBe("2250707070707");

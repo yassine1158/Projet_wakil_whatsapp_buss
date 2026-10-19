@@ -10,6 +10,7 @@ import {
   resumeAssistant,
   type EngineDeps,
 } from "./engine";
+import type { Lead } from "./leads";
 import { getTenant } from "./tenants";
 import { workersAiTranscriber } from "./transcribe";
 import type { ConversationMeta, Env, IncomingMessage, Tenant } from "./types";
@@ -69,6 +70,12 @@ export class ConversationDO extends DurableObject<Env> {
     });
     await storage.setAlarm(now + WEB_TTL_MS);
     return replies;
+  }
+
+  /** Utilisé par l'instance "wakil:leads" : garde les demandes du formulaire du site de Wakil. */
+  async saveLead(lead: Lead): Promise<void> {
+    const leads = (await this.ctx.storage.get<Lead[]>("leads")) ?? [];
+    await this.ctx.storage.put("leads", [...leads, lead].slice(-500));
   }
 
   async pause(hours: number): Promise<void> {

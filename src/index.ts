@@ -1,5 +1,6 @@
 import { getTenant } from "./tenants";
 import type { Env, IncomingMessage, Tenant } from "./types";
+import { handleLead } from "./leads";
 import { handleChat } from "./web";
 import { parseWebhook, verifySignature, WhatsAppClient } from "./whatsapp";
 
@@ -47,6 +48,11 @@ export default {
       return handleChat(request, env, url);
     }
 
+    if (url.pathname === "/leads") {
+      return handleLead(request, env, url);
+    }
+
+    // La page d'accueil (public/index.html) est servie avant d'arriver ici.
     if (url.pathname === "/" || url.pathname === "/health") {
       return new Response("Wakil est en ligne.");
     }

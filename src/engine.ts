@@ -350,6 +350,7 @@ export function formatOrderForOwner(order: Order): string {
  */
 async function sendToOwner(deps: EngineDeps, text: string) {
   const { tenant, whatsapp } = deps;
+  if (!tenant.ownerPhone) return; // démonstration : personne à prévenir
   const template = tenant.ownerNotifyTemplate;
   if (!template) return whatsapp.sendText(tenant.ownerPhone, text);
   const oneLine = text.replace(/\s*\n\s*/g, " | ").replace(/\s{2,}/g, " ").slice(0, 1000);

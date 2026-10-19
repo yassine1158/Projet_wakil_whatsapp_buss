@@ -3,8 +3,10 @@
  * À coller avant </body> :
  *   <script src="https://VOTRE-WORKER/wakil-chat.js" data-tenant="sicar" defer></script>
  * Options (attributs data-) : tenant (obligatoire), accent (couleur, ex. #e30613),
+ * on-accent (couleur du texte posé sur l'accent, blanc par défaut),
  * position (left | right), offset (distance au bas de l'écran en px, par défaut 24),
  * title (titre de la fenêtre), teaser (bulle d'invitation).
+ * La page peut piloter le chat : WakilChat.open(), WakilChat.send("Bonjour").
  */
 (() => {
   const script = document.currentScript;
@@ -15,6 +17,7 @@
   const tenant = script.dataset.tenant;
   if (!tenant) return console.warn("Wakil : attribut data-tenant manquant");
   const accent = /^#[0-9a-f]{3,8}$/i.test(script.dataset.accent || "") ? script.dataset.accent : "#155e46";
+  const onAccent = /^#[0-9a-f]{3,8}$/i.test(script.dataset.onAccent || "") ? script.dataset.onAccent : "#ffffff";
   const side = script.dataset.position === "right" ? "right" : "left";
   const offset = Math.max(0, Math.min(400, parseInt(script.dataset.offset, 10) || 24));
   // Reprend la police du site (les fichiers de police sont partagés avec le shadow DOM).
@@ -57,13 +60,13 @@
 <style>
   :host { all: initial; }
   * { box-sizing: border-box; }
-  .wk { --accent: ${accent}; --ink: #16181d; --muted: #5b616b; --line: #e3e5e8; --bot: #f1f2f4; --paper: #ffffff;
+  .wk { --accent: ${accent}; --on-accent: ${onAccent}; --ink: #16181d; --muted: #5b616b; --line: #e3e5e8; --bot: #f1f2f4; --paper: #ffffff;
         font-family: ${font ? font + ", " : ""}system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.45; color: var(--ink); }
   @media (prefers-color-scheme: dark) {
     .wk { --ink: #eceef1; --muted: #a9aeb6; --line: #2c3038; --bot: #23262c; --paper: #17191d; }
   }
   .launcher { position: fixed; ${side}: 24px; bottom: ${offset}px; z-index: 2147483000; width: 60px; height: 60px;
-              border: 0; border-radius: 50%; background: var(--accent); color: #fff; cursor: pointer;
+              border: 0; border-radius: 50%; background: var(--accent); color: var(--on-accent); cursor: pointer;
               display: grid; place-items: center; box-shadow: 0 12px 28px -8px rgba(0,0,0,.45);
               transition: transform .25s ease; }
   .launcher:hover { transform: scale(1.06); }
@@ -78,18 +81,18 @@
            height: min(580px, calc(100vh - ${offset + 96}px)); background: var(--paper); border: 1px solid var(--line);
            border-radius: 18px; box-shadow: 0 24px 60px -16px rgba(0,0,0,.4); display: flex; flex-direction: column; overflow: hidden; }
   .panel[hidden], .teaser[hidden] { display: none; }
-  header { background: var(--accent); color: #fff; padding: 14px 10px 14px 18px; display: flex; align-items: center; gap: 10px; }
+  header { background: var(--accent); color: var(--on-accent); padding: 14px 10px 14px 18px; display: flex; align-items: center; gap: 10px; }
   header .t { flex: 1; min-width: 0; }
   header b { display: block; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   header small { display: block; font-size: 12.5px; opacity: .9; }
-  header button { width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: #fff; cursor: pointer; display: grid; place-items: center; }
-  header button:hover { background: rgba(255,255,255,.15); }
+  header button { width: 44px; height: 44px; border: 0; border-radius: 10px; background: transparent; color: var(--on-accent); cursor: pointer; display: grid; place-items: center; }
+  header button:hover { background: color-mix(in srgb, var(--on-accent) 15%, transparent); }
   header svg { width: 20px; height: 20px; }
   .log { flex: 1; overflow-y: auto; padding: 16px 14px; display: flex; flex-direction: column; gap: 8px; overscroll-behavior: contain; }
   .msg { max-width: 85%; padding: 9px 13px; border-radius: 16px; overflow-wrap: anywhere; }
   .bot { align-self: flex-start; background: var(--bot); border-bottom-left-radius: 5px; }
-  .me { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 5px; }
-  .me a { color: #fff; }
+  .me { align-self: flex-end; background: var(--accent); color: var(--on-accent); border-bottom-right-radius: 5px; }
+  .me a { color: var(--on-accent); }
   .bot a { color: inherit; text-decoration: underline; }
   .err { align-self: center; color: var(--muted); font-size: 13px; text-align: center; }
   .img { padding: 4px; }
@@ -103,7 +106,7 @@
   form { border-top: 1px solid var(--line); padding: 10px; display: flex; gap: 8px; align-items: flex-end; }
   textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: inherit;
              color: var(--ink); background: var(--paper); max-height: 120px; min-height: 44px; }
-  .send { width: 44px; height: 44px; border: 0; border-radius: 12px; background: var(--accent); color: #fff; cursor: pointer; display: grid; place-items: center; flex: none; }
+  .send { width: 44px; height: 44px; border: 0; border-radius: 12px; background: var(--accent); color: var(--on-accent); cursor: pointer; display: grid; place-items: center; flex: none; }
   .send:disabled { opacity: .5; cursor: default; }
   .send svg { width: 20px; height: 20px; }
   .foot { padding: 0 12px 10px; font-size: 11.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
@@ -260,6 +263,13 @@
     input.style.height = "auto";
     input.style.height = Math.min(input.scrollHeight, 120) + "px";
   });
+
+  // Pour la page hôte : WakilChat.open(), WakilChat.send("question").
+  window.WakilChat = {
+    open: () => setOpen(true),
+    close: () => setOpen(false),
+    send: (text) => { setOpen(true); sendMessage(String(text || "").trim().slice(0, 1000)); },
+  };
 
   fetch(`${API}/chat/config?tenant=${encodeURIComponent(tenant)}`)
     .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))

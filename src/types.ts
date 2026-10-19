@@ -33,6 +33,8 @@ export interface Tenant {
   defaultCountryCode?: string;
   /** Sites autorisés à afficher le chat web (ex. "https://yassine1158.github.io"). */
   webOrigins?: string[];
+  /** Entreprise fictive de démonstration, affichée sur le site de Wakil lui-même. */
+  demo?: boolean;
   catalog: {
     productsUrl: string;
     siteUrl?: string;

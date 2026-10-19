@@ -40,6 +40,9 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/index.ts` | Webhook (vérification Meta, signature), commandes du patron |
 | `src/web.ts` | Chat du site web : `/chat` et `/chat/config`, contrôle du site d'origine et du débit |
 | `public/wakil-chat.js` | Le chat à intégrer dans un site (une seule balise `<script>`) |
+| `public/index.html` | Le site de Wakil (servi à l'adresse du Worker) |
+| `src/leads.ts` | Formulaire « Essayer Wakil » du site : `/leads` |
+| `config/wakil.json` | Où envoyer les demandes reçues par le formulaire |
 | `src/conversation-do.ts` | Durable Object : une conversation par client, traitée dans l'ordre |
 | `src/engine.ts` | File d'attente, vocaux/photos, réponse, notifications au patron |
 | `src/agent.ts` | Appel à Claude et boucle d'outils |
@@ -87,6 +90,14 @@ Dans **WhatsApp → Configuration** sur Meta :
 
 Envoyez « Bonjour » au numéro de test : Wakil répond.
 
+## Le site de Wakil
+
+Le Worker sert aussi le site de présentation de Wakil (`public/index.html`), à sa propre adresse : `https://wakil-whatsapp.<votre-compte>.workers.dev/`. On y trouve :
+- **une démonstration en direct** : le chat joue le commercial de « Carrière Démo », une entreprise fictive (`DEMO` dans `config/tenants.json`) qui reprend le catalogue de SICAR. Personne n'est prévenu pour ses « commandes » ;
+- **le formulaire « Essayer Wakil »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
+
+Les messages de la démonstration sont de vrais appels au modèle : les limites du chat web s'appliquent aussi.
+
 ## Chat du site web
 
 ### Sur le site SICAR
@@ -108,6 +119,9 @@ Une fois le Worker déployé : **Administration → Informations → « Assistan
 | `data-offset` | Distance au bas de l'écran, en pixels (24 par défaut) |
 | `data-title` | Titre de la fenêtre (par défaut « Assistant » + nom de l'entreprise) |
 | `data-teaser` | Phrase de la bulle d'invitation affichée une fois par visite |
+| `data-on-accent` | Couleur du texte et des icônes posés sur la couleur du chat (blanc par défaut) |
+
+La page peut aussi piloter le chat : `WakilChat.open()`, `WakilChat.send("Bonjour")`.
 
 Le site doit être déclaré dans `webOrigins` de l'entreprise (`config/tenants.json`), par exemple `"https://yassine1158.github.io"`. Avec un nom de domaine (ex. `https://sicar-sarl.ci`), l'ajouter aussi.
 

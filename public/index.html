@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wakil · Votre commercial IA sur WhatsApp</title>
+<meta name="description" content="Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Pour les commerces et PME d'Afrique.">
+<meta name="theme-color" content="#0e2a23">
+<meta property="og:title" content="Wakil · Votre commercial IA sur WhatsApp">
+<meta property="og:description" content="Il répond, il conseille, il vend. Même à 3 h du matin.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F2A93B'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%230E2A23' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Kufi+Arabic:wght@700&display=swap">
+<style>
+  :root {
+    --green: #0e2a23; --green-2: #12392f; --green-3: #1b4a3d;
+    --cream: #f6f1e7; --paper: #fffdf8; --ink: #0e2a23; --ink-2: #3c544c;
+    --sand: #f2a93b; --sand-ink: #8a5300; --mist: #b9c7bf; --light: #f4efe6;
+    --line: rgba(14, 42, 35, .12); --line-d: rgba(244, 239, 230, .14);
+    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --radius: 22px; --wrap: 1180px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body { margin: 0; font-family: var(--body); color: var(--ink); background: var(--cream); line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  img, svg { display: block; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--sand); outline-offset: 3px; border-radius: 6px; }
+  .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; line-height: 1.02; }
+  h2 { font-size: clamp(34px, 5vw, 56px); font-weight: 800; }
+  h3 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+  p { margin: 0; }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--sand-ink); }
+  .dark .eyebrow { color: var(--sand); }
+  .lead { font-size: clamp(18px, 2vw, 21px); color: var(--ink-2); max-width: 640px; }
+  .dark .lead { color: #d6ded9; }
+  section { padding: clamp(72px, 10vw, 120px) 0; }
+  .dark { background: var(--green); color: var(--light); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 26px; border-radius: 999px;
+         font: 700 16px/1 var(--body); text-decoration: none; border: 2px solid transparent; cursor: pointer; transition: transform .2s ease, background .2s ease; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-sand { background: var(--sand); color: var(--green); }
+  .btn-sand:hover { background: #f7c477; }
+  .btn-ghost { border-color: var(--line-d); color: var(--light); }
+  .btn-ghost:hover { border-color: var(--light); }
+  .btn-green { background: var(--green); color: var(--light); }
+  .btn-green:hover { background: var(--green-3); }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* En-tête */
+  .top { position: sticky; top: 0; z-index: 50; background: rgba(14, 42, 35, .92); backdrop-filter: blur(10px); color: var(--light); border-bottom: 1px solid var(--line-d); }
+  .top .wrap { display: flex; align-items: center; gap: 24px; min-height: 72px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-right: auto; }
+  .brand svg { width: 40px; height: 40px; }
+  .brand b { font: 800 30px/1 var(--display); letter-spacing: -1px; }
+  .nav { display: flex; gap: 26px; font-weight: 500; }
+  .nav a { text-decoration: none; color: var(--mist); padding: 8px 0; }
+  .nav a:hover { color: var(--light); }
+  .top .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
+  @media (max-width: 860px) { .nav { display: none; } }
+
+  /* Accueil */
+  .hero { background: var(--green); color: var(--light); padding: clamp(56px, 8vw, 96px) 0 clamp(72px, 9vw, 110px); overflow: hidden; position: relative; }
+  .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; border: 2px solid rgba(242, 169, 59, .16); pointer-events: none; }
+  .hero::before { width: 620px; height: 620px; top: -260px; right: -220px; }
+  .hero::after { width: 420px; height: 420px; top: -160px; right: -120px; }
+  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 56px; align-items: center; position: relative; }
+  .hero h1 { font-size: clamp(46px, 7.4vw, 92px); font-weight: 800; letter-spacing: -.035em; line-height: .96; margin: 18px 0 24px; }
+  .hero h1 span { color: var(--sand); }
+  .hero .lead { margin-bottom: 34px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 14px; }
+  .meaning { margin-top: 40px; display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 16px; background: rgba(244, 239, 230, .06); max-width: 560px; }
+  .meaning .ar { font: 700 34px/1.2 "Noto Kufi Arabic", sans-serif; color: var(--sand); }
+  .meaning p { font-size: 16px; color: var(--mist); }
+  .meaning b { color: var(--light); }
+  @media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } .phone { margin: 0 auto; } }
+
+  /* Téléphone de démonstration */
+  .phone { width: min(100%, 370px); border-radius: 46px; background: #061712; padding: 12px; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .6); }
+  .screen { border-radius: 36px; overflow: hidden; background: #efe8dd; color: #1b1f1d; font-size: 14px; line-height: 1.42; }
+  .screen .bar { background: var(--green-2); color: var(--light); padding: 20px 18px 14px; display: flex; align-items: center; gap: 12px; }
+  .screen .av { width: 40px; height: 40px; border-radius: 50%; background: var(--green-3); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .screen .bar small { display: block; color: #a9c2b8; font-size: 12px; }
+  .chat { padding: 16px 12px 20px; display: flex; flex-direction: column; gap: 9px; }
+  .bub { max-width: 84%; padding: 9px 12px; border-radius: 14px; }
+  .bub.in { align-self: flex-start; background: #fff; border-bottom-left-radius: 4px; }
+  .bub b { white-space: nowrap; }
+  .bub.out { align-self: flex-end; background: #cdebc0; border-bottom-right-radius: 4px; }
+  .voice { display: flex; align-items: center; gap: 8px; }
+  .voice svg { width: 20px; height: 20px; flex: none; }
+  .wave { display: flex; align-items: center; gap: 3px; height: 24px; }
+  .wave i { width: 3px; border-radius: 2px; background: #2c5a4c; }
+  .voice small { color: #3e5a50; font-size: 12px; }
+  .trans { font-size: 12.5px; font-style: italic; color: #3e5a50; margin-top: 6px; }
+  .pay { margin-top: 9px; background: var(--green); color: var(--light); border-radius: 10px; padding: 9px; text-align: center; font-weight: 700; font-size: 13px; }
+
+  /* Bandeau secteurs */
+  .sectors { background: var(--green-2); color: var(--mist); padding: 22px 0; border-top: 1px solid var(--line-d); }
+  .sectors .wrap { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; justify-content: center; font-weight: 500; }
+  .sectors b { color: var(--light); }
+
+  /* Problème */
+  .problem .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start; }
+  .pains { display: grid; gap: 16px; }
+  .pain { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 26px; }
+  .pain h3 { margin-bottom: 6px; }
+  .pain p { color: var(--ink-2); }
+  @media (max-width: 860px) { .problem .wrap { grid-template-columns: 1fr; gap: 36px; } }
+
+  /* Fonctions */
+  .head { max-width: 760px; margin-bottom: 48px; display: grid; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 960px) { .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 620px) { .grid3 { grid-template-columns: 1fr; } }
+  .card { background: rgba(244, 239, 230, .06); border: 1px solid var(--line-d); border-radius: var(--radius); padding: 28px; display: grid; gap: 12px; align-content: start; }
+  .card p { color: var(--mist); }
+  .ic { width: 52px; height: 52px; border-radius: 14px; background: var(--sand); color: var(--green); display: grid; place-items: center; }
+  .ic svg { width: 26px; height: 26px; }
+  .soon { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 24px; border-radius: var(--radius); border: 1px dashed rgba(242, 169, 59, .5); color: var(--mist); }
+  .soon b { color: var(--sand); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
+
+  /* Étapes */
+  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; counter-reset: s; }
+  @media (max-width: 780px) { .steps { grid-template-columns: 1fr; } }
+  .step { border-top: 2px solid var(--ink); padding-top: 20px; display: grid; gap: 10px; }
+  .step::before { counter-increment: s; content: "0" counter(s); font: 800 52px/1 var(--display); color: var(--sand-ink); }
+  .step p { color: var(--ink-2); }
+
+  /* Démo */
+  .demo .box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; background: var(--green-2); border-radius: 32px; padding: clamp(28px, 5vw, 56px); }
+  @media (max-width: 860px) { .demo .box { grid-template-columns: 1fr; } }
+  .demo .box > div { display: grid; gap: 18px; }
+  .tries { display: grid; gap: 10px; }
+  .try { text-align: left; background: rgba(244, 239, 230, .07); border: 1px solid var(--line-d); color: var(--light); border-radius: 16px; padding: 14px 18px;
+         font: 500 16px/1.4 var(--body); cursor: pointer; display: flex; gap: 12px; align-items: center; transition: background .2s, border-color .2s; }
+  .try:hover { background: rgba(244, 239, 230, .12); border-color: var(--sand); }
+  .try svg { width: 18px; height: 18px; color: var(--sand); flex: none; margin-left: auto; }
+  .note { font-size: 14px; color: var(--mist); }
+
+  /* Tarifs */
+  .price { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 32px; overflow: hidden; }
+  @media (max-width: 860px) { .price { grid-template-columns: 1fr; } }
+  .price > div { padding: clamp(28px, 4vw, 48px); display: grid; gap: 18px; align-content: start; }
+  .price .side { background: var(--green); color: var(--light); }
+  .price .side p { color: var(--mist); }
+  .tag { display: inline-block; justify-self: start; background: var(--sand); color: var(--green); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
+  .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .checks li { display: flex; gap: 12px; align-items: flex-start; }
+  .checks svg { width: 22px; height: 22px; flex: none; color: #1f7a55; margin-top: 1px; }
+
+  /* FAQ */
+  .faq { max-width: 860px; }
+  details { border-bottom: 1px solid var(--line); }
+  summary { cursor: pointer; list-style: none; padding: 22px 44px 22px 0; position: relative; font: 600 20px/1.3 var(--display); }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; position: absolute; right: 6px; top: 16px; font: 400 30px/1 var(--body); color: var(--sand-ink); transition: transform .2s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { padding: 0 0 22px; color: var(--ink-2); max-width: 720px; }
+
+  /* Formulaire */
+  .form-box { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 56px; align-items: start; }
+  @media (max-width: 900px) { .form-box { grid-template-columns: 1fr; gap: 36px; } }
+  form { background: var(--paper); color: var(--ink); border-radius: 28px; padding: clamp(24px, 4vw, 40px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+  @media (max-width: 560px) { form { grid-template-columns: 1fr; } }
+  label { display: grid; gap: 7px; font-weight: 600; font-size: 15px; }
+  label small { font-weight: 400; color: var(--ink-2); }
+  .full { grid-column: 1 / -1; }
+  input, select, textarea { font: 400 16px/1.4 var(--body); color: var(--ink); background: #fff; border: 1.5px solid rgba(14, 42, 35, .22); border-radius: 12px; padding: 12px 14px; min-height: 50px; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px rgba(242, 169, 59, .45); }
+  textarea { resize: vertical; min-height: 96px; }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  form .btn { justify-self: start; }
+  .status { grid-column: 1 / -1; font-weight: 600; min-height: 1.4em; }
+  .status.err { color: #a3261a; }
+  .thanks { background: var(--paper); color: var(--ink); border-radius: 28px; padding: 40px; display: grid; gap: 12px; }
+  .thanks[hidden] { display: none; }
+
+  footer { background: #071a15; color: var(--mist); padding: 40px 0; font-size: 15px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; }
+  footer .brand b { color: var(--light); font-size: 24px; }
+  footer .brand svg { width: 32px; height: 32px; }
+  footer .ar { font-family: "Noto Kufi Arabic", sans-serif; color: var(--sand); }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F2A93B"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#0E2A23" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".15"/><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="Wakil, accueil"><svg aria-hidden="true"><use href="#logo"/></svg><b>wakil</b></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#fonctionnement">Fonctionnement</a>
+      <a href="#demo">Démo</a>
+      <a href="#tarifs">Tarifs</a>
+      <a href="#faq">Questions</a>
+    </nav>
+    <a class="btn btn-sand" href="#essayer">Essayer Wakil</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero dark" aria-labelledby="titre">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Commercial IA · WhatsApp et site web</p>
+        <h1 id="titre">Votre meilleur commercial <span>ne dort jamais.</span></h1>
+        <p class="lead">Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Vous recevez chaque demande sur votre téléphone.</p>
+        <div class="cta">
+          <a class="btn btn-sand" href="#essayer">Essayer Wakil <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+          <a class="btn btn-ghost" href="#demo">Parler à Wakil maintenant</a>
+        </div>
+        <div class="meaning">
+          <span class="ar" lang="ar" dir="rtl">وكيل</span>
+          <p><b>Wakil</b> : « celui qui agit en votre nom ». Un mot compris de Tunis à Abidjan, de Dakar à Zanzibar.</p>
+        </div>
+      </div>
+
+      <div class="phone" role="img" aria-label="Exemple de conversation WhatsApp : un client envoie un vocal pour une dalle, Wakil conseille du gravier 15/25 et du sable 0/5, calcule les quantités et prend la commande.">
+        <div class="screen" aria-hidden="true">
+          <div class="bar"><div class="av">CK</div><div><b>Carrière Kouamé</b><small>répond en quelques secondes</small></div></div>
+          <div class="chat">
+            <div class="bub out">
+              <div class="voice">
+                <svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="#2c5a4c"/></svg>
+                <div class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:12px"></i><i style="height:24px"></i><i style="height:18px"></i><i style="height:10px"></i><i style="height:22px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:19px"></i><i style="height:13px"></i><i style="height:21px"></i><i style="height:11px"></i><i style="height:8px"></i></div>
+                <small>0:07</small>
+              </div>
+              <div class="trans">« Je coule une dalle de 10 sur 8, il me faut quoi ? »</div>
+            </div>
+            <div class="bub in">Pour une dalle, je vous conseille le <b>gravier 15/25</b> avec du <b>sable 0/5</b>. Pour 10 × 8 m sur 15 cm : environ <b>14 t de gravier</b> et <b>7 t de sable</b>. On vous livre où ?</div>
+            <div class="bub out">À Yopougon, demain matin</div>
+            <div class="bub in">C'est noté ✓ Votre référence : <b>W-4K2P9Q</b>. L'équipe vous confirme le prix et l'heure de livraison.<div class="pay">Bientôt : payer l'acompte par mobile money</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="sectors" aria-label="Secteurs">
+    <div class="wrap"><b>Pensé pour :</b><span>Matériaux de construction</span><span>Carrières</span><span>Quincailleries</span><span>Grossistes</span><span>Boutiques</span></div>
+  </div>
+
+  <section class="problem" aria-labelledby="probleme">
+    <div class="wrap">
+      <div class="head" style="margin:0">
+        <p class="eyebrow">Le problème</p>
+        <h2 id="probleme">Vos clients écrivent quand vous n'êtes pas là.</h2>
+        <p class="lead">Le soir, le dimanche, quand vous êtes sur le chantier ou au dépôt. Chaque message qui attend, c'est un client qui appelle le concurrent.</p>
+      </div>
+      <div class="pains">
+        <div class="pain"><h3>Des messages sans réponse</h3><p>Le client demande un prix à 21 h. Le lendemain matin, il a déjà acheté ailleurs.</p></div>
+        <div class="pain"><h3>Toujours les mêmes questions</h3><p>« C'est quoi la différence entre le 5/10 et le 15/25 ? » « Vous livrez à Cocody ? » Dix fois par jour.</p></div>
+        <div class="pain"><h3>Des devis qui se perdent</h3><p>Un vocal par-ci, une photo par-là : la commande est éparpillée dans la conversation et personne ne la note.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dark" id="fonctionnement" aria-labelledby="fonctions">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Ce que fait Wakil</p>
+        <h2 id="fonctions">Un vrai commercial, pas un robot à menus.</h2>
+        <p class="lead">Le client parle normalement, comme à un vendeur. Wakil comprend, répond et fait avancer la vente.</p>
+      </div>
+      <div class="grid3">
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div><h3>Comprend les vocaux</h3><p>Messages écrits ou vocaux, en français d'ici, et il répond dans la langue du client.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div><h3>Connaît votre catalogue</h3><p>Il conseille uniquement vos produits, envoie leurs photos et n'invente jamais un prix.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h2M12 18h2"/></svg></div><h3>Calcule les quantités</h3><p>« Une dalle de 10 sur 8 ? » Il estime les tonnes nécessaires, comme votre meilleur vendeur.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h9"/></svg></div><h3>Prend les commandes</h3><p>Récapitulatif, confirmation du client, référence. La commande arrive résumée sur votre WhatsApp.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11l2 2 4-4"/></svg></div><h3>Vous passe la main</h3><p>Réclamation, négociation, grosse commande : il vous prévient et se met en retrait.</p></div>
+        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="14" height="11" rx="2"/><path d="M6 19h6M9 15v4"/><rect x="17" y="8" width="5" height="12" rx="1.5"/></svg></div><h3>WhatsApp et votre site</h3><p>Le même assistant répond sur votre numéro WhatsApp et dans un chat sur votre site web.</p></div>
+      </div>
+      <div class="soon"><b>Bientôt</b><span>Paiement de l'acompte par mobile money (Wave, Orange Money, MTN MoMo), directement dans la conversation.</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="etapes">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Mise en route</p>
+        <h2 id="etapes">Trois étapes, et il travaille pour vous.</h2>
+      </div>
+      <div class="steps">
+        <div class="step"><h3>Envoyez votre catalogue</h3><p>Une photo de votre liste, un PDF ou un fichier Excel : nous préparons tout.</p></div>
+        <div class="step"><h3>Connectez votre WhatsApp</h3><p>Un numéro dédié à Wakil, à votre nom. Choisissez son ton et ce qu'il peut faire.</p></div>
+        <div class="step"><h3>Recevez les commandes</h3><p>Jour et nuit, 7 jours sur 7, résumées sur votre téléphone.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dark demo" id="demo" aria-labelledby="demo-titre">
+    <div class="wrap">
+      <div class="box">
+        <div>
+          <p class="eyebrow">Démonstration en direct</p>
+          <h2 id="demo-titre">Parlez-lui comme un client.</h2>
+          <p class="lead">Wakil joue le commercial de <b>Carrière Démo</b>, une entreprise fictive avec le vrai catalogue d'une carrière ivoirienne. Posez vos questions, demandez un devis, essayez de le piéger.</p>
+          <p class="note">Rien n'est vendu ni livré : c'est une démonstration.</p>
+        </div>
+        <div class="tries">
+          <button class="try" type="button" data-q="Bonjour, je coule une dalle de 10 m sur 8, il me faut quoi ?">« Je coule une dalle de 10 m sur 8, il me faut quoi ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <button class="try" type="button" data-q="Quelle est la différence entre le gravier 5/10 et le 15/25 ?">« Quelle différence entre le 5/10 et le 15/25 ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <button class="try" type="button" data-q="Vous livrez à Yopougon ? C'est combien la tonne ?">« Vous livrez à Yopougon ? C'est combien la tonne ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <button class="try" type="button" data-q="Je veux parler à quelqu'un de l'équipe">« Je veux parler à quelqu'un de l'équipe »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <button class="btn btn-sand" type="button" id="open-demo">Écrire ma propre question</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tarifs" aria-labelledby="tarifs-titre">
+    <div class="wrap">
+      <div class="head">
+        <p class="eyebrow">Tarifs</p>
+        <h2 id="tarifs-titre">Un tarif adapté à votre activité.</h2>
+        <p class="lead">Nous démarrons avec nos premières entreprises. Le tarif dépend du nombre de conversations et des canaux choisis.</p>
+      </div>
+      <div class="price">
+        <div>
+          <span class="tag">Inclus</span>
+          <ul class="checks">
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Assistant sur votre numéro WhatsApp, 24 h/24</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Chat sur votre site web</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Mise en place de votre catalogue par notre équipe</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Commandes et demandes de conseiller envoyées sur votre WhatsApp</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Compréhension des vocaux</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Réglages du ton et des règles de vente</li>
+          </ul>
+        </div>
+        <div class="side">
+          <h3>Parlons de votre entreprise</h3>
+          <p>Dites-nous ce que vous vendez et combien de messages vous recevez : nous vous proposons un tarif clair, en FCFA.</p>
+          <a class="btn btn-sand" href="#essayer">Demander un tarif <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0" id="faq" aria-labelledby="faq-titre">
+    <div class="wrap faq">
+      <div class="head"><p class="eyebrow">Questions</p><h2 id="faq-titre">Vous vous demandez sûrement…</h2></div>
+      <details><summary>Mes clients sauront-ils qu'ils parlent à une IA ?</summary><p>Oui. Wakil se présente comme l'assistant virtuel de votre entreprise, et le dit si on lui demande. Les clients apprécient surtout d'avoir une réponse tout de suite.</p></details>
+      <details><summary>Et s'il ne sait pas répondre ?</summary><p>Il ne devine pas. Pour une question hors catalogue, une réclamation ou une négociation, il vous prévient sur WhatsApp avec un résumé, et vous reprenez la conversation.</p></details>
+      <details><summary>Est-ce qu'il donne des prix ?</summary><p>Seulement ceux que vous lui donnez. Si un produit est « sur devis », il prend la demande et votre équipe confirme le prix.</p></details>
+      <details><summary>Faut-il un nouveau numéro WhatsApp ?</summary><p>Nous recommandons un numéro dédié à Wakil, enregistré au nom de votre entreprise chez Meta. Votre numéro personnel reste à vous.</p></details>
+      <details><summary>Combien de temps pour démarrer ?</summary><p>En général quelques jours : le temps de préparer votre catalogue et de faire valider votre numéro par Meta.</p></details>
+      <details><summary>Que devient ce que disent mes clients ?</summary><p>Les conversations servent uniquement à répondre à vos clients et à vous transmettre leurs commandes. Elles ne sont ni vendues ni partagées.</p></details>
+    </div>
+  </section>
+
+  <section class="dark" id="essayer" aria-labelledby="essayer-titre">
+    <div class="wrap form-box">
+      <div class="head" style="margin:0">
+        <p class="eyebrow">Essayer Wakil</p>
+        <h2 id="essayer-titre">Mettez un commercial de plus dans votre équipe.</h2>
+        <p class="lead">Laissez vos coordonnées : nous vous recontactons sur WhatsApp pour préparer Wakil avec votre catalogue.</p>
+      </div>
+      <div>
+        <form id="lead" novalidate>
+          <label>Votre nom<input name="name" autocomplete="name" required maxlength="80"></label>
+          <label>Entreprise<input name="company" autocomplete="organization" required maxlength="120"></label>
+          <label>Secteur
+            <select name="sector">
+              <option value="">Choisir…</option>
+              <option>Matériaux de construction</option>
+              <option>Carrière / granulats</option>
+              <option>Quincaillerie</option>
+              <option>Grossiste / distribution</option>
+              <option>Boutique / commerce</option>
+              <option>Autre</option>
+            </select>
+          </label>
+          <label>Ville et pays<input name="city" autocomplete="address-level2" maxlength="80" placeholder="Abidjan, Côte d'Ivoire"></label>
+          <label class="full">Numéro WhatsApp <small>avec l'indicatif du pays</small><input name="phone" type="tel" autocomplete="tel" required placeholder="+225 07 00 00 00 00"></label>
+          <label class="full">Ce que vous vendez, ce que vous attendez de Wakil <small>(facultatif)</small><textarea name="message" maxlength="1000"></textarea></label>
+          <label class="hp" aria-hidden="true">Site web<input name="website" tabindex="-1" autocomplete="off"></label>
+          <button class="btn btn-green" type="submit">Envoyer ma demande <svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <p class="status" role="status" aria-live="polite"></p>
+        </form>
+        <div class="thanks" hidden tabindex="-1">
+          <h3>Merci, c'est bien reçu.</h3>
+          <p>Nous vous écrivons très vite sur WhatsApp. En attendant, testez la démo plus haut.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="Wakil, haut de page"><svg aria-hidden="true"><use href="#logo"/></svg><b>wakil</b></a>
+    <p><span class="ar" lang="ar" dir="rtl">وكيل</span> · le commercial qui agit en votre nom</p>
+    <p>© <span id="year">2026</span> Wakil</p>
+  </div>
+</footer>
+
+<script src="/wakil-chat.js" data-tenant="demo" data-accent="#f2a93b" data-on-accent="#0e2a23" data-position="right" data-title="Wakil · Carrière Démo" data-teaser="Essayez-moi : posez une question comme un client." defer></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Démo : les exemples ouvrent le chat et envoient la question.
+  const withChat = (fn) => (window.WakilChat ? fn(window.WakilChat) : setTimeout(() => withChat(fn), 200));
+  document.querySelectorAll(".try").forEach((b) => b.addEventListener("click", () => withChat((c) => c.send(b.dataset.q))));
+  document.getElementById("open-demo").addEventListener("click", () => withChat((c) => c.open()));
+
+  // Formulaire « Essayer Wakil »
+  const form = document.getElementById("lead"), status = form.querySelector(".status"), button = form.querySelector("button");
+  const ERRORS = {
+    missing_fields: "Indiquez votre nom et le nom de votre entreprise.",
+    invalid_phone: "Indiquez votre numéro WhatsApp avec l'indicatif du pays, par exemple +225 07 00 00 00 00.",
+    too_long: "Un des champs est trop long.",
+    rate_limited: "Trop d'envois d'un coup : réessayez dans une minute.",
+  };
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    if (!data.name.trim() || !data.company.trim()) return showError("missing_fields");
+    if (!/^\s*(\+|00)\s*\d[\d\s.-]{6,}$/.test(data.phone)) return showError("invalid_phone");
+    button.disabled = true;
+    status.className = "status";
+    status.textContent = "Envoi en cours…";
+    try {
+      const res = await fetch("/leads", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(data) });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok) return showError(out.error);
+      form.hidden = true;
+      const thanks = document.querySelector(".thanks");
+      thanks.hidden = false;
+      thanks.focus();
+    } catch {
+      showError();
+    } finally {
+      button.disabled = false;
+    }
+  });
+  function showError(code) {
+    status.className = "status err";
+    status.textContent = ERRORS[code] || "L'envoi n'a pas fonctionné. Réessayez dans un instant.";
+  }
+</script>
+</body>
+</html>

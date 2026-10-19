@@ -1,0 +1,7 @@
+{
+  "leads": {
+    "_comment": "Où envoyer les demandes du formulaire « Essayer Wakil » : votre numéro WhatsApp (sans +) et le Phone number ID qui envoie le message.",
+    "ownerPhone": "2250000000000",
+    "senderPhoneNumberId": "REMPLACER_PAR_PHONE_NUMBER_ID"
+  }
+}

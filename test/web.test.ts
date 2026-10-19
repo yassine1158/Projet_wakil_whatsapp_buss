@@ -64,6 +64,23 @@ describe("POST /chat", () => {
   });
 });
 
+describe("démonstration sur le site de Wakil", () => {
+  it("accepte la démo depuis le Worker lui-même, et seulement la démo", async () => {
+    const { env, calls } = fakeEnv();
+    const own = (tenant: string) =>
+      new Request("https://wakil.example/chat", {
+        method: "POST",
+        headers: { "content-type": "application/json", origin: "https://wakil.example" },
+        body: JSON.stringify({ tenant, session: SESSION, text: "Bonjour" }),
+      });
+    expect((await call(own("demo"), env)).status).toBe(200);
+    expect(calls[0].args[0]).toBe("DEMO");
+    expect((await call(own("sicar"), env)).status).toBe(403);
+    const config = await call(new Request("https://wakil.example/chat/config?tenant=demo"), env);
+    expect(await config.json()).toEqual({ businessName: "Carrière Démo", assistantName: "Wakil" });
+  });
+});
+
 describe("GET /chat/config et pré-vérification CORS", () => {
   it("donne les noms au site autorisé seulement", async () => {
     const { env } = fakeEnv();
