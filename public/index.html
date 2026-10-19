@@ -120,6 +120,25 @@
   .card p { color: var(--mist); }
   .ic { width: 52px; height: 52px; border-radius: 14px; background: var(--gold); color: var(--deep); display: grid; place-items: center; }
   .ic svg { width: 26px; height: 26px; }
+  .launch { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; background: rgba(244, 178, 58, .14); border: 1px solid rgba(244, 178, 58, .45); color: var(--light);
+            border-radius: 999px; padding: 8px 16px 8px 8px; font-weight: 600; font-size: 15px; text-decoration: none; margin-bottom: 18px; }
+  .launch b { background: var(--gold); color: var(--deep); border-radius: 999px; padding: 4px 12px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
+  .launch:hover { border-color: var(--gold); }
+  .soons { margin-top: 18px; display: grid; gap: 12px; }
+  .soons .soon { margin-top: 0; }
+  .soon.next { border-style: solid; border-color: var(--gold); background: rgba(244, 178, 58, .08); color: var(--light); }
+  .soon.next svg { width: 22px; height: 22px; color: var(--gold); }
+  /* Lancement */
+  .lancement .box { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+  @media (max-width: 860px) { .lancement .box { grid-template-columns: 1fr; } }
+  .lancement img { width: 100%; height: auto; border-radius: 24px; box-shadow: 0 30px 70px -30px rgba(21, 25, 58, .55); }
+  .lancement .txt { display: grid; gap: 20px; align-content: start; }
+  .count { display: flex; gap: 12px; flex-wrap: wrap; }
+  .count div { background: var(--deep); color: var(--light); border-radius: 18px; padding: 14px 18px; min-width: 104px; text-align: center; }
+  .count b { display: block; font: 800 44px/1 var(--display); color: var(--gold); font-variant-numeric: tabular-nums; }
+  .count span { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--mist); }
+  .lancement .cta { display: flex; flex-wrap: wrap; gap: 12px; }
+  .lancement ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
   .soon { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 24px; border-radius: var(--radius); border: 1px dashed rgba(242, 169, 59, .5); color: var(--mist); }
   .soon b { color: var(--gold); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
 
@@ -202,6 +221,7 @@
     <nav class="nav" aria-label="Sections">
       <a href="#fonctionnement">Fonctionnement</a>
       <a href="#demo">Démo</a>
+      <a href="#lancement">Lancement</a>
       <a href="#tarifs">Tarifs</a>
       <a href="#faq">Questions</a>
     </nav>
@@ -213,6 +233,7 @@
   <section class="hero dark" aria-labelledby="titre">
     <div class="wrap">
       <div>
+        <a class="launch" href="#lancement"><b>Lancement</b>12 décembre 2026<span class="j-count"></span></a>
         <p class="eyebrow">Commercial IA · WhatsApp et site web</p>
         <h1 id="titre">Votre meilleur commercial <span>ne dort jamais.</span></h1>
         <p class="lead">Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Vous recevez chaque demande sur votre téléphone.</p>
@@ -281,7 +302,10 @@
         <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11l2 2 4-4"/></svg></div><h3>Vous passe la main</h3><p>Réclamation, négociation, grosse commande : il vous prévient et se met en retrait.</p></div>
         <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="14" height="11" rx="2"/><path d="M6 19h6M9 15v4"/><rect x="17" y="8" width="5" height="12" rx="1.5"/></svg></div><h3>WhatsApp et votre site</h3><p>Le même assistant répond sur votre numéro WhatsApp et dans un chat sur votre site web.</p></div>
       </div>
-      <div class="soon"><b>Bientôt</b><span>Paiement de l'acompte par mobile money (Wave, Orange Money, MTN MoMo), directement dans la conversation.</span></div>
+      <div class="soons">
+        <div class="soon next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><b>Prochaine étape</b><span>Wakil répondra aussi au téléphone : le client appelle, Wakil décroche, conseille et prend la commande, de vive voix.</span></div>
+        <div class="soon"><b>Bientôt</b><span>Paiement de l'acompte par mobile money (Wave, Orange Money, MTN MoMo), directement dans la conversation.</span></div>
+      </div>
     </div>
   </section>
 
@@ -314,6 +338,32 @@
           <button class="try" type="button" data-q="Combien ça coûte, et il faut combien de temps pour démarrer ?">« Combien ça coûte, et pour démarrer ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
           <button class="try" type="button" data-q="Je veux parler à quelqu'un de l'équipe Wakil">« Je veux parler à quelqu'un de l'équipe »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
           <button class="btn btn-gold" type="button" id="open-demo">Écrire ma propre question</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="lancement" id="lancement" aria-labelledby="lancement-titre">
+    <div class="wrap">
+      <div class="box">
+        <a href="/img/wakil-lancement.jpg" target="_blank" rel="noopener"><img src="/img/wakil-lancement.jpg" width="1080" height="1350" loading="lazy" alt="Affiche de lancement de Wakil : « Vos clients écrivent à 21 h. Wakil répond. » Lancement le 12 décembre 2026. Prochaine étape : Wakil répondra aussi au téléphone."></a>
+        <div class="txt">
+          <p class="eyebrow">Lancement officiel</p>
+          <h2 id="lancement-titre">Rendez-vous le 12 décembre 2026.</h2>
+          <p class="lead">Wakil est déjà en test chez <b>SICAR SARL</b>, en Côte d'Ivoire. Le 12 décembre, il ouvre à toutes les entreprises.</p>
+          <div class="count" role="timer" aria-live="off" aria-label="Temps restant avant le lancement">
+            <div><b data-n="j">–</b><span>jours</span></div>
+            <div><b data-n="h">–</b><span>heures</span></div>
+            <div><b data-n="m">–</b><span>minutes</span></div>
+          </div>
+          <ul>
+            <li>Les premières entreprises inscrites démarrent en priorité.</li>
+            <li>Nous préparons votre catalogue avant le lancement : Wakil est prêt le jour J.</li>
+          </ul>
+          <div class="cta">
+            <a class="btn btn-deep" href="#essayer">Réserver ma place <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+            <a class="btn" href="/img/wakil-lancement.jpg" download="wakil-lancement.jpg" style="border-color:var(--line)">Télécharger l'affiche</a>
+          </div>
         </div>
       </div>
     </div>
@@ -408,6 +458,16 @@
 <script src="/wakil-chat.js" data-tenant="wakil" data-accent="#f4b23a" data-on-accent="#1b2066" data-position="right" data-title="Wakil" data-teaser="Une question sur Wakil ? Je vous réponds tout de suite." data-greeting="Bonjour 👋 Je suis Wakil, le commercial virtuel qui répond à vos clients sur WhatsApp et sur votre site. Que vendez-vous ? Je vous montre ce que je peux faire pour votre entreprise." defer></script>
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
+
+  // Compte à rebours jusqu'au lancement (12 décembre 2026, minuit à Abidjan).
+  const LAUNCH = Date.UTC(2026, 11, 12);
+  function tick() {
+    const left = Math.max(0, LAUNCH - Date.now());
+    const j = Math.floor(left / 864e5), h = Math.floor(left / 36e5) % 24, m = Math.floor(left / 6e4) % 60;
+    for (const [k, v] of Object.entries({ j, h, m })) document.querySelector(`[data-n="${k}"]`).textContent = v;
+    document.querySelectorAll(".j-count").forEach((el) => (el.textContent = left ? `· J-${j + (h || m ? 1 : 0)}` : "· C'est parti !"));
+  }
+  tick(); setInterval(tick, 30000);
 
   // Démo : les exemples ouvrent le chat et envoient la question.
   const withChat = (fn) => (window.WakilChat ? fn(window.WakilChat) : setTimeout(() => withChat(fn), 200));
