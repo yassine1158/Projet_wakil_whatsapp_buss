@@ -74,11 +74,11 @@ describe("démonstration sur le site de Wakil", () => {
         headers: { "content-type": "application/json", origin: "https://wakil.example" },
         body: JSON.stringify({ tenant, session: SESSION, text: "Bonjour" }),
       });
-    expect((await call(own("demo"), env)).status).toBe(200);
-    expect(calls[0].args[0]).toBe("demo");
+    expect((await call(own("wakil"), env)).status).toBe(200);
+    expect(calls[0].args[0]).toBe("wakil");
     expect((await call(own("sicar"), env)).status).toBe(403);
-    const config = await call(new Request("https://wakil.example/chat/config?tenant=demo"), env);
-    expect(await config.json()).toEqual({ businessName: "Carrière Démo", assistantName: "Wakil" });
+    const config = await call(new Request("https://wakil.example/chat/config?tenant=wakil"), env);
+    expect(await config.json()).toEqual({ businessName: "Wakil", assistantName: "Wakil" });
   });
 });
 

@@ -158,7 +158,7 @@ Envoyez « Bonjour » au numéro de test : Wakil répond.
 ## Le site de Wakil
 
 Le Worker sert aussi le site de présentation de Wakil (`public/index.html`), à sa propre adresse : `https://wakil-whatsapp.<votre-compte>.workers.dev/`. On y trouve :
-- **une démonstration en direct** : le chat joue le commercial de « Carrière Démo », une entreprise fictive (`demo` dans `config/tenants.json`) qui reprend le catalogue de SICAR. Personne n'est prévenu pour ses « commandes » ;
+- **Wakil en direct** : le chat de la page est Wakil lui-même (`wakil` dans `config/tenants.json`), qui présente l'offre aux patrons, répond à leurs questions et peut jouer le rôle de leur assistant ; il les invite à remplir le formulaire ;
 - **le formulaire « Essayer Wakil »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
 
 Les messages de la démonstration sont de vrais appels au modèle : les limites du chat web s'appliquent aussi.
@@ -184,6 +184,7 @@ Une fois le Worker déployé : **Administration → Informations → « Assistan
 | `data-offset` | Distance au bas de l'écran, en pixels (24 par défaut) |
 | `data-title` | Titre de la fenêtre (par défaut « Assistant » + nom de l'entreprise) |
 | `data-teaser` | Phrase de la bulle d'invitation affichée une fois par visite |
+| `data-greeting` | Message d'accueil du chat (par défaut : présentation de l'assistant de l'entreprise) |
 | `data-on-accent` | Couleur du texte et des icônes posés sur la couleur du chat (blanc par défaut) |
 
 La page peut aussi piloter le chat : `WakilChat.open()`, `WakilChat.send("Bonjour")`.

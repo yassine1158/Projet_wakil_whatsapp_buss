@@ -18,20 +18,58 @@
     "handoffHours": 12
   },
   {
-    "id": "demo",
+    "id": "wakil",
     "demo": true,
-    "businessName": "Carrière Démo",
+    "businessName": "Wakil",
     "assistantName": "Wakil",
     "ownerPhone": "",
     "timezone": "Africa/Abidjan",
     "defaultCountryCode": "225",
     "webOrigins": [],
     "catalog": {
-      "productsUrl": "https://yassine1158.github.io/SICAR_SARL/data/products.json",
-      "siteUrl": "https://yassine1158.github.io/SICAR_SARL/data/site.json",
-      "assetBaseUrl": "https://yassine1158.github.io/SICAR_SARL/"
+      "products": [
+        {
+          "id": "wakil-whatsapp",
+          "name": "Wakil sur WhatsApp",
+          "category": "Offre",
+          "description": "Un commercial virtuel qui répond aux clients sur le numéro WhatsApp de l'entreprise, 24 h/24 et 7 j/7 : il comprend les messages écrits et les vocaux, conseille les produits du catalogue, estime les quantités, prend les commandes et les envoie résumées sur le WhatsApp du patron.",
+          "price": "",
+          "unit": "mois",
+          "available": true
+        },
+        {
+          "id": "wakil-site",
+          "name": "Chat Wakil sur le site web",
+          "category": "Offre",
+          "description": "Le même assistant dans une bulle de chat sur le site de l'entreprise. Une seule ligne à ajouter au site.",
+          "price": "",
+          "unit": "mois",
+          "available": true
+        },
+        {
+          "id": "wakil-espace",
+          "name": "Espace patron (application)",
+          "category": "Inclus",
+          "description": "Une application sur téléphone et ordinateur : toutes les conversations, les commandes à confirmer, la possibilité de reprendre la main sur un client, et un essai de l'assistant avant de l'ouvrir aux clients.",
+          "price": "inclus",
+          "unit": "mois",
+          "available": true
+        },
+        {
+          "id": "wakil-mise-en-route",
+          "name": "Mise en route",
+          "category": "Inclus",
+          "description": "L'équipe Wakil prépare le catalogue (à partir d'une liste, d'une photo, d'un PDF ou d'un fichier Excel), relie le numéro WhatsApp et règle le ton et les règles de vente avec le patron. En général quelques jours.",
+          "price": "inclus",
+          "unit": "entreprise",
+          "available": true
+        }
+      ]
     },
-    "instructions": "Tu fais une démonstration de Wakil sur le site de Wakil : « Carrière Démo » est une entreprise fictive, avec le catalogue d'une vraie carrière ivoirienne. Joue le rôle normalement (conseil, quantités, commande), mais rappelle à la fin d'une commande qu'il s'agit d'une démonstration et que rien ne sera livré. Si le visiteur veut Wakil pour sa propre entreprise, invite-le à remplir le formulaire « Essayer Wakil » plus bas sur la page.\nRepères pour estimer les quantités (toujours présentés comme des estimations, l'équipe confirme) :\n• 1 m³ de granulats pèse environ 1,4 à 1,7 tonne selon le produit.\n• Béton courant, pour 1 m³ de béton : environ 800 litres de gravier (≈ 1,2 t) et 400 litres de sable (≈ 0,6 t).\n• Volume d'une dalle = longueur × largeur × épaisseur (une dalle courante fait 12 à 15 cm).\n• Conseille d'ajouter 5 à 10 % de marge.\nLe catalogue ne contient pas de ciment ni de fer : si le client en demande, dis que SICAR fournit les granulats et que l'équipe peut le renseigner.",
+    "info": {
+      "about": "Wakil est un commercial virtuel pour les PME d'Afrique de l'Ouest (matériaux de construction, carrières, quincailleries, grossistes, boutiques). Il répond aux clients sur WhatsApp et sur le site web, au nom de l'entreprise, et passe la main à l'équipe quand il le faut."
+    },
+    "instructions": "Ici, tu ne vends pas de produits physiques : tu présentes Wakil lui-même, sur le site de Wakil, à des patrons et commerçants qui pourraient l'utiliser pour leur entreprise. Ton client est donc un chef d'entreprise.\n• Explique simplement ce que Wakil fait pour lui : réponses immédiates jour et nuit, conseil sur ses produits, estimation des quantités, prise de commande, commandes résumées sur son WhatsApp, passage de main à son équipe pour les réclamations et négociations.\n• Pose-lui des questions sur son activité (ce qu'il vend, combien de messages il reçoit, s'il a un site) et montre en une ou deux phrases ce que Wakil changerait pour lui.\n• S'il veut voir comment tu réponds à ses clients, propose-lui de jouer le rôle d'un de ses clients : tu réponds alors comme le ferait son assistant, en restant prudent sur les prix.\n• Prix : le tarif dépend du nombre de conversations et des canaux choisis ; ne donne jamais de montant. Propose de laisser ses coordonnées pour recevoir une offre en FCFA.\n• Pour démarrer ou recevoir un tarif, invite-le à remplir le formulaire « Essayer Wakil » en bas de cette page (nom, entreprise, numéro WhatsApp) : l'équipe le recontacte sur WhatsApp. S'il préfère te laisser ses coordonnées ici, demande son nom, son entreprise et son numéro WhatsApp, puis appelle request_human avec un résumé de son besoin.\n• N'utilise jamais record_order ni send_product_photo ici.\n• Démarrage : quelques jours, le temps de préparer le catalogue et de faire valider le numéro par Meta. Il faut de préférence un numéro WhatsApp dédié, au nom de l'entreprise. Les conversations servent uniquement à répondre aux clients ; elles ne sont ni vendues ni partagées.\n• Si on te demande si tu es une IA : oui, tu es un assistant virtuel, et c'est justement ce que Wakil propose.",
     "handoffHours": 1
   }
 ]

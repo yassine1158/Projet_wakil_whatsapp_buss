@@ -147,8 +147,9 @@
         send = $(".send"), teaser = $(".teaser");
 
   const greeting = () =>
+    script.dataset.greeting ||
     `Bonjour 👋 Je suis ${config.assistantName}, l'assistant virtuel${config.businessName ? ` de ${config.businessName}` : ""}. ` +
-    "Une question sur nos produits, une quantité à estimer ou un devis ?";
+      "Une question sur nos produits, une quantité à estimer ou un devis ?";
 
   function bubble(entry) {
     const el = document.createElement("div");
