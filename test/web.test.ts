@@ -18,6 +18,7 @@ function fakeEnv(limited = false) {
       }),
     },
     CHAT_LIMITER: { limit: async () => ({ success: !limited }) },
+    INBOX: { idFromName: (n: string) => n, get: () => ({ listTenants: async () => [] }) },
   } as unknown as Env;
   return { env, calls };
 }
@@ -38,7 +39,7 @@ describe("POST /chat", () => {
     expect(res.status).toBe(200);
     expect(res.headers.get("access-control-allow-origin")).toBe(SITE);
     expect(await res.json()).toEqual({ replies: [{ type: "text", text: "Bonjour !" }] });
-    expect(calls).toEqual([{ name: `web:sicar:${SESSION}`, args: ["REMPLACER_PAR_PHONE_NUMBER_ID", SESSION, "Bonjour"] }]);
+    expect(calls).toEqual([{ name: `web:sicar:${SESSION}`, args: ["sicar", SESSION, "Bonjour"] }]);
   });
 
   it("refuse un site non autorisé ou une entreprise inconnue", async () => {
@@ -74,7 +75,7 @@ describe("démonstration sur le site de Wakil", () => {
         body: JSON.stringify({ tenant, session: SESSION, text: "Bonjour" }),
       });
     expect((await call(own("demo"), env)).status).toBe(200);
-    expect(calls[0].args[0]).toBe("DEMO");
+    expect(calls[0].args[0]).toBe("demo");
     expect((await call(own("sicar"), env)).status).toBe(403);
     const config = await call(new Request("https://wakil.example/chat/config?tenant=demo"), env);
     expect(await config.json()).toEqual({ businessName: "Carrière Démo", assistantName: "Wakil" });

@@ -138,21 +138,21 @@ beforeEach(() => {
 
 describe("enqueueMessage", () => {
   it("ignore les doublons et regroupe les messages rapprochés", async () => {
-    expect(await enqueueMessage(storage, "PNID", msg("m1"), NOW, 4000)).toBe(true);
-    expect(await enqueueMessage(storage, "PNID", msg("m1"), NOW + 100, 4000)).toBe(false);
-    expect(await enqueueMessage(storage, "PNID", msg("m2"), NOW + 2000, 4000)).toBe(true);
+    expect(await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW, 4000)).toBe(true);
+    expect(await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW + 100, 4000)).toBe(false);
+    expect(await enqueueMessage(storage, "sicar", "PNID", msg("m2"), NOW + 2000, 4000)).toBe(true);
     expect((await storage.get<IncomingMessage[]>("pending"))!.map((m) => m.id)).toEqual(["m1", "m2"]);
     expect(storage.alarm).toBe(NOW + 6000);
     // Jamais plus de 15 s après le premier message.
-    await enqueueMessage(storage, "PNID", msg("m3"), NOW + 14_000, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m3"), NOW + 14_000, 4000);
     expect(storage.alarm).toBe(NOW + 15_000);
   });
 });
 
 describe("processPending", () => {
   it("répond, enregistre la commande et prévient le patron", async () => {
-    await enqueueMessage(storage, "PNID", msg("m1", { text: "Je veux 14 tonnes de 15/25 livrées à Yopougon, c'est confirmé" }), NOW, 4000);
-    await enqueueMessage(storage, "PNID", msg("m2", { kind: "audio", text: undefined, mediaId: "a1", rawType: "audio" }), NOW + 1, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "Je veux 14 tonnes de 15/25 livrées à Yopougon, c'est confirmé" }), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m2", { kind: "audio", text: undefined, mediaId: "a1", rawType: "audio" }), NOW + 1, 4000);
 
     const { client, requests } = fakeClaude([
       {
@@ -208,7 +208,7 @@ describe("processPending", () => {
   });
 
   it("refuse une commande avec un produit inconnu et laisse le modèle corriger", async () => {
-    await enqueueMessage(storage, "PNID", msg("m1"), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW, 4000);
     const { client, requests } = fakeClaude([
       {
         stop_reason: "tool_use",
@@ -230,7 +230,7 @@ describe("processPending", () => {
   });
 
   it("passe la main à un conseiller puis se tait", async () => {
-    await enqueueMessage(storage, "PNID", msg("m1", { text: "Je veux parler à quelqu'un" }), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "Je veux parler à quelqu'un" }), NOW, 4000);
     const { client } = fakeClaude([
       {
         stop_reason: "tool_use",
@@ -244,7 +244,7 @@ describe("processPending", () => {
     expect(whatsapp.sent.find((s) => s.to === "22599")?.body).toContain("#reprendre 22507");
 
     whatsapp.sent = [];
-    await enqueueMessage(storage, "PNID", msg("m2", { text: "Allô ?" }), NOW + 60_000, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m2", { text: "Allô ?" }), NOW + 60_000, 4000);
     const silent = fakeClaude([]);
     await processPending(deps(silent.client, { now: () => NOW + 60_000 }));
     expect(silent.requests).toHaveLength(0);
@@ -252,19 +252,19 @@ describe("processPending", () => {
   });
 
   it("gère un refus et une panne de l'API", async () => {
-    await enqueueMessage(storage, "PNID", msg("m1"), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW, 4000);
     await processPending(deps(fakeClaude([{ stop_reason: "refusal", content: [] }]).client));
     expect(whatsapp.sent).toEqual([{ to: CLIENT, kind: "text", body: REFUSAL_REPLY }]);
 
     whatsapp.sent = [];
-    await enqueueMessage(storage, "PNID", msg("m2"), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m2"), NOW, 4000);
     await processPending(deps(fakeClaude([]).client));
     expect(whatsapp.sent.map((s) => s.to)).toEqual([CLIENT, "22599"]);
     expect(whatsapp.sent[0].body).toBe(TECHNICAL_ISSUE_REPLY);
   });
 
   it("utilise le modèle de message approuvé pour le patron s'il est configuré", async () => {
-    await enqueueMessage(storage, "PNID", msg("m1"), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW, 4000);
     const { client } = fakeClaude([
       {
         stop_reason: "tool_use",
@@ -287,7 +287,7 @@ describe("processPending", () => {
 });
 
 describe("chat du site web", () => {
-  const webMeta = { channel: "web" as const, phoneNumberId: "PNID", customerId: "session-abcdefgh12345678" };
+  const webMeta = { channel: "web" as const, tenantId: "sicar", phoneNumberId: "PNID", customerId: "session-abcdefgh12345678" };
   const webMsg = (id: string, text: string): IncomingMessage => ({
     id,
     from: webMeta.customerId,
@@ -353,7 +353,7 @@ describe("chat du site web", () => {
 
 describe("démonstration", () => {
   it("ne prévient personne quand l'entreprise n'a pas de patron", async () => {
-    await enqueueMessage(storage, "PNID", msg("m1"), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW, 4000);
     const { client } = fakeClaude([
       {
         stop_reason: "tool_use",
@@ -376,7 +376,7 @@ describe("fil de conversation et boîte de réception", () => {
       conversation: async (u: unknown) => void updates.push(u),
       order: async (o: Order) => void orders.push(o),
     };
-    await enqueueMessage(storage, "PNID", msg("m1", { text: "1 tonne de 15/25, je viens chercher" }), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "1 tonne de 15/25, je viens chercher" }), NOW, 4000);
     const { client } = fakeClaude([
       {
         stop_reason: "tool_use",
@@ -405,7 +405,7 @@ describe("fil de conversation et boîte de réception", () => {
   it("en mode essai, ne prévient personne et ne compte pas la commande", async () => {
     const orders: Order[] = [];
     const inbox = { conversation: async () => {}, order: async (o: Order) => void orders.push(o) };
-    await addIncoming(storage, { channel: "web", phoneNumberId: "PNID", customerId: "test-abcdefghijklmnop", test: true }, msg("m1", { from: "test-abcdefghijklmnop" }));
+    await addIncoming(storage, { channel: "web", tenantId: "sicar", phoneNumberId: "PNID", customerId: "test-abcdefghijklmnop", test: true }, msg("m1", { from: "test-abcdefghijklmnop" }));
     const { client } = fakeClaude([
       {
         stop_reason: "tool_use",
@@ -430,7 +430,7 @@ describe("fil de conversation et boîte de réception", () => {
 
 describe("numéro du client sur WhatsApp", () => {
   it("garde le numéro WhatsApp même si le modèle en donne un autre", async () => {
-    await enqueueMessage(storage, "PNID", msg("m1"), NOW, 4000);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW, 4000);
     const { client } = fakeClaude([
       {
         stop_reason: "tool_use",

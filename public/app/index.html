@@ -207,6 +207,43 @@
   .products div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); font-size: 14px; }
   .ok { color: var(--ok); font-weight: 700; } .ko { color: var(--danger); font-weight: 700; }
 
+  /* Entreprises */
+  .company .who b { font-size: 16px; }
+  .company .last { white-space: normal; }
+  .fiche { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; min-width: 0; }
+  .fiche [data-pane] { min-width: 0; }
+  .fiche .card, .view > section.card { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; min-width: 0; }
+  .fiche .card > p { margin: 0; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); gap: 14px; align-items: start; }
+  .fiche label { align-content: start; }
+  .hint { font-weight: 400; font-size: 13px; color: var(--muted); }
+  textarea { resize: vertical; }
+  input[type=number], input[type=tel], input[type=url], input[type=email] {
+    width: 100%; min-height: 46px; padding: 10px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); }
+  [aria-invalid="true"] { border-color: var(--danger) !important; }
+  .seg { display: inline-flex; padding: 4px; gap: 4px; background: var(--surface-2); border-radius: 12px; flex-wrap: wrap; }
+  .seg button { border: 0; background: none; padding: 8px 14px; border-radius: 9px; font-weight: 700; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; max-height: 460px; overflow-y: auto; }
+  .ptable { width: 100%; border-collapse: collapse; min-width: 640px; font-size: 14px; }
+  .ptable th { position: sticky; top: 0; background: var(--surface-2); text-align: left; padding: 8px 10px; font-size: 12.5px; color: var(--muted); z-index: 1; }
+  .ptable td { padding: 4px; border-top: 1px solid var(--line); vertical-align: middle; }
+  .ptable input[type=text] { min-height: 38px; padding: 6px 10px; border-radius: 9px; border-color: transparent; background: transparent; }
+  .ptable input[type=text]:hover { border-color: var(--line); }
+  .ptable td.c { text-align: center; width: 64px; }
+  .ptable input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--indigo); }
+  .ptable .x { border: 0; background: none; color: var(--muted); width: 38px; height: 38px; border-radius: 9px; font-size: 20px; line-height: 1; }
+  .ptable .x:hover { background: var(--danger-soft); color: var(--danger); }
+  .savebar { position: sticky; bottom: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end;
+             background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); padding: 12px 0; }
+  .savebar .error { margin-right: auto; }
+  @media (max-width: 899px) { .savebar { bottom: calc(68px + env(safe-area-inset-bottom)); } }
+  .secret { display: grid; gap: 6px; background: var(--gold-soft); border-radius: 14px; padding: 14px; }
+  .secret code { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
+  details summary { cursor: pointer; font-weight: 700; color: var(--indigo); }
+  details[open] summary { margin-bottom: 12px; }
+  .danger-zone { border-color: var(--danger-soft); }
+
   /* Feuille « Plus » et notifications */
   .sheet { position: fixed; inset: 0; z-index: 40; background: rgba(10, 12, 30, .45); display: grid; align-items: end; }
   .sheet div { background: var(--surface); border-radius: 22px 22px 0 0; padding: 14px max(16px, env(safe-area-inset-right)) calc(18px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); display: grid; gap: 6px; }
@@ -234,6 +271,8 @@
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-wa" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
     <symbol id="i-web" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 2.5 15.3 0 18M12 3c-2.5 2.7-2.5 15.3 0 18"/></g></symbol>
+    <symbol id="i-building" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16M15 9h4a1 1 0 0 1 1 1v11M2 21h20"/><path d="M8 8h3M8 12h3M8 16h3" stroke-linecap="round"/></g></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
     <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
@@ -257,7 +296,8 @@
     .replace(/(^|[\s(])\*([^*\n]+)\*/g, "$1<strong>$2</strong>")
     .replace(/\n/g, "<br>");
 
-  const state = { token: store.get("token"), tenants: [], tenant: store.get("tenant"), overview: null, filter: {} };
+  const state = { token: store.get("token"), role: null, metaSignup: null, tenants: [], tenant: store.get("tenant"), overview: null, filter: {} };
+  const isAdmin = () => state.role === "admin";
   let refreshTimer = null;
 
   /* ---------- API ---------- */
@@ -300,23 +340,27 @@
         <form id="login-form">
           <div class="logo">${icon("logo", "")}<b>wakil</b></div>
           <div><h1>Votre espace</h1><p class="muted" style="margin:6px 0 0">Suivez vos conversations, vos commandes et testez votre assistant.</p></div>
+          <label for="login">Identifiant<input id="login" name="login" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" value="${esc(store.get("login") || "")}" required>
+            <span class="hint">Celui que Wakil vous a donné (par exemple « sicar »).</span></label>
           <label for="password">Mot de passe<input id="password" type="password" autocomplete="current-password" required></label>
           <p class="error" role="alert">${esc(message)}</p>
           <button class="btn primary" type="submit">Se connecter</button>
         </form>
       </div>`;
     const form = document.getElementById("login-form");
-    form.password.focus();
+    (form.login.value ? form.password : form.login).focus();
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const btn = form.querySelector("button"); btn.disabled = true;
+      const login = form.login.value.trim().toLowerCase();
       try {
-        const { token } = await api("login", { password: form.password.value });
-        state.token = token; store.set("token", token);
+        const { token } = await api("login", { login, password: form.password.value });
+        state.token = token; store.set("token", token); store.set("login", login);
+        history.replaceState(null, "", location.pathname);
         await start();
       } catch (err) {
         const msg = {
-          wrong_password: "Mot de passe incorrect.",
+          wrong_password: "Identifiant ou mot de passe incorrect.",
           rate_limited: "Trop d'essais. Patientez une minute.",
           not_configured: "Le mot de passe n'est pas encore défini : ajoutez le secret ADMIN_PASSWORD sur Cloudflare.",
         }[err.code] || "Connexion impossible. Vérifiez votre réseau et réessayez.";
@@ -327,7 +371,7 @@
   }
 
   function logout() {
-    state.token = null; store.set("token", null);
+    state.token = null; state.role = null; store.set("token", null);
     renderLogin();
   }
 
@@ -337,9 +381,11 @@
     { id: "conversations", label: "Conversations", short: "Messages", icon: "i-chat" },
     { id: "commandes", label: "Commandes", icon: "i-box" },
     { id: "tester", label: "Tester", icon: "i-spark" },
-    { id: "demandes", label: "Demandes", icon: "i-users" },
     { id: "reglages", label: "Réglages", icon: "i-gear" },
+    { id: "demandes", label: "Demandes", icon: "i-users", admin: true },
+    { id: "entreprises", label: "Entreprises", icon: "i-building", admin: true },
   ];
+  const navItems = () => NAV.filter((n) => !n.admin || isAdmin());
   const badgeFor = (id) => {
     const o = state.overview; if (!o) return 0;
     return { commandes: o.newOrders, conversations: o.waitingForTeam, demandes: o.newLeads }[id] || 0;
@@ -347,7 +393,10 @@
 
   function renderShell() {
     const options = state.tenants.map((t) => `<option value="${esc(t.id)}" ${t.id === state.tenant ? "selected" : ""}>${esc(t.businessName)}${t.demo ? " (démo)" : ""}</option>`).join("");
-    const tenantSelect = (id) => `<label class="tenant"><span class="sr">Entreprise</span><select id="${id}">${options}</select></label>`;
+    // Un patron ne voit que son entreprise : son nom remplace le sélecteur.
+    const tenantSelect = (id) => state.tenants.length > 1
+      ? `<label class="tenant"><span class="sr">Entreprise</span><select id="${id}">${options}</select></label>`
+      : `<span class="tenant" style="color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 8px">${esc(tenantInfo().businessName)}</span>`;
     app.innerHTML = `
       <div class="shell">
         <aside class="side">
@@ -361,7 +410,7 @@
         <nav class="tabs" aria-label="Menu" id="tabs"></nav>
       </div>`;
     for (const id of ["tenant-side", "tenant-top"]) {
-      document.getElementById(id).addEventListener("change", (e) => {
+      document.getElementById(id)?.addEventListener("change", (e) => {
         state.tenant = e.target.value; store.set("tenant", state.tenant);
         document.querySelectorAll(".tenant select").forEach((s) => (s.value = state.tenant));
         location.hash = "#accueil"; route();
@@ -375,7 +424,7 @@
     const current = (location.hash.slice(1) || "accueil").split("/")[0];
     const nav = document.getElementById("nav"), tabs = document.getElementById("tabs");
     if (!nav) return;
-    nav.innerHTML = NAV.map((n) => {
+    nav.innerHTML = navItems().map((n) => {
       const b = badgeFor(n.id);
       return `<a href="#${n.id}" ${n.id === current ? 'aria-current="page"' : ""}>${icon(n.icon)}${n.label}${b ? `<span class="badge">${b}</span>` : ""}</a>`;
     }).join("");
@@ -390,8 +439,7 @@
     const sheet = document.createElement("div");
     sheet.className = "sheet";
     sheet.innerHTML = `<div role="dialog" aria-label="Plus">
-      <a href="#demandes">${icon("i-users")}Demandes${badgeFor("demandes") ? ` (${badgeFor("demandes")})` : ""}</a>
-      <a href="#reglages">${icon("i-gear")}Réglages</a>
+      ${navItems().slice(4).map((n) => `<a href="#${n.id}">${icon(n.icon)}${n.label}${badgeFor(n.id) ? ` (${badgeFor(n.id)})` : ""}</a>`).join("")}
       <button type="button" data-out>${icon("i-out")}Se déconnecter</button></div>`;
     const close = () => sheet.remove();
     sheet.addEventListener("click", (e) => {
@@ -634,7 +682,7 @@
     }));
   }
 
-  const TRIES = ["Bonjour, vous avez quoi comme gravier ?", "Il me faut du sable pour un mur de 10 m", "C'est combien la tonne ?", "Je veux parler à quelqu'un"];
+  const TRIES = ["Bonjour, qu'est-ce que vous proposez ?", "C'est combien ?", "Je voudrais passer une commande", "Je veux parler à quelqu'un"];
   function viewTester() {
     let session = sessionStorage.getItem("wakil-app:test-" + state.tenant);
     if (!session) { session = crypto.randomUUID().replace(/-/g, ""); sessionStorage.setItem("wakil-app:test-" + state.tenant, session); }
@@ -688,10 +736,11 @@
         <div class="head"><div><h1>Réglages</h1><p class="muted">${esc(s.businessName)} · assistant « ${esc(s.assistantName)} »</p></div></div>
         <div class="settings">
           <section class="card"><h2>WhatsApp</h2>
-            <p>${s.whatsappConfigured ? '<span class="ok">Numéro relié.</span>' : '<span class="ko">Numéro pas encore relié.</span> Ajoutez votre Phone number ID dans config/tenants.json.'}</p>
-            <p class="muted" style="margin:0">Adresse du webhook, à coller dans Meta → WhatsApp → Configuration :</p>
-            ${copyBox("webhook", s.webhookUrl)}
-            <p class="muted" style="margin:0">Commandes et alertes envoyées à : <b>${s.ownerPhone ? "+" + esc(s.ownerPhone) : "personne (démonstration)"}</b></p>
+            <p>${s.whatsappConfigured
+              ? `<span class="ok">Numéro relié${s.whatsappPhone ? ` : ${esc(s.whatsappPhone)}` : ""}.</span> Wakil répond à vos clients sur ce numéro.`
+              : `<span class="ko">Numéro pas encore relié.</span> ${s.isAdmin ? `Reliez-le depuis <a href="#entreprises/${encodeURIComponent(state.tenant)}">la fiche de l'entreprise</a>.` : "L'équipe Wakil s'en occupe avec vous."}`}</p>
+            ${s.isAdmin ? `<p class="muted" style="margin:0">Adresse du webhook, à coller dans Meta → WhatsApp → Configuration :</p>${copyBox("webhook", s.webhookUrl)}` : ""}
+            <p class="muted" style="margin:0">Commandes et alertes envoyées à : <b>${s.ownerPhone ? "+" + esc(s.ownerPhone) : "personne pour l'instant"}</b></p>
           </section>
           <section class="card"><h2>Chat sur votre site</h2>
             <p class="muted" style="margin:0">Collez cette ligne avant &lt;/body&gt; sur votre site :</p>
@@ -699,18 +748,20 @@
             <p class="muted" style="margin:0">Sites autorisés : ${s.webOrigins.length ? s.webOrigins.map((o) => `<b>${esc(o)}</b>`).join(", ") : "aucun pour l'instant"}.</p>
           </section>
           <section class="card"><h2>Catalogue</h2>
-            ${s.catalogError ? '<p class="ko">Catalogue introuvable : vérifiez son adresse.</p>' : `<p><b>${s.products.length}</b> produits connus de Wakil. <a href="${esc(s.catalogUrl)}" target="_blank" rel="noopener">Voir la source</a></p>`}
+            ${s.catalogError ? '<p class="ko">Catalogue introuvable : vérifiez son adresse.</p>' : `<p><b>${s.products.length}</b> produits connus de Wakil.${s.catalogUrl ? ` <a href="${esc(s.catalogUrl)}" target="_blank" rel="noopener">Voir la source</a>` : ""}</p>`}
             <div class="products">${s.products.map((p) => `<div><span>${esc(p.name)}</span><span class="${p.available ? "muted" : "ko"}">${p.available ? (p.price ? esc(p.price) + " FCFA / " + esc(p.unit) : "sur devis") : "indisponible"}</span></div>`).join("")}</div>
           </section>
           <section class="card"><h2>Assistant</h2>
-            <p style="margin:0">Modèle : <b>${esc(s.model)}</b></p>
+            <p style="margin:0">Nom : <b>${esc(s.assistantName)}</b></p>
+            ${s.isAdmin ? `<p style="margin:0">Modèle : <b>${esc(s.model)}</b></p>
             <button class="btn small gold" type="button" id="check-claude">Vérifier la connexion à Claude</button>
             <div id="check-result" role="status" aria-live="polite"></div>
-            <p class="muted" style="margin:0">Ces réglages se changent dans les fichiers du projet (config/tenants.json, wrangler.jsonc).</p>
+            <a class="btn small" href="#entreprises/${encodeURIComponent(state.tenant)}">Modifier la fiche de l'entreprise</a>`
+            : `<p class="muted" style="margin:0">Pour changer un prix, un produit ou une consigne, écrivez à l'équipe Wakil.</p>`}
           </section>
         </div>
       </div>`;
-    document.getElementById("check-claude").addEventListener("click", async (e) => {
+    document.getElementById("check-claude")?.addEventListener("click", async (e) => {
       const out = document.getElementById("check-result");
       e.target.disabled = true; out.innerHTML = '<p class="muted" style="margin:0">Vérification…</p>';
       try {
@@ -727,6 +778,412 @@
     stopRefresh();
   }
 
+  /* ---------- Entreprises (administrateur) ---------- */
+  async function viewEntreprises() {
+    main().innerHTML = `<div class="view"><div class="head"><div><h1>Entreprises</h1></div></div><div class="loading">Chargement…</div></div>`;
+    const list = await api("companies");
+    const tag = (ok, yes, no) => `<span class="pill ${ok ? "livree" : "annulee"}">${ok ? yes : no}</span>`;
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>Entreprises</h1><p class="muted">Vos clients Wakil : leur fiche, leur catalogue, leur numéro WhatsApp et l'accès du patron.</p></div>
+          <a class="btn primary" href="#entreprises/new">${icon("i-plus")}Nouvelle entreprise</a></div>
+        <div class="list">${list.map(({ tenant: t, hasPassword }) => `
+          <a class="row company" href="#entreprises/${encodeURIComponent(t.id)}">
+            <div class="av">${esc(t.businessName.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase())}</div>
+            <div style="min-width:0"><div class="who"><b>${esc(t.businessName)}</b>${t.demo ? '<span class="pill annulee">Démo</span>' : ""}</div>
+              <div class="last chips" style="margin-top:6px;gap:6px">
+                ${tag(t.whatsapp, `WhatsApp ${esc(t.whatsapp?.displayPhone || "relié")}`, "WhatsApp à relier")}
+                ${(t.webOrigins || []).length ? tag(true, "Chat sur le site", "") : ""}
+                ${t.demo ? "" : tag(hasPassword, "Accès patron", "Pas d'accès patron")}
+              </div></div>
+            <span class="muted" style="font-size:13px">${esc(t.id)}</span></a>`).join("")}
+        </div>
+      </div>`;
+  }
+
+  const TIMEZONES = ["Africa/Abidjan", "Africa/Dakar", "Africa/Bamako", "Africa/Ouagadougou", "Africa/Lome", "Africa/Porto-Novo", "Africa/Lagos", "Africa/Douala",
+    "Africa/Libreville", "Africa/Kinshasa", "Africa/Casablanca", "Africa/Algiers", "Africa/Tunis", "Africa/Cairo", "Africa/Nairobi", "Africa/Johannesburg", "Europe/Paris", "Europe/London", "Asia/Dubai"];
+  const FIELD_LABEL = { id: "Identifiant", businessName: "Nom de l'entreprise", timezone: "Fuseau horaire", defaultCountryCode: "Indicatif du pays", ownerPhone: "WhatsApp du patron",
+    webOrigins: "Sites autorisés", "catalog.productsUrl": "Adresse du catalogue", "catalog.siteUrl": "Adresse des informations", products: "Catalogue", instructions: "Consignes", paymentInstructions: "Paiement",
+    password: "Mot de passe", phoneNumberId: "Phone number ID" };
+  const ERROR_TEXT = { required: "est obligatoire", too_long: "est trop long", invalid: "n'est pas valable", invalid_url: "doit être une adresse https:// valable",
+    invalid_phone: "n'est pas un numéro valable", already_exists: "est déjà pris par une autre entreprise", too_many_products: "dépasse 500 produits", weak_password: "doit faire au moins 8 caractères" };
+  function fieldError(data) {
+    const field = data?.field || "";
+    const product = field.match(/^products\.(\d+)\.(\w+)/);
+    if (product) return `Catalogue, ligne ${Number(product[1]) + 1} : ${{ name: "le nom", image: "la photo", description: "la description" }[product[2]] || product[2]} ${ERROR_TEXT[data.error] || "n'est pas valable"}.`;
+    return `${FIELD_LABEL[field] || "Un champ"} ${ERROR_TEXT[data?.error] || "n'est pas valable"}.`;
+  }
+  const slug = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/, "");
+
+  async function viewEntreprise(id) {
+    const creating = id === "new";
+    main().innerHTML = `<div class="view"><div class="loading">Chargement…</div></div>`;
+    const c = creating ? { tenant: { webOrigins: [], catalog: { products: [] }, timezone: "Africa/Abidjan", defaultCountryCode: "225", assistantName: "Wakil", handoffHours: 12 } } : await api(`companies/${encodeURIComponent(id)}`);
+    const t = c.tenant, info = t.info || {};
+    let products = (t.catalog.products || []).map((p) => ({ ...p }));
+    let mode = t.catalog.productsUrl ? "url" : "table";
+    const tzs = TIMEZONES.includes(t.timezone) ? TIMEZONES : [t.timezone, ...TIMEZONES];
+    const field = (name, label, value, attrs = "", hint = "") =>
+      `<label for="f-${name}">${label}<input id="f-${name}" name="${name}" type="text" value="${esc(value ?? "")}" ${attrs}>${hint ? `<span class="hint">${hint}</span>` : ""}</label>`;
+    const area = (name, label, value, rows, hint = "") =>
+      `<label for="f-${name}">${label}<textarea id="f-${name}" name="${name}" rows="${rows}">${esc(value ?? "")}</textarea>${hint ? `<span class="hint">${hint}</span>` : ""}</label>`;
+
+    main().innerHTML = `
+      <div class="view">
+        <div class="conv-head">
+          <a class="back" href="#entreprises" aria-label="Retour aux entreprises">${icon("i-back")}</a>
+          <div style="min-width:0;flex:1 1 220px"><h1 style="font-size:24px">${creating ? "Nouvelle entreprise" : esc(t.businessName)}</h1>
+            ${creating ? "" : `<p class="muted" style="margin:4px 0 0">Identifiant de connexion : <b>${esc(t.id)}</b>${c.inConfig && !c.editedInApp ? " · fiche du fichier de configuration" : ""}</p>`}</div>
+          ${creating ? "" : `<button class="btn small" type="button" id="open-tenant">${icon("i-home")}Ouvrir son espace</button>`}
+        </div>
+
+        <form class="fiche" id="fiche" novalidate>
+          <section class="card"><h2>L'entreprise</h2>
+            <div class="grid2">
+              ${field("businessName", "Nom de l'entreprise", t.businessName, 'required maxlength="80" autocomplete="organization"')}
+              ${creating ? field("id", "Identifiant de connexion", "", 'required maxlength="40" autocapitalize="none" spellcheck="false" pattern="[a-z0-9-]+"', "Lettres minuscules, chiffres et tirets. Le patron l'utilise pour se connecter ; il ne change plus ensuite.") : ""}
+              ${field("assistantName", "Nom de l'assistant", t.assistantName, 'maxlength="40"', "Le prénom que l'assistant donne aux clients.")}
+              <label for="f-timezone">Fuseau horaire<select id="f-timezone" name="timezone">${tzs.map((z) => `<option ${z === t.timezone ? "selected" : ""}>${esc(z)}</option>`).join("")}</select></label>
+              ${field("defaultCountryCode", "Indicatif du pays", t.defaultCountryCode, 'inputmode="numeric" maxlength="4"', "Sans le +, par exemple 225 pour la Côte d'Ivoire.")}
+            </div>
+          </section>
+
+          <section class="card"><h2>Le patron</h2>
+            <div class="grid2">
+              ${field("ownerPhone", "Son numéro WhatsApp", t.ownerPhone ? "+" + t.ownerPhone : "", 'inputmode="tel" autocomplete="tel"', "Il y reçoit les nouvelles commandes et les clients qui demandent l'équipe.")}
+              <label for="f-handoffHours">Quand l'équipe prend la main, Wakil se tait pendant<select id="f-handoffHours" name="handoffHours">${[1, 2, 4, 8, 12, 24, 48, 72].map((h) => `<option value="${h}" ${h === (t.handoffHours || 12) ? "selected" : ""}>${h} h</option>`).join("")}</select></label>
+            </div>
+          </section>
+
+          <section class="card"><h2>Ce que les clients doivent savoir</h2>
+            <div class="grid2">
+              ${field("info.phone", "Téléphone affiché", info.phone, 'maxlength="40"')}
+              ${field("info.email", "E-mail", info.email, 'maxlength="120"')}
+              ${field("info.address", "Adresse", info.address, 'maxlength="200"')}
+              ${field("info.hours", "Horaires", info.hours, 'maxlength="200"', "Par exemple : lundi au samedi, 7 h – 18 h.")}
+            </div>
+            ${area("info.about", "Présentation", info.about, 3, "En deux ou trois phrases : ce que fait l'entreprise, où elle livre.")}
+          </section>
+
+          <section class="card"><h2>Catalogue</h2>
+            <div class="seg" role="group" aria-label="Source du catalogue">
+              <button type="button" data-mode="table" aria-pressed="${mode === "table"}">Tableau dans Wakil</button>
+              <button type="button" data-mode="url" aria-pressed="${mode === "url"}">Fichier sur son site</button>
+            </div>
+            <div data-pane="table" ${mode === "table" ? "" : "hidden"}>
+              <div class="actions" style="margin-bottom:12px">
+                <button class="btn small" type="button" id="add-product">${icon("i-plus")}Ajouter un produit</button>
+                <label class="btn small" for="import-file" style="display:inline-flex">Importer Excel ou CSV<input id="import-file" type="file" accept=".xlsx,.xls,.csv,.ods" class="sr"></label>
+              </div>
+              <p class="hint" style="margin:0 0 10px">Colonnes reconnues à l'import : Nom, Catégorie, Prix, Unité, Description, Photo (adresse https), Disponible (oui/non). Prix vide = sur devis.</p>
+              <div class="table-wrap"><table class="ptable"><thead><tr><th>Nom</th><th>Catégorie</th><th>Prix (FCFA)</th><th>Unité</th><th>Description</th><th class="c">Dispo</th><th><span class="sr">Retirer</span></th></tr></thead><tbody id="ptbody"></tbody></table></div>
+            </div>
+            <div data-pane="url" ${mode === "url" ? "" : "hidden"} class="grid2">
+              ${field("catalog.productsUrl", "Adresse du fichier des produits", t.catalog.productsUrl, 'inputmode="url" placeholder="https://…/data/products.json"', "Un fichier JSON avec la liste des produits, tenu à jour sur le site de l'entreprise.")}
+              ${field("catalog.siteUrl", "Adresse des informations (facultatif)", t.catalog.siteUrl, 'inputmode="url" placeholder="https://…/data/site.json"')}
+            </div>
+          </section>
+
+          <section class="card"><h2>Ventes et consignes</h2>
+            ${area("paymentInstructions", "Paiement", t.paymentInstructions, 2, "Ce que Wakil dit quand on lui demande comment payer (Orange Money, Wave, espèces à la livraison…).")}
+            ${area("instructions", "Consignes pour l'assistant", t.instructions, 6, "Tout ce qu'un bon vendeur de l'entreprise sait : zones de livraison, minimum de commande, conseils, ce qu'il ne faut jamais promettre.")}
+          </section>
+
+          <section class="card"><h2>Chat sur son site</h2>
+            ${area("webOrigins", "Sites autorisés", (t.webOrigins || []).join("\n"), 2, "Une adresse par ligne, par exemple https://www.mon-entreprise.ci")}
+            ${creating ? "" : `<p class="muted" style="margin:0">Ligne à coller avant &lt;/body&gt; sur son site :</p>
+            <div class="copy"><code id="snippet">${esc(`<script src="${location.origin}/wakil-chat.js" data-tenant="${t.id}" defer><\/script>`)}</code><button class="btn small" type="button" data-copy="snippet">Copier</button></div>`}
+          </section>
+
+          <div class="savebar"><p class="error" role="alert" id="fiche-error"></p>
+            <button class="btn primary" type="submit">${creating ? "Créer l'entreprise" : "Enregistrer"}</button></div>
+        </form>
+
+        ${creating ? "" : `
+        <section class="card fiche-extra" style="display:grid;gap:12px"><h2>Accès du patron</h2>
+          <p style="margin:0">${c.hasPassword ? '<span class="ok">Le patron a un accès.</span> Un nouveau mot de passe remplace l\'ancien.' : "Le patron n'a pas encore d'accès à l'application."}</p>
+          <form id="pw-form" class="composer" style="flex-wrap:wrap">
+            <label for="f-password" style="flex:1;min-width:200px">Nouveau mot de passe<input id="f-password" type="text" autocomplete="off" spellcheck="false" minlength="8" maxlength="200"></label>
+            <button class="btn small" type="button" id="pw-gen">Générer</button>
+            <button class="btn small primary" type="submit">Enregistrer</button>
+          </form>
+          <div id="pw-out"></div>
+        </section>
+
+        <section class="card" style="display:grid;gap:12px" id="wa-card"><h2>WhatsApp</h2>
+          ${t.whatsapp ? `
+            <p style="margin:0"><span class="ok">Relié.</span> ${t.whatsapp.displayPhone ? `Numéro <b>${esc(t.whatsapp.displayPhone)}</b> · ` : ""}Phone number ID <b>${esc(t.whatsapp.phoneNumberId)}</b></p>
+            <p class="muted" style="margin:0">${c.hasWhatsappToken ? "Ce numéro utilise son propre accès Meta." : "Ce numéro utilise l'accès Meta de Wakil (secret WHATSAPP_TOKEN)."}</p>
+            <div class="actions"><button class="btn small danger" type="button" id="wa-off">Délier ce numéro</button></div>`
+          : `<p style="margin:0" class="muted">Pas encore de numéro : Wakil ne répond que sur le site.</p>`}
+          ${state.metaSignup ? `<div class="actions"><button class="btn gold" type="button" id="wa-signup">${icon("i-wa")}${t.whatsapp ? "Relier un autre numéro" : "Connecter WhatsApp"}</button></div>
+            <p class="hint" style="margin:0">Le patron se connecte à Facebook et choisit son numéro : Meta s'occupe du reste. Faites-le avec lui, sur son téléphone ou le vôtre.</p>` : ""}
+          <details ${!t.whatsapp && !state.metaSignup ? "open" : ""}><summary>Relier à la main</summary>
+            <form id="wa-form" class="grid2">
+              ${field("wa-pnid", "Phone number ID", "", 'inputmode="numeric" required', "Meta → WhatsApp → Configuration de l'API.")}
+              ${field("wa-display", "Numéro affiché", "", 'placeholder="+225 07 00 00 00 00"')}
+              <label for="f-wa-token">Jeton d'accès (facultatif)<input id="f-wa-token" type="password" autocomplete="off"><span class="hint">Seulement si le numéro est dans un autre compte Meta que celui de Wakil.</span></label>
+              <div style="align-self:end"><button class="btn small primary" type="submit">Relier</button></div>
+            </form>
+          </details>
+          <p class="error" role="alert" id="wa-error"></p>
+        </section>
+
+        ${!c.editedInApp && c.inConfig ? "" : `
+        <section class="card danger-zone" style="display:grid;gap:12px"><h2>${c.inConfig ? "Revenir à la fiche d'origine" : "Supprimer l'entreprise"}</h2>
+          <p class="muted" style="margin:0">${c.inConfig ? "Annule les changements faits ici et reprend la fiche du fichier de configuration. Le mot de passe du patron et le jeton WhatsApp sont effacés." : "L'assistant arrête de répondre pour cette entreprise et le patron ne peut plus se connecter. Les conversations et commandes passées restent dans l'historique."}</p>
+          <div class="actions"><button class="btn small danger" type="button" id="delete">${c.inConfig ? "Revenir à l'origine" : "Supprimer"}</button></div>
+        </section>`}`}
+      </div>`;
+
+    const form = document.getElementById("fiche");
+    const errorEl = document.getElementById("fiche-error");
+
+    // Tableau des produits
+    const tbody = document.getElementById("ptbody");
+    const cell = (i, k, v, attrs = "") => `<td><input type="text" data-i="${i}" data-k="${k}" value="${esc(v ?? "")}" aria-label="${k}" ${attrs}></td>`;
+    function drawProducts() {
+      tbody.innerHTML = products.length ? products.map((p, i) => `<tr>
+          ${cell(i, "name", p.name, 'maxlength="120" placeholder="Nom du produit"')}${cell(i, "category", p.category, 'maxlength="60"')}${cell(i, "price", p.price, 'maxlength="40" inputmode="numeric" placeholder="sur devis"')}
+          ${cell(i, "unit", p.unit, 'maxlength="30" placeholder="unité"')}${cell(i, "description", p.description, 'maxlength="500"')}
+          <td class="c"><input type="checkbox" data-i="${i}" data-k="available" ${p.available !== false ? "checked" : ""} aria-label="Disponible"></td>
+          <td class="c"><button type="button" class="x" data-del="${i}" aria-label="Retirer ${esc(p.name || "ce produit")}">×</button></td></tr>`).join("")
+        : `<tr><td colspan="7" class="muted" style="padding:20px;text-align:center">Aucun produit. Ajoutez-en un ou importez un fichier Excel.</td></tr>`;
+    }
+    drawProducts();
+    tbody.addEventListener("input", (e) => {
+      const el = e.target; if (!el.dataset.k) return;
+      products[el.dataset.i][el.dataset.k] = el.type === "checkbox" ? el.checked : el.value;
+    });
+    tbody.addEventListener("change", (e) => { if (e.target.type === "checkbox") products[e.target.dataset.i].available = e.target.checked; });
+    tbody.addEventListener("click", (e) => {
+      const del = e.target.closest("[data-del]"); if (!del) return;
+      products.splice(Number(del.dataset.del), 1); drawProducts();
+    });
+    document.getElementById("add-product").addEventListener("click", () => {
+      products.push({ name: "", price: "", unit: "", available: true }); drawProducts();
+      tbody.querySelector("tr:last-child input")?.focus();
+    });
+    document.getElementById("import-file").addEventListener("change", async (e) => {
+      const file = e.target.files[0]; e.target.value = ""; if (!file) return;
+      try {
+        const rows = await readSheet(file);
+        if (!rows.length) return toast("Aucun produit trouvé : vérifiez que la première ligne contient les titres (Nom, Prix…).");
+        if (products.some((p) => p.name) && !confirm(`Remplacer les ${products.filter((p) => p.name).length} produits du tableau par les ${rows.length} du fichier ?`)) return;
+        products = rows; drawProducts(); toast(`${rows.length} produits importés. Pensez à enregistrer.`);
+      } catch { toast("Ce fichier n'a pas pu être lu. Enregistrez-le en .xlsx ou .csv et réessayez."); }
+    });
+    main().querySelectorAll("[data-mode]").forEach((b) => b.addEventListener("click", () => {
+      mode = b.dataset.mode;
+      main().querySelectorAll("[data-mode]").forEach((x) => x.setAttribute("aria-pressed", x.dataset.mode === mode));
+      main().querySelectorAll("[data-pane]").forEach((p) => (p.hidden = p.dataset.pane !== mode));
+    }));
+
+    if (creating) {
+      const idInput = form.elements.namedItem("id"); let touched = false;
+      idInput.addEventListener("input", () => (touched = true));
+      form.elements.namedItem("businessName").addEventListener("input", (e) => { if (!touched) idInput.value = slug(e.target.value); });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+      errorEl.textContent = "";
+      const v = (name) => form.elements.namedItem(name)?.value.trim() ?? "";
+      const body = {
+        id: creating ? v("id").toLowerCase() : t.id,
+        businessName: v("businessName"), assistantName: v("assistantName"), timezone: v("timezone"), defaultCountryCode: v("defaultCountryCode"),
+        ownerPhone: v("ownerPhone"), handoffHours: Number(v("handoffHours")),
+        info: { phone: v("info.phone"), email: v("info.email"), address: v("info.address"), hours: v("info.hours"), about: v("info.about") },
+        catalog: mode === "table" ? { products: products.filter((p) => String(p.name || "").trim()) } : { productsUrl: v("catalog.productsUrl"), siteUrl: v("catalog.siteUrl"),
+            ...(v("catalog.productsUrl") === t.catalog.productsUrl && t.catalog.assetBaseUrl ? { assetBaseUrl: t.catalog.assetBaseUrl } : {}) },
+        paymentInstructions: v("paymentInstructions"), instructions: v("instructions"),
+        webOrigins: v("webOrigins").split(/[\s,]+/).filter(Boolean),
+      };
+      const btn = form.querySelector("[type=submit]"); btn.disabled = true;
+      try {
+        const saved = await api(creating ? "companies/new" : "companies", body);
+        state.tenants = await api("tenants");
+        toast(creating ? "Entreprise créée. Donnez maintenant un accès au patron." : "Fiche enregistrée. Wakil l'utilise dès maintenant.");
+        if (creating) location.hash = `#entreprises/${encodeURIComponent(saved.tenant.id)}`;
+        else { renderShell(); await viewEntreprise(t.id); }
+      } catch (err) {
+        if (err.message === "unauthorized") return;
+        btn.disabled = false;
+        errorEl.textContent = err.data?.field ? fieldError(err.data) : "L'enregistrement n'a pas abouti. Réessayez.";
+        const input = err.data?.field && form.elements.namedItem(err.data.field);
+        if (input) { input.setAttribute("aria-invalid", "true"); input.focus(); }
+        else if (/^products\./.test(err.data?.field || "")) {
+          const [, i, k] = err.data.field.split(".");
+          const el = tbody.querySelector(`[data-i="${i}"][data-k="${k}"]`); if (el) { el.setAttribute("aria-invalid", "true"); el.focus(); }
+        }
+      }
+    });
+    bindCopy();
+    if (creating) return;
+
+    document.getElementById("open-tenant").addEventListener("click", () => {
+      state.tenant = t.id; store.set("tenant", t.id); renderShell(); location.hash = "#accueil";
+    });
+
+    // Mot de passe du patron
+    const pwForm = document.getElementById("pw-form");
+    document.getElementById("pw-gen").addEventListener("click", () => {
+      const words = ["Baobab", "Lagune", "Savane", "Pirogue", "Karite", "Manguier", "Cauri", "Soleil", "Marche", "Ebene"];
+      const rnd = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n;
+      pwForm.querySelector("input").value = `${words[rnd(10)]}-${words[rnd(10)].toLowerCase()}-${String(rnd(9000) + 1000)}`;
+    });
+    pwForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const password = pwForm.querySelector("input").value;
+      try {
+        await api(`companies/${encodeURIComponent(t.id)}/password`, { password });
+        pwForm.querySelector("input").value = "";
+        document.getElementById("pw-out").innerHTML = `<div class="secret"><span>À envoyer au patron (cette information n'est plus affichée ensuite) :</span>
+          <code id="pw-text">Application : ${esc(location.origin)}/app/\nIdentifiant : ${esc(t.id)}\nMot de passe : ${esc(password)}</code>
+          <div class="actions"><button class="btn small" type="button" data-copy="pw-text">Copier</button>
+          ${t.ownerPhone ? `<a class="btn small" target="_blank" rel="noopener" href="${waLink(t.ownerPhone)}?text=${encodeURIComponent(`Votre espace Wakil : ${location.origin}/app/\nIdentifiant : ${t.id}\nMot de passe : ${password}`)}">${icon("i-wa")}Envoyer sur WhatsApp</a>` : ""}</div></div>`;
+        document.getElementById("pw-text").style.whiteSpace = "pre-wrap";
+        bindCopy();
+      } catch (err) { if (err.message !== "unauthorized") toast(err.data?.field ? fieldError(err.data) : "Le mot de passe n'a pas été enregistré."); }
+    });
+
+    // WhatsApp
+    const waError = document.getElementById("wa-error");
+    const waFail = (err) => {
+      if (err.message === "unauthorized") return;
+      waError.textContent = {
+        number_in_use: "Ce numéro est déjà relié à une autre entreprise.",
+        meta_not_configured: "Il manque les secrets META_APP_ID et WHATSAPP_APP_SECRET.",
+        meta_error: `Meta a refusé : ${err.data?.message || "erreur inconnue"}.`,
+      }[err.code] || (err.data?.field ? fieldError(err.data) : "L'opération n'a pas abouti. Réessayez.");
+    };
+    const reload = async (message) => { toast(message); state.tenants = await api("tenants"); renderShell(); await viewEntreprise(t.id); };
+    document.getElementById("wa-form").addEventListener("submit", async (e) => {
+      e.preventDefault(); waError.textContent = "";
+      try {
+        await api(`companies/${encodeURIComponent(t.id)}/whatsapp`, {
+          phoneNumberId: e.target.elements["wa-pnid"].value.trim(), displayPhone: e.target.elements["wa-display"].value.trim(), token: document.getElementById("f-wa-token").value.trim(),
+        });
+        await reload("Numéro relié : Wakil répond maintenant sur WhatsApp.");
+      } catch (err) { waFail(err); }
+    });
+    document.getElementById("wa-off")?.addEventListener("click", async () => {
+      if (!confirm("Délier ce numéro ? Wakil ne répondra plus sur WhatsApp pour cette entreprise.")) return;
+      try { await api(`companies/${encodeURIComponent(t.id)}/whatsapp/disconnect`, {}); await reload("Numéro délié."); } catch (err) { waFail(err); }
+    });
+    document.getElementById("wa-signup")?.addEventListener("click", async (e) => {
+      waError.textContent = ""; e.target.disabled = true;
+      try {
+        const { code, phoneNumberId, wabaId } = await embeddedSignup(state.metaSignup);
+        e.target.textContent = "Activation du numéro…";
+        await api(`companies/${encodeURIComponent(t.id)}/whatsapp/signup`, { code, phoneNumberId, wabaId });
+        await reload("WhatsApp connecté : Wakil répond maintenant sur ce numéro.");
+      } catch (err) {
+        e.target.disabled = false;
+        if (err.code === "cancelled") return;
+        if (err.code === "sdk") waError.textContent = "Facebook n'a pas pu se charger. Vérifiez votre connexion ou désactivez le bloqueur de publicités.";
+        else if (err.code === "incomplete") waError.textContent = "L'inscription n'est pas allée jusqu'au bout : recommencez et choisissez un numéro.";
+        else waFail(err);
+      }
+    });
+
+    document.getElementById("delete")?.addEventListener("click", async () => {
+      const question = c.inConfig ? "Revenir à la fiche d'origine ?" : `Supprimer ${t.businessName} ? Tapez son identifiant pour confirmer.`;
+      if (c.inConfig ? !confirm(question) : prompt(question) !== t.id) return;
+      try {
+        await api(`companies/${encodeURIComponent(t.id)}/delete`, {});
+        state.tenants = await api("tenants");
+        if (!state.tenants.some((x) => x.id === state.tenant)) { state.tenant = state.tenants[0]?.id; store.set("tenant", state.tenant); }
+        renderShell(); toast(c.inConfig ? "Fiche d'origine rétablie." : "Entreprise supprimée.");
+        location.hash = c.inConfig ? `#entreprises/${encodeURIComponent(t.id)}` : "#entreprises";
+        if (c.inConfig) await viewEntreprise(t.id);
+      } catch (err) { if (err.message !== "unauthorized") toast("La suppression n'a pas abouti."); }
+    });
+  }
+
+  /** Lit un fichier Excel ou CSV et en tire la liste des produits. */
+  async function readSheet(file) {
+    if (!window.XLSX) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js");
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let book;
+    if (/\.csv$/i.test(file.name)) {
+      // Un CSV enregistré par Excel sous Windows n'est pas toujours en UTF-8.
+      let text; try { text = new TextDecoder("utf-8", { fatal: true }).decode(bytes); } catch { text = new TextDecoder("windows-1252").decode(bytes); }
+      book = XLSX.read(text.replace(/^\ufeff/, ""), { type: "string" });
+    } else book = XLSX.read(bytes);
+    const rows = XLSX.utils.sheet_to_json(book.Sheets[book.SheetNames[0]], { defval: "", raw: false });
+    const norm = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z]/g, "");
+    const COLS = { name: ["nom", "produit", "name", "article", "designation"], category: ["categorie", "category", "famille", "type"], price: ["prix", "price", "tarif", "prixfcfa", "prixunitaire"],
+      unit: ["unite", "unit"], description: ["description", "details", "detail"], image: ["photo", "image", "img", "lienphoto"], available: ["disponible", "dispo", "available", "stock", "enstock"] };
+    return rows.map((r) => {
+      const p = {};
+      for (const [key, value] of Object.entries(r)) {
+        const k = norm(key), target = Object.keys(COLS).find((c) => COLS[c].includes(k));
+        if (target && p[target] === undefined) p[target] = String(value).trim();
+      }
+      return {
+        name: (p.name || "").slice(0, 120), category: p.category || "", price: (p.price || "").slice(0, 40), unit: (p.unit || "").slice(0, 30),
+        description: (p.description || "").slice(0, 500), ...(/^https:\/\//.test(p.image || "") ? { image: p.image } : {}),
+        available: !/^(non|no|0|false|faux|rupture|indisponible)$/i.test(p.available || ""),
+      };
+    }).filter((p) => p.name).slice(0, 500);
+  }
+
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      const s = document.createElement("script");
+      s.src = src; s.async = true; s.crossOrigin = "anonymous"; s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  /**
+   * Inscription intégrée de Meta : le patron choisit (ou crée) son compte WhatsApp Business
+   * et son numéro dans une fenêtre Facebook ; on récupère un code et les identifiants.
+   */
+  async function embeddedSignup({ appId, configId }) {
+    if (!window.FB) {
+      await new Promise((resolve, reject) => {
+        window.fbAsyncInit = () => { FB.init({ appId, autoLogAppEvents: true, xfbml: false, version: "v23.0" }); resolve(); };
+        loadScript("https://connect.facebook.net/fr_FR/sdk.js").catch(() => reject(Object.assign(new Error("sdk"), { code: "sdk" })));
+      });
+    }
+    let session = null, cancelled = false;
+    const onMessage = (e) => {
+      let host = ""; try { host = new URL(e.origin).hostname; } catch {}
+      if (!/(^|\.)facebook\.com$/.test(host)) return;
+      try {
+        const d = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+        if (d?.type !== "WA_EMBEDDED_SIGNUP") return;
+        if (/^FINISH/.test(d.event)) session = d.data;
+        else if (d.event === "CANCEL") cancelled = true;
+      } catch {}
+    };
+    addEventListener("message", onMessage);
+    try {
+      const code = await new Promise((resolve) => FB.login((r) => resolve(r.authResponse?.code || null), {
+        config_id: configId, response_type: "code", override_default_response_type: true, extras: { setup: {}, sessionInfoVersion: "3" },
+      }));
+      // Les identifiants arrivent par un message séparé, parfois juste après la réponse.
+      for (let i = 0; i < 30 && !session && !cancelled && code; i++) await new Promise((r) => setTimeout(r, 100));
+      if (!code || cancelled) throw Object.assign(new Error("cancelled"), { code: "cancelled" });
+      if (!session?.phone_number_id || !session?.waba_id) throw Object.assign(new Error("incomplete"), { code: "incomplete" });
+      return { code, phoneNumberId: String(session.phone_number_id), wabaId: String(session.waba_id) };
+    } finally {
+      removeEventListener("message", onMessage);
+    }
+  }
+
+  function bindCopy() {
+    main().querySelectorAll("[data-copy]").forEach((b) => (b.onclick = async () => {
+      const code = document.getElementById(b.dataset.copy);
+      try { await navigator.clipboard.writeText(code.textContent); toast("Copié."); }
+      catch { const r = document.createRange(); r.selectNodeContents(code); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Texte sélectionné : copiez-le."); }
+    }));
+  }
+
   /* ---------- Navigation ---------- */
   async function route() {
     if (!state.token) return renderLogin();
@@ -736,7 +1193,9 @@
     stopRefresh();
     try {
       if (view === "conversations" && arg) await viewConversation(decodeURIComponent(arg));
-      else await ({ accueil: viewAccueil, conversations: viewConversations, commandes: viewCommandes, tester: viewTester, demandes: viewDemandes, reglages: viewReglages }[view] || viewAccueil)();
+      else if (view === "entreprises" && arg && isAdmin()) await viewEntreprise(decodeURIComponent(arg));
+      else await ({ accueil: viewAccueil, conversations: viewConversations, commandes: viewCommandes, tester: viewTester, reglages: viewReglages,
+                    ...(isAdmin() ? { demandes: viewDemandes, entreprises: viewEntreprises } : {}) }[view] || viewAccueil)();
       main().querySelector("h1")?.setAttribute("tabindex", "-1");
     } catch (err) {
       if (err.message !== "unauthorized") main().innerHTML = `<div class="view"><div class="card empty"><b>Impossible de charger cette page.</b><span>Vérifiez votre connexion, puis réessayez.</span><button class="btn" type="button" onclick="location.reload()">Réessayer</button></div></div>`;
@@ -745,7 +1204,9 @@
 
   async function start() {
     try {
-      state.tenants = await api("tenants");
+      const [me, tenants] = await Promise.all([api("me"), api("tenants")]);
+      Object.assign(state, { role: me.role, metaSignup: me.metaSignup, tenants });
+      if (me.tenantId) state.tenant = me.tenantId;
     } catch (err) {
       if (err.message !== "unauthorized") renderLogin(err.code === "not_configured" ? "Le mot de passe n'est pas encore défini : ajoutez le secret ADMIN_PASSWORD sur Cloudflare." : "");
       return;

@@ -7,8 +7,8 @@ export const whatsappConversation = (phoneNumberId: string, customerPhone: strin
 
 export const webConversation = (tenantId: string, sessionId: string) => `web:${tenantId}:${sessionId}`;
 
-export function conversationKey(meta: ConversationMeta, tenantId: string): string {
+export function conversationKey(meta: ConversationMeta): string {
   return meta.channel === "web"
-    ? webConversation(tenantId, meta.customerId)
+    ? webConversation(meta.tenantId, meta.customerId)
     : whatsappConversation(meta.phoneNumberId, meta.customerId);
 }

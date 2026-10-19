@@ -3,8 +3,8 @@ import type { BusinessInfo, Catalog, Product, Tenant } from "./types";
 type FetchLike = typeof fetch;
 
 /**
- * Charge le catalogue de l'entreprise depuis son site (format products.json / site.json
- * du site SICAR). Les réponses sont mises en cache 5 minutes par Cloudflare.
+ * Charge le catalogue de l'entreprise : les produits saisis dans l'application, ou ceux
+ * de son site (format products.json / site.json du site SICAR), mis en cache 5 minutes.
  */
 export async function loadCatalog(tenant: Tenant, fetchFn: FetchLike = fetch): Promise<Catalog> {
   const get = async (url: string) => {
@@ -12,32 +12,60 @@ export async function loadCatalog(tenant: Tenant, fetchFn: FetchLike = fetch): P
     if (!res.ok) throw new Error(`Catalogue indisponible (${res.status}) : ${url}`);
     return res.json();
   };
+  const { products, productsUrl, siteUrl, assetBaseUrl } = tenant.catalog;
   const [rawProducts, rawSite] = await Promise.all([
-    get(tenant.catalog.productsUrl),
-    tenant.catalog.siteUrl ? get(tenant.catalog.siteUrl) : Promise.resolve({}),
+    products ?? (productsUrl ? get(productsUrl) : Promise.resolve([])),
+    siteUrl ? get(siteUrl) : Promise.resolve({}),
   ]);
-  return {
-    products: normalizeProducts(rawProducts, tenant.catalog.assetBaseUrl),
-    info: normalizeInfo(rawSite),
-  };
+  const info = normalizeInfo(rawSite);
+  // Ce qui est saisi dans l'application complète ou remplace les informations du site.
+  for (const [k, v] of Object.entries(tenant.info ?? {})) if (v) (info as unknown as Record<string, unknown>)[k] = v;
+  return { products: normalizeProducts(rawProducts, assetBaseUrl), info };
 }
 
-export function normalizeProducts(raw: unknown, assetBaseUrl: string): Product[] {
+/** Identifiant stable tiré d'un nom de produit : « Gravier 15/25 » → « gravier-15-25 ». */
+export function slugify(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
+function imageUrl(image: unknown, base: string | undefined): string | undefined {
+  if (!image) return undefined;
+  try {
+    return new URL(String(image), base || undefined).toString();
+  } catch {
+    return undefined; // chemin relatif sans adresse de base : pas de photo
+  }
+}
+
+export function normalizeProducts(raw: unknown, assetBaseUrl?: string): Product[] {
   if (!Array.isArray(raw)) return [];
-  return raw
-    .filter((p) => p && typeof p.id === "string" && typeof p.name === "string")
-    .map((p) => ({
-      id: p.id,
-      name: p.name,
+  const seen = new Set<string>();
+  const out: Product[] = [];
+  for (const p of raw) {
+    if (!p || typeof p.name !== "string" || !p.name.trim()) continue;
+    let id = typeof p.id === "string" && p.id ? p.id : slugify(p.name) || "produit";
+    for (let n = 2; seen.has(id); n++) id = `${slugify(p.name)}-${n}`;
+    seen.add(id);
+    out.push({
+      id,
+      name: p.name.trim(),
       category: String(p.category ?? ""),
       granulometrie: p.granulometrie || undefined,
       description: p.description || undefined,
       usages: Array.isArray(p.usages) ? p.usages.map(String) : [],
       price: String(p.price ?? "").trim(),
       unit: String(p.unit || "unité"),
-      imageUrl: p.image ? new URL(String(p.image), assetBaseUrl).toString() : undefined,
+      imageUrl: imageUrl(p.image, assetBaseUrl),
       available: p.available !== false,
-    }));
+    });
+  }
+  return out;
 }
 
 export function normalizeInfo(raw: any): BusinessInfo {

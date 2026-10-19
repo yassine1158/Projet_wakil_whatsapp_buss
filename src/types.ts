@@ -5,8 +5,11 @@ import type { InboxDO } from "./inbox-do";
 export interface Env {
   CONVERSATIONS: DurableObjectNamespace<ConversationDO>;
   INBOX: DurableObjectNamespace<InboxDO>;
-  /** Mot de passe de l'application (/app). */
+  /** Mot de passe de l'administrateur de l'application (/app) ; signe aussi les sessions. */
   ADMIN_PASSWORD?: string;
+  /** Inscription intégrée de Meta (« Connecter WhatsApp ») : identifiants publics de l'application Meta. */
+  META_APP_ID?: string;
+  META_CONFIG_ID?: string;
   AI: Ai;
   /** Limite le nombre de messages du chat web par adresse IP (facultatif). */
   CHAT_LIMITER?: RateLimit;
@@ -22,7 +25,7 @@ export interface Env {
   DEBOUNCE_MS?: string;
 }
 
-/** Une entreprise cliente de Wakil, rattachée à un numéro WhatsApp (phone_number_id). */
+/** Une entreprise cliente de Wakil. Elle peut avoir un numéro WhatsApp, un chat sur son site, ou les deux. */
 export interface Tenant {
   id: string;
   businessName: string;
@@ -41,16 +44,39 @@ export interface Tenant {
   webOrigins?: string[];
   /** Entreprise fictive de démonstration, affichée sur le site de Wakil lui-même. */
   demo?: boolean;
+  /** Numéro WhatsApp de l'entreprise, relié à l'API WhatsApp Cloud. */
+  whatsapp?: { phoneNumberId: string; displayPhone?: string; wabaId?: string };
+  /**
+   * Catalogue : soit une adresse (products.json et site.json d'un site, format SICAR),
+   * soit des produits saisis dans l'application.
+   */
   catalog: {
-    productsUrl: string;
+    productsUrl?: string;
     siteUrl?: string;
     /** Base des URL d'images relatives du catalogue (avec "/" final). */
-    assetBaseUrl: string;
+    assetBaseUrl?: string;
+    products?: RawProduct[];
   };
+  /** Informations données aux clients (saisies dans l'application). */
+  info?: { phone?: string; email?: string; address?: string; hours?: string; about?: string };
   paymentInstructions?: string;
   /** Connaissances métier propres à l'entreprise, ajoutées au prompt. */
   instructions?: string;
   handoffHours?: number;
+}
+
+/** Produit tel qu'il est saisi ou importé (Excel, CSV, products.json). */
+export interface RawProduct {
+  id?: string;
+  name: string;
+  category?: string;
+  granulometrie?: string;
+  description?: string;
+  usages?: string[];
+  price?: string;
+  unit?: string;
+  image?: string;
+  available?: boolean;
 }
 
 export type Channel = "whatsapp" | "web";
@@ -58,7 +84,8 @@ export type Channel = "whatsapp" | "web";
 /** Ce que l'on sait d'une conversation, gardé dans son Durable Object. */
 export interface ConversationMeta {
   channel: Channel;
-  /** Numéro WhatsApp de l'entreprise, qui sert aussi à prévenir le patron. */
+  tenantId: string;
+  /** Numéro WhatsApp de l'entreprise (vide pour une entreprise sans WhatsApp). */
   phoneNumberId: string;
   /** Numéro WhatsApp du client, ou identifiant de session du chat web. */
   customerId: string;

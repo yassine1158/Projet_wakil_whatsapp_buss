@@ -13,10 +13,10 @@ import {
   type InboxReporter,
 } from "./engine";
 import { conversationKey, INBOX_NAME } from "./names";
-import { getTenant } from "./tenants";
+import { tenantById, whatsappFor } from "./registry";
 import { workersAiTranscriber } from "./transcribe";
 import type { ConversationMeta, Env, IncomingMessage, LogEntry, Tenant } from "./types";
-import { WhatsAppClient, WhatsAppError } from "./whatsapp";
+import { WhatsAppError } from "./whatsapp";
 
 export type WebReply = { type: "text"; text: string } | { type: "image"; url: string; caption?: string };
 
@@ -41,14 +41,14 @@ export const WEB_LIMIT_REPLY =
  * du chat web). Le Durable Object garantit que ses messages sont traités dans l'ordre.
  */
 export class ConversationDO extends DurableObject<Env> {
-  async enqueue(phoneNumberId: string, message: IncomingMessage): Promise<boolean> {
+  async enqueue(tenantId: string, phoneNumberId: string, message: IncomingMessage): Promise<boolean> {
     const debounce = Number(this.env.DEBOUNCE_MS ?? 4000);
-    return enqueueMessage(this.ctx.storage, phoneNumberId, message, Date.now(), debounce);
+    return enqueueMessage(this.ctx.storage, tenantId, phoneNumberId, message, Date.now(), debounce);
   }
 
   /** Chat du site web (ou essai depuis l'application) : traite le message et renvoie les réponses. */
-  async chat(phoneNumberId: string, sessionId: string, text: string, options: { test?: boolean } = {}): Promise<WebReply[]> {
-    const tenant = getTenant(phoneNumberId);
+  async chat(tenantId: string, sessionId: string, text: string, options: { test?: boolean } = {}): Promise<WebReply[]> {
+    const tenant = await tenantById(this.env, tenantId);
     if (!tenant) return [];
     const storage = this.ctx.storage;
     const now = Date.now();
@@ -59,7 +59,13 @@ export class ConversationDO extends DurableObject<Env> {
     if (count >= WEB_DAILY_LIMIT) return [{ type: "text", text: WEB_LIMIT_REPLY }];
     await storage.put("webQuota", { day, count: count + 1 });
 
-    const meta: ConversationMeta = { channel: "web", phoneNumberId, customerId: sessionId, test: options.test };
+    const meta: ConversationMeta = {
+      channel: "web",
+      tenantId,
+      phoneNumberId: tenant.whatsapp?.phoneNumberId ?? "",
+      customerId: sessionId,
+      test: options.test,
+    };
     const message: IncomingMessage = {
       id: crypto.randomUUID(),
       from: sessionId,
@@ -72,7 +78,7 @@ export class ConversationDO extends DurableObject<Env> {
 
     const replies: WebReply[] = [];
     await processPending({
-      ...this.engineDeps(tenant, phoneNumberId),
+      ...(await this.engineDeps(tenant)),
       sink: {
         sendText: async (t) => void replies.push({ type: "text", text: t }),
         sendImage: async (url, caption) => void replies.push({ type: "image", url, caption }),
@@ -99,11 +105,11 @@ export class ConversationDO extends DurableObject<Env> {
   async teamReply(text: string): Promise<{ ok: true } | { ok: false; error: string }> {
     const storage = this.ctx.storage;
     const meta = await storage.get<ConversationMeta>("meta");
-    const tenant = meta && getTenant(meta.phoneNumberId);
+    const tenant = meta && (await tenantById(this.env, meta.tenantId));
     if (!meta || !tenant) return { ok: false, error: "not_found" };
     if (meta.channel !== "whatsapp") return { ok: false, error: "web_channel" };
     try {
-      await this.whatsapp(meta.phoneNumberId).sendText(meta.customerId, text);
+      await (await whatsappFor(this.env, tenant)).sendText(meta.customerId, text);
     } catch (err) {
       const closed = err instanceof WhatsAppError && err.code === WINDOW_CLOSED;
       return { ok: false, error: closed ? "window_closed" : "send_failed" };
@@ -140,10 +146,10 @@ export class ConversationDO extends DurableObject<Env> {
       await this.ctx.storage.deleteAll();
       return;
     }
-    const tenant = meta && getTenant(meta.phoneNumberId);
+    const tenant = meta && (await tenantById(this.env, meta.tenantId));
     if (!tenant) return;
     try {
-      await processPending(this.engineDeps(tenant, meta.phoneNumberId));
+      await processPending(await this.engineDeps(tenant));
     } catch (err) {
       // Ne pas relancer l'alarme : une nouvelle tentative renverrait des messages en double.
       console.error("Traitement de la conversation échoué", err);
@@ -152,24 +158,19 @@ export class ConversationDO extends DurableObject<Env> {
 
   private async reportStatus(status: "wakil" | "equipe") {
     const meta = await this.ctx.storage.get<ConversationMeta>("meta");
-    const tenant = meta && getTenant(meta.phoneNumberId);
-    if (!meta || !tenant) return;
-    await this.inbox().setConversationStatus(conversationKey(meta, tenant.id), status);
+    if (!meta) return;
+    await this.inbox().setConversationStatus(conversationKey(meta), status);
   }
 
   private inbox() {
     return this.env.INBOX.get(this.env.INBOX.idFromName(INBOX_NAME));
   }
 
-  private whatsapp(phoneNumberId: string) {
-    return new WhatsAppClient(this.env.WHATSAPP_TOKEN, phoneNumberId, this.env.GRAPH_API_VERSION);
-  }
-
   private reporter(tenant: Tenant): InboxReporter {
     return {
       conversation: async ({ meta, lastText, lastFrom, at, status }) => {
         await this.inbox().touchConversation({
-          key: conversationKey(meta, tenant.id),
+          key: conversationKey(meta),
           tenant: tenant.id,
           channel: meta.channel,
           customerId: meta.customerId,
@@ -187,18 +188,18 @@ export class ConversationDO extends DurableObject<Env> {
         await this.inbox().addOrder({
           ...order,
           tenant: tenant.id,
-          conversationKey: meta ? conversationKey(meta, tenant.id) : "",
+          conversationKey: meta ? conversationKey(meta) : "",
           status: "nouvelle",
         });
       },
     };
   }
 
-  private engineDeps(tenant: Tenant, phoneNumberId: string): EngineDeps {
+  private async engineDeps(tenant: Tenant): Promise<EngineDeps> {
     return {
       storage: this.ctx.storage,
       tenant,
-      whatsapp: this.whatsapp(phoneNumberId),
+      whatsapp: await whatsappFor(this.env, tenant),
       claude: new Anthropic({ apiKey: this.env.ANTHROPIC_API_KEY, baseURL: this.env.ANTHROPIC_BASE_URL || undefined }),
       agentConfig: {
         model: this.env.CLAUDE_MODEL ?? "claude-opus-5-5",

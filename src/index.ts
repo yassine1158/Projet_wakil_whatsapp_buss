@@ -1,6 +1,6 @@
 import { handleApi } from "./api";
 import { whatsappConversation } from "./names";
-import { getTenant } from "./tenants";
+import { tenantByPhoneNumberId } from "./registry";
 import type { Env, IncomingMessage, Tenant } from "./types";
 import { handleLead } from "./leads";
 import { handleChat } from "./web";
@@ -33,15 +33,15 @@ export default {
         return new Response("Bad JSON", { status: 400 });
       }
       for (const { phoneNumberId, message } of parseWebhook(payload)) {
-        const tenant = getTenant(phoneNumberId);
+        const tenant = await tenantByPhoneNumberId(env, phoneNumberId);
         if (!tenant) {
-          console.warn(`Numéro non configuré dans config/tenants.json : ${phoneNumberId}`);
+          console.warn(`Numéro relié à aucune entreprise : ${phoneNumberId}`);
           continue;
         }
         if (message.from === tenant.ownerPhone && (await handleOwnerCommand(env, phoneNumberId, tenant, message))) {
           continue;
         }
-        await conversation(env, phoneNumberId, message.from).enqueue(phoneNumberId, message);
+        await conversation(env, phoneNumberId, message.from).enqueue(tenant.id, phoneNumberId, message);
       }
       // Répondre vite : Meta renvoie la notification si le 200 tarde.
       return new Response("OK");

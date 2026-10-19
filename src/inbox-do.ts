@@ -1,46 +1,19 @@
 import { DurableObject } from "cloudflare:workers";
 import type { Lead } from "./leads";
-import type { Channel, Env, Order } from "./types";
+import type { Channel, Env, Order, Tenant } from "./types";
 
-export type ConversationStatus = "wakil" | "equipe";
-export type OrderStatus = "nouvelle" | "confirmee" | "livree" | "annulee";
-export type LeadStatus = "nouvelle" | "contactee";
-
-export const ORDER_STATUSES: OrderStatus[] = ["nouvelle", "confirmee", "livree", "annulee"];
-export const LEAD_STATUSES: LeadStatus[] = ["nouvelle", "contactee"];
-
-export interface ConversationRow {
-  key: string;
-  tenant: string;
-  channel: Channel;
-  customerId: string;
-  name: string | null;
-  phone: string | null;
-  lastText: string;
-  lastFrom: "client" | "wakil" | "equipe";
-  lastAt: number;
-  status: ConversationStatus;
-  test: boolean;
-}
-
-export interface OrderRow extends Order {
-  tenant: string;
-  conversationKey: string;
-  status: OrderStatus;
-}
-
-export interface LeadRow extends Lead {
-  id: number;
-  status: LeadStatus;
-}
-
-export interface Overview {
-  newOrders: number;
-  waitingForTeam: number;
-  conversationsToday: number;
-  ordersThisWeek: number;
-  newLeads: number;
-}
+export * from "./inbox-types";
+import type {
+  ConversationRow,
+  ConversationStatus,
+  LeadRow,
+  LeadStatus,
+  OrderRow,
+  OrderStatus,
+  Overview,
+  StoredTenant,
+  TenantSecrets,
+} from "./inbox-types";
 
 /**
  * Boîte de réception de Wakil (une seule instance, "inbox") : le résumé de chaque
@@ -64,7 +37,55 @@ export class InboxDO extends DurableObject<Env> {
       CREATE INDEX IF NOT EXISTS orders_by_tenant ON orders (tenant, created_at);
       CREATE TABLE IF NOT EXISTS leads (
         id INTEGER PRIMARY KEY AUTOINCREMENT, created_at INTEGER NOT NULL, status TEXT NOT NULL, data TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS tenants (
+        id TEXT PRIMARY KEY, data TEXT NOT NULL, password_hash TEXT, wa_token TEXT, wa_pin TEXT,
+        created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
     `);
+  }
+
+  /* ---------- Entreprises créées ou modifiées dans l'application ---------- */
+
+  async listTenants(): Promise<StoredTenant[]> {
+    return this.sql
+      .exec("SELECT data, password_hash, wa_token, updated_at FROM tenants ORDER BY id")
+      .toArray()
+      .map((r) => ({
+        tenant: JSON.parse(String(r.data)) as Tenant,
+        hasPassword: r.password_hash !== null,
+        hasWhatsappToken: r.wa_token !== null,
+        updatedAt: Number(r.updated_at),
+      }));
+  }
+
+  async saveTenant(tenant: Tenant, now: number): Promise<void> {
+    this.sql.exec(
+      `INSERT INTO tenants (id, data, created_at, updated_at) VALUES (?, ?, ?, ?)
+       ON CONFLICT (id) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at`,
+      tenant.id, JSON.stringify(tenant), now, now,
+    );
+  }
+
+  async deleteTenant(id: string): Promise<boolean> {
+    return this.sql.exec("DELETE FROM tenants WHERE id = ?", id).rowsWritten > 0;
+  }
+
+  async tenantSecrets(id: string): Promise<TenantSecrets | null> {
+    const rows = this.sql.exec("SELECT password_hash, wa_token, wa_pin FROM tenants WHERE id = ?", id).toArray();
+    if (!rows.length) return null;
+    const r = rows[0];
+    return {
+      passwordHash: r.password_hash === null ? null : String(r.password_hash),
+      whatsappToken: r.wa_token === null ? null : String(r.wa_token),
+      whatsappPin: r.wa_pin === null ? null : String(r.wa_pin),
+    };
+  }
+
+  async setTenantPassword(id: string, passwordHash: string): Promise<boolean> {
+    return this.sql.exec("UPDATE tenants SET password_hash = ? WHERE id = ?", passwordHash, id).rowsWritten > 0;
+  }
+
+  async setTenantWhatsappSecrets(id: string, token: string | null, pin: string | null): Promise<boolean> {
+    return this.sql.exec("UPDATE tenants SET wa_token = ?, wa_pin = ? WHERE id = ?", token, pin, id).rowsWritten > 0;
   }
 
   async touchConversation(row: ConversationRow): Promise<void> {
@@ -105,6 +126,11 @@ export class InboxDO extends DurableObject<Env> {
       "INSERT OR REPLACE INTO orders (ref, tenant, conversation_key, created_at, status, data) VALUES (?, ?, ?, ?, ?, ?)",
       order.reference, tenant, conversationKey, order.createdAt, status, JSON.stringify(data),
     );
+  }
+
+  async orderTenant(ref: string): Promise<string | null> {
+    const rows = this.sql.exec("SELECT tenant FROM orders WHERE ref = ?", ref).toArray();
+    return rows.length ? String(rows[0].tenant) : null;
   }
 
   async setOrderStatus(ref: string, status: OrderStatus): Promise<boolean> {

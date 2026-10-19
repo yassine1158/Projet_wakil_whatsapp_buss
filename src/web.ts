@@ -1,5 +1,5 @@
 import { webConversation } from "./names";
-import { findTenantById, isKnownWebOrigin } from "./tenants";
+import { isKnownWebOrigin, tenantById } from "./registry";
 import type { Env, Tenant } from "./types";
 
 const MAX_TEXT = 1000;
@@ -39,14 +39,14 @@ export async function handleChat(request: Request, env: Env, url: URL): Promise<
   const origin = request.headers.get("origin");
 
   if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: origin && isKnownWebOrigin(origin) ? cors(origin) : {} });
+    return new Response(null, { status: 204, headers: origin && (await isKnownWebOrigin(env, origin)) ? cors(origin) : {} });
   }
 
   if (url.pathname === "/chat/config" && request.method === "GET") {
-    const found = findTenantById(url.searchParams.get("tenant") ?? "");
+    const tenant = await tenantById(env, url.searchParams.get("tenant") ?? "");
     // Sans en-tête Origin (requête GET depuis le même site), la réponse n'a rien de sensible.
-    if (!found || (origin !== null && !allowed(found.tenant, origin, url))) return json({ error: "forbidden" }, 403, null);
-    const { businessName, assistantName } = found.tenant;
+    if (!tenant || (origin !== null && !allowed(tenant, origin, url))) return json({ error: "forbidden" }, 403, null);
+    const { businessName, assistantName } = tenant;
     return json({ businessName, assistantName }, 200, origin);
   }
 
@@ -58,8 +58,8 @@ export async function handleChat(request: Request, env: Env, url: URL): Promise<
   } catch {
     return json({ error: "bad_request" }, 400, null);
   }
-  const found = typeof body.tenant === "string" ? findTenantById(body.tenant) : undefined;
-  if (!found || !allowed(found.tenant, origin, url)) return json({ error: "forbidden" }, 403, null);
+  const tenant = typeof body.tenant === "string" ? await tenantById(env, body.tenant) : undefined;
+  if (!tenant || !allowed(tenant, origin, url)) return json({ error: "forbidden" }, 403, null);
 
   const session = typeof body.session === "string" ? body.session : "";
   const text = typeof body.text === "string" ? body.text.trim() : "";
@@ -71,9 +71,9 @@ export async function handleChat(request: Request, env: Env, url: URL): Promise<
     if (!success) return json({ error: "rate_limited" }, 429, origin);
   }
 
-  const stub = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(webConversation(found.tenant.id, session)));
+  const stub = env.CONVERSATIONS.get(env.CONVERSATIONS.idFromName(webConversation(tenant.id, session)));
   try {
-    const replies = await stub.chat(found.phoneNumberId, session, text);
+    const replies = await stub.chat(tenant.id, session, text);
     return json({ replies }, 200, origin);
   } catch (err) {
     console.error("Chat web échoué", err);

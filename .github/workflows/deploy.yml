@@ -68,10 +68,12 @@ jobs:
           WHATSAPP_TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
           WHATSAPP_APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET }}
           WHATSAPP_VERIFY_TOKEN: ${{ secrets.WHATSAPP_VERIFY_TOKEN }}
+          META_APP_ID: ${{ secrets.META_APP_ID }}
+          META_CONFIG_ID: ${{ secrets.META_CONFIG_ID }}
         run: |
           file="$RUNNER_TEMP/secrets.json"
           node -e '
-            const names = ["ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL", "ADMIN_PASSWORD", "WHATSAPP_TOKEN", "WHATSAPP_APP_SECRET", "WHATSAPP_VERIFY_TOKEN"];
+            const names = ["ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL", "ADMIN_PASSWORD", "WHATSAPP_TOKEN", "WHATSAPP_APP_SECRET", "WHATSAPP_VERIFY_TOKEN", "META_APP_ID", "META_CONFIG_ID"];
             const set = Object.fromEntries(names.filter((n) => process.env[n]).map((n) => [n, process.env[n]]));
             require("fs").writeFileSync(process.argv[1], JSON.stringify(set));
             console.log("Clés envoyées : " + (Object.keys(set).join(", ") || "aucune"));

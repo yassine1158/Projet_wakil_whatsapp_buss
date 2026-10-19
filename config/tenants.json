@@ -1,5 +1,5 @@
-{
-  "REMPLACER_PAR_PHONE_NUMBER_ID": {
+[
+  {
     "id": "sicar",
     "businessName": "SICAR SARL",
     "assistantName": "Wakil",
@@ -17,7 +17,7 @@
     "instructions": "SICAR SARL est une carrière en Côte d'Ivoire : extraction, concassage, chargement sur site et livraison de granulats. Tous les produits sont vendus à la tonne.\nRepères pour estimer les quantités (toujours présentés comme des estimations, l'équipe confirme) :\n• 1 m³ de granulats pèse environ 1,4 à 1,7 tonne selon le produit.\n• Béton courant, pour 1 m³ de béton : environ 800 litres de gravier (≈ 1,2 t) et 400 litres de sable (≈ 0,6 t).\n• Volume d'une dalle = longueur × largeur × épaisseur (une dalle courante fait 12 à 15 cm).\n• Conseille d'ajouter 5 à 10 % de marge.\nLe catalogue ne contient pas de ciment ni de fer : si le client en demande, dis que SICAR fournit les granulats et que l'équipe peut le renseigner.",
     "handoffHours": 12
   },
-  "DEMO": {
+  {
     "id": "demo",
     "demo": true,
     "businessName": "Carrière Démo",
@@ -34,4 +34,4 @@
     "instructions": "Tu fais une démonstration de Wakil sur le site de Wakil : « Carrière Démo » est une entreprise fictive, avec le catalogue d'une vraie carrière ivoirienne. Joue le rôle normalement (conseil, quantités, commande), mais rappelle à la fin d'une commande qu'il s'agit d'une démonstration et que rien ne sera livré. Si le visiteur veut Wakil pour sa propre entreprise, invite-le à remplir le formulaire « Essayer Wakil » plus bas sur la page.\nRepères pour estimer les quantités (toujours présentés comme des estimations, l'équipe confirme) :\n• 1 m³ de granulats pèse environ 1,4 à 1,7 tonne selon le produit.\n• Béton courant, pour 1 m³ de béton : environ 800 litres de gravier (≈ 1,2 t) et 400 litres de sable (≈ 0,6 t).\n• Volume d'une dalle = longueur × largeur × épaisseur (une dalle courante fait 12 à 15 cm).\n• Conseille d'ajouter 5 à 10 % de marge.\nLe catalogue ne contient pas de ciment ni de fer : si le client en demande, dis que SICAR fournit les granulats et que l'équipe peut le renseigner.",
     "handoffHours": 1
   }
-}
+]

@@ -6,7 +6,10 @@ Premier client : **SICAR SARL**. Le catalogue est lu directement sur le site (`d
 
 ## L'application (`/app`) : votre espace de travail
 
-À l'adresse `https://wakil-whatsapp.<votre-compte>.workers.dev/app/`, sur ordinateur ou téléphone, protégée par un mot de passe :
+À l'adresse `https://wakil-whatsapp.<votre-compte>.workers.dev/app/`, sur ordinateur ou téléphone. Deux sortes de connexion :
+
+- **l'administrateur de Wakil** (identifiant `admin`, mot de passe `ADMIN_PASSWORD`) voit toutes les entreprises, les demandes et la page **Entreprises** ;
+- **le patron d'une entreprise** (identifiant = celui de son entreprise, mot de passe donné par l'administrateur) ne voit que son entreprise : accueil, conversations, commandes, essai, réglages.
 
 | Onglet | Ce que vous y faites |
 |---|---|
@@ -14,10 +17,25 @@ Premier client : **SICAR SARL**. Le catalogue est lu directement sur le site (`d
 | **Conversations** | Tout ce que les clients ont écrit et ce que Wakil a répondu. **Prendre la main** (Wakil se tait), **Rendre à Wakil**, **répondre au client** sur WhatsApp depuis l'application |
 | **Commandes** | Confirmer, marquer livrée, annuler ; écrire au client |
 | **Tester** | Parler à votre assistant comme un client, avant vos clients. Rien n'est enregistré, personne n'est prévenu |
-| **Demandes** | Les entreprises qui ont rempli « Essayer Wakil » sur le site de Wakil |
-| **Réglages** | L'adresse du webhook et la ligne du chat à copier, le catalogue que Wakil connaît |
+| **Réglages** | Le numéro WhatsApp relié, la ligne du chat à copier, le catalogue que Wakil connaît |
+| **Demandes** (admin) | Les entreprises qui ont rempli « Essayer Wakil » sur le site de Wakil |
+| **Entreprises** (admin) | Créer et modifier les entreprises clientes, sans toucher au code (voir plus bas) |
 
-Pour l'activer : `npx wrangler secret put ADMIN_PASSWORD` (choisissez un mot de passe long). Changer ce mot de passe déconnecte tous les appareils.
+Pour l'activer : `ADMIN_PASSWORD` dans les secrets (choisissez un mot de passe long). Il sert aussi à signer les connexions : le changer déconnecte tous les appareils, patrons compris.
+
+## Ajouter une entreprise cliente
+
+Dans l'application, **Entreprises → Nouvelle entreprise** :
+
+1. **La fiche** : nom, identifiant de connexion (proposé à partir du nom), numéro WhatsApp du patron (il y reçoit les commandes), horaires, adresse, moyens de paiement, consignes pour l'assistant.
+2. **Le catalogue** : soit un tableau rempli dans Wakil (ou importé d'un fichier Excel/CSV avec les colonnes Nom, Catégorie, Prix, Unité, Description, Photo, Disponible), soit l'adresse d'un fichier `products.json` tenu à jour sur le site de l'entreprise, comme pour SICAR.
+3. **L'accès du patron** : **Générer** un mot de passe, **Enregistrer**, puis **Envoyer sur WhatsApp** au patron l'adresse de l'application, son identifiant et son mot de passe.
+4. **WhatsApp** : 
+   - **Connecter WhatsApp** (inscription intégrée de Meta) : le patron se connecte à Facebook, choisit ou crée son compte WhatsApp Business et son numéro ; Wakil reçoit un accès à ce numéro, l'active et s'abonne à ses messages. Demande les secrets `META_APP_ID`, `META_CONFIG_ID` et `WHATSAPP_APP_SECRET` (voir « Meta » plus bas) ;
+   - ou **Relier à la main** : le Phone number ID d'un numéro ajouté dans le compte WhatsApp de Wakil (il utilise alors `WHATSAPP_TOKEN`), ou d'un autre compte avec son propre jeton.
+5. **Le chat sur son site** : ajouter l'adresse de son site dans **Sites autorisés** et lui donner la ligne `<script>` à coller.
+
+Les entreprises de `config/tenants.json` (SICAR, la démonstration) apparaissent aussi dans la liste ; une modification faite dans l'application l'emporte sur le fichier, et **Revenir à l'origine** l'annule. Un numéro WhatsApp ne peut être relié qu'à une seule entreprise.
 
 **Une journée type** : le matin, ouvrez **Accueil** ; confirmez les commandes de la nuit, rappelez les clients qui attendent l'équipe. Dans la journée, les notifications WhatsApp vous préviennent ; quand vous voulez répondre vous-même, **Prendre la main**, puis **Rendre à Wakil**. Après chaque changement de catalogue, un tour dans **Tester**.
 
@@ -55,8 +73,10 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | Fichier | Rôle |
 |---|---|
 | `src/index.ts` | Webhook (vérification Meta, signature), commandes du patron |
-| `src/api.ts`, `src/auth.ts` | API de l'application, connexion par mot de passe |
-| `src/inbox-do.ts` | Boîte de réception (SQLite) : conversations, commandes, demandes |
+| `src/api.ts`, `src/auth.ts` | API de l'application, connexions (administrateur, patrons) |
+| `src/companies.ts` | Fiche d'une entreprise (vérification), inscription WhatsApp de Meta |
+| `src/registry.ts` | Registre des entreprises : fichier de configuration + base, numéro WhatsApp de chacune |
+| `src/inbox-do.ts` | Boîte de réception (SQLite) : conversations, commandes, demandes, entreprises |
 | `public/app/index.html` | L'application |
 | `src/web.ts` | Chat du site web : `/chat` et `/chat/config`, contrôle du site d'origine et du débit |
 | `public/wakil-chat.js` | Le chat à intégrer dans un site (une seule balise `<script>`) |
@@ -70,7 +90,7 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/prompt.ts` | Le « caractère » du commercial et ses règles |
 | `src/catalog.ts` | Lecture et mise en forme du catalogue |
 | `src/whatsapp.ts` | Client de l'API WhatsApp Cloud |
-| `config/tenants.json` | Les entreprises clientes (une par numéro WhatsApp) |
+| `config/tenants.json` | Entreprises de départ (SICAR, démonstration) ; les autres se créent dans l'application |
 
 ## Mise en ligne depuis GitHub (recommandé)
 
@@ -90,6 +110,7 @@ Tout se règle dans GitHub ; Cloudflare fait tourner Wakil sans qu'on ait à y r
 | `ANTHROPIC_API_KEY` | la clé de console.anthropic.com | oui |
 | `ADMIN_PASSWORD` | le mot de passe de l'application | oui |
 | `WHATSAPP_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` | les valeurs de Meta | quand WhatsApp est prêt |
+| `META_APP_ID`, `META_CONFIG_ID` | l'App ID et la configuration de l'inscription intégrée | pour le bouton « Connecter WhatsApp » |
 
 **Lancer** : onglet **Actions → Mettre en ligne → Run workflow**. Ensuite, chaque changement sur `main` est vérifié (tests) puis mis en ligne tout seul. Le résumé de chaque mise en ligne donne les adresses du site, de l'application et du webhook. Une clé ajoutée ou changée dans GitHub part au prochain lancement.
 
@@ -101,10 +122,11 @@ Tout se règle dans GitHub ; Cloudflare fait tourner Wakil sans qu'on ait à y r
 2. Dans **WhatsApp → API Setup** : noter le **Phone number ID** du numéro de test et ajouter votre numéro personnel comme destinataire de test.
 3. Créer un **jeton permanent** : Business Settings → System users → créer un utilisateur système admin, lui donner l'application et le compte WhatsApp, générer un jeton avec les permissions `whatsapp_business_messaging` et `whatsapp_business_management`. (Le jeton temporaire de la page API Setup expire en 24 h.)
 4. Noter la **clé secrète de l'application** : App settings → Basic → App secret.
+5. Pour **Connecter WhatsApp** (chaque client relie son propre numéro) : ajouter le produit **Facebook Login for Business**, y créer une **configuration** de type « WhatsApp Embedded Signup » et noter son **Configuration ID** (`META_CONFIG_ID`) ; noter l'**App ID** (`META_APP_ID`). Dans Facebook Login → Settings, ajouter l'adresse du Worker aux domaines autorisés. L'application doit passer la vérification d'entreprise de Meta (Tech Provider) avant d'être utilisée par de vrais clients.
 
 ### 2. Configuration
 
-Dans `config/tenants.json`, remplacer `REMPLACER_PAR_PHONE_NUMBER_ID` par le Phone number ID, et `ownerPhone` par le numéro WhatsApp du patron (format international sans `+`, ex. `2250701020304`).
+Dans l'application, **Entreprises → SICAR SARL** : le numéro WhatsApp du patron, puis **WhatsApp → Relier à la main** avec le Phone number ID. Dans `config/wakil.json`, le numéro qui reçoit les demandes du formulaire « Essayer Wakil » et le Phone number ID qui les envoie.
 
 ### 3. Cloudflare
 
@@ -135,7 +157,7 @@ Envoyez « Bonjour » au numéro de test : Wakil répond.
 ## Le site de Wakil
 
 Le Worker sert aussi le site de présentation de Wakil (`public/index.html`), à sa propre adresse : `https://wakil-whatsapp.<votre-compte>.workers.dev/`. On y trouve :
-- **une démonstration en direct** : le chat joue le commercial de « Carrière Démo », une entreprise fictive (`DEMO` dans `config/tenants.json`) qui reprend le catalogue de SICAR. Personne n'est prévenu pour ses « commandes » ;
+- **une démonstration en direct** : le chat joue le commercial de « Carrière Démo », une entreprise fictive (`demo` dans `config/tenants.json`) qui reprend le catalogue de SICAR. Personne n'est prévenu pour ses « commandes » ;
 - **le formulaire « Essayer Wakil »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
 
 Les messages de la démonstration sont de vrais appels au modèle : les limites du chat web s'appliquent aussi.
@@ -155,7 +177,7 @@ Une fois le Worker déployé : **Administration → Informations → « Assistan
 
 | Attribut | Rôle |
 |---|---|
-| `data-tenant` | Identifiant de l'entreprise (`id` dans `config/tenants.json`), obligatoire |
+| `data-tenant` | Identifiant de l'entreprise (identifiant de connexion, visible dans **Entreprises**), obligatoire |
 | `data-accent` | Couleur du chat |
 | `data-position` | `left` ou `right` |
 | `data-offset` | Distance au bas de l'écran, en pixels (24 par défaut) |
@@ -165,7 +187,7 @@ Une fois le Worker déployé : **Administration → Informations → « Assistan
 
 La page peut aussi piloter le chat : `WakilChat.open()`, `WakilChat.send("Bonjour")`.
 
-Le site doit être déclaré dans `webOrigins` de l'entreprise (`config/tenants.json`), par exemple `"https://yassine1158.github.io"`. Avec un nom de domaine (ex. `https://sicar-sarl.ci`), l'ajouter aussi.
+Le site doit être déclaré dans **Sites autorisés** de la fiche de l'entreprise, par exemple `"https://yassine1158.github.io"`. Avec un nom de domaine (ex. `https://sicar-sarl.ci`), l'ajouter aussi.
 
 ### Protections contre les abus
 
@@ -192,7 +214,7 @@ Tout autre message du patron est traité comme celui d'un client, ce qui est pra
 
 WhatsApp n'autorise un message libre que dans les 24 h qui suivent le dernier message du destinataire. Pour que le patron reçoive les commandes à tout moment :
 1. Dans WhatsApp Manager, créer un modèle de catégorie **Utility**, en français, avec ce corps : `Nouvelle notification Wakil : {{1}}`.
-2. Une fois le modèle approuvé, l'ajouter à l'entreprise dans `config/tenants.json` :
+2. Une fois le modèle approuvé, l'ajouter à l'entreprise dans `config/tenants.json` (pour une entreprise créée dans l'application, il est gardé quand on modifie sa fiche) :
    ```json
    "ownerNotifyTemplate": { "name": "nom_du_modele", "language": "fr" }
    ```
@@ -232,6 +254,6 @@ En local, la transcription des vocaux demande d'être connecté à Cloudflare (`
 ## Prochaines étapes
 
 1. Tester avec le numéro de test Meta, puis avec de vrais clients de SICAR.
-2. Tableau de bord du patron (commandes, conversations) : les commandes sont déjà gardées dans chaque conversation.
-3. Lien de paiement mobile money (Wave, Orange Money, MTN MoMo).
-4. Inscription d'une nouvelle entreprise sans toucher au code (aujourd'hui : `config/tenants.json`).
+2. Lien de paiement mobile money (Wave, Orange Money, MTN MoMo).
+3. Laisser le patron modifier lui-même ses prix et son catalogue depuis son espace.
+4. Abonnement et facturation par entreprise.

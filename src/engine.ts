@@ -74,6 +74,7 @@ export async function addIncoming(
  */
 export async function enqueueMessage(
   storage: ConversationStorage,
+  tenantId: string,
   phoneNumberId: string,
   message: IncomingMessage,
   now: number,
@@ -81,6 +82,7 @@ export async function enqueueMessage(
 ): Promise<boolean> {
   const meta: ConversationMeta = {
     channel: "whatsapp",
+    tenantId,
     phoneNumberId,
     customerId: message.from,
     customerPhone: message.from,
