@@ -3,9 +3,12 @@ import { beforeEach, describe, expect, it } from "vitest";
 import type { ClaudeClient } from "../src/agent";
 import { REFUSAL_REPLY } from "../src/agent";
 import {
+  addIncoming,
   enqueueMessage,
+  normalizePhone,
   processPending,
   TECHNICAL_ISSUE_REPLY,
+  WEB_HANDOFF_REPLY,
   type ConversationStorage,
   type EngineDeps,
   type WhatsAppSender,
@@ -280,5 +283,82 @@ describe("processPending", () => {
     const owner = whatsapp.sent.find((s) => s.to === "22599")!;
     expect(owner.kind).toBe("template:nouvelle_demande");
     expect(owner.body).not.toContain("\n");
+  });
+});
+
+describe("chat du site web", () => {
+  const webMeta = { channel: "web" as const, phoneNumberId: "PNID", customerId: "session-abcdefgh12345678" };
+  const webMsg = (id: string, text: string): IncomingMessage => ({
+    id,
+    from: webMeta.customerId,
+    timestamp: NOW,
+    kind: "text",
+    text,
+    rawType: "text",
+  });
+  const collector = () => {
+    const replies: string[] = [];
+    return { replies, sink: { sendText: async (t: string) => void replies.push(t), sendImage: async (u: string) => void replies.push(`[img] ${u}`) } };
+  };
+  const order = (extra: Record<string, unknown> = {}) =>
+    ({
+      type: "tool_use",
+      id: `t${Object.keys(extra).length}`,
+      name: "record_order",
+      input: {
+        customer_name: "Awa",
+        items: [{ product_id: "gravier-15-25", quantity: 10 }],
+        fulfilment: "livraison",
+        delivery_location: "Cocody",
+        ...extra,
+      },
+    }) as Anthropic.Beta.BetaContentBlock;
+
+  it("demande le numéro avant d'enregistrer, puis prévient le patron", async () => {
+    await addIncoming(storage, webMeta, webMsg("w1", "10 tonnes de 15/25 à Cocody, mon numéro : 07 07 07 07 07"));
+    const { client, requests } = fakeClaude([
+      { stop_reason: "tool_use", content: [order()] },
+      { stop_reason: "tool_use", content: [order({ customer_phone: "07 07 07 07 07" })] },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "C'est enregistré." } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    const { replies, sink } = collector();
+    await processPending(deps(client, { sink, tenant: { ...tenant, defaultCountryCode: "225" } }));
+
+    const firstResult = (requests[1].messages.at(-1)!.content as Anthropic.Beta.BetaToolResultBlockParam[])[0];
+    expect(firstResult.is_error).toBe(true);
+    expect(String(firstResult.content)).toContain("customer_phone");
+    expect(JSON.stringify(requests[0].system)).toContain("Canal : le chat du site web");
+    expect((requests[0].messages[0].content as Anthropic.Beta.BetaTextBlockParam[])[0].text).toContain("Visiteur du chat du site web");
+
+    expect(replies).toEqual(["C'est enregistré."]);
+    expect(whatsapp.read).toEqual([]);
+    expect(whatsapp.sent).toHaveLength(1);
+    expect(whatsapp.sent[0]).toMatchObject({ to: "22599" });
+    expect(whatsapp.sent[0].body).toContain("via le site web");
+    expect(whatsapp.sent[0].body).toContain("https://wa.me/2250707070707");
+    expect((await storage.get<Order[]>("orders"))![0]).toMatchObject({ channel: "web", customerPhone: "2250707070707" });
+  });
+
+  it("répond au visiteur quand un conseiller a pris la main", async () => {
+    await storage.put("handoffUntil", NOW + 1000);
+    await addIncoming(storage, webMeta, webMsg("w1", "Vous êtes là ?"));
+    const { replies, sink } = collector();
+    const silent = fakeClaude([]);
+    await processPending(deps(silent.client, { sink }));
+    expect(silent.requests).toHaveLength(0);
+    expect(replies).toEqual([WEB_HANDOFF_REPLY]);
+    expect(whatsapp.sent[0].body).toContain("numéro inconnu");
+  });
+});
+
+describe("normalizePhone", () => {
+  it("garde le format international et complète les numéros locaux", () => {
+    expect(normalizePhone("07 07 07 07 07", "225")).toBe("2250707070707");
+    expect(normalizePhone("+225 07 07 07 07 07", "225")).toBe("2250707070707");
+    expect(normalizePhone("00216 22 333 444", "225")).toBe("21622333444");
+    expect(normalizePhone("+216 22 333 444", "225")).toBe("21622333444");
+    expect(normalizePhone("2250707070707", "225")).toBe("2250707070707");
+    expect(normalizePhone("123", "225")).toBeUndefined();
+    expect(normalizePhone(undefined)).toBeUndefined();
   });
 });

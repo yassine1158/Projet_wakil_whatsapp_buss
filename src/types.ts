@@ -4,6 +4,8 @@ import type { ConversationDO } from "./conversation-do";
 export interface Env {
   CONVERSATIONS: DurableObjectNamespace<ConversationDO>;
   AI: Ai;
+  /** Limite le nombre de messages du chat web par adresse IP (facultatif). */
+  CHAT_LIMITER?: RateLimit;
   ANTHROPIC_API_KEY: string;
   WHATSAPP_TOKEN: string;
   WHATSAPP_APP_SECRET: string;
@@ -27,6 +29,10 @@ export interface Tenant {
    */
   ownerNotifyTemplate?: { name: string; language: string };
   timezone: string;
+  /** Indicatif ajouté aux numéros locaux donnés sur le chat web (ex. "225"). */
+  defaultCountryCode?: string;
+  /** Sites autorisés à afficher le chat web (ex. "https://yassine1158.github.io"). */
+  webOrigins?: string[];
   catalog: {
     productsUrl: string;
     siteUrl?: string;
@@ -37,6 +43,20 @@ export interface Tenant {
   /** Connaissances métier propres à l'entreprise, ajoutées au prompt. */
   instructions?: string;
   handoffHours?: number;
+}
+
+export type Channel = "whatsapp" | "web";
+
+/** Ce que l'on sait d'une conversation, gardé dans son Durable Object. */
+export interface ConversationMeta {
+  channel: Channel;
+  /** Numéro WhatsApp de l'entreprise, qui sert aussi à prévenir le patron. */
+  phoneNumberId: string;
+  /** Numéro WhatsApp du client, ou identifiant de session du chat web. */
+  customerId: string;
+  /** Connu d'office sur WhatsApp ; demandé au client sur le chat web. */
+  customerPhone?: string;
+  customerName?: string;
 }
 
 export type IncomingKind = "text" | "audio" | "image" | "location" | "unsupported";
@@ -92,6 +112,7 @@ export interface OrderItem {
 export interface Order {
   reference: string;
   createdAt: number;
+  channel: Channel;
   customerPhone: string;
   customerName: string;
   items: OrderItem[];

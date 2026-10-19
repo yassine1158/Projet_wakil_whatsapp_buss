@@ -1,5 +1,6 @@
 import { getTenant } from "./tenants";
 import type { Env, IncomingMessage, Tenant } from "./types";
+import { handleChat } from "./web";
 import { parseWebhook, verifySignature, WhatsAppClient } from "./whatsapp";
 
 export { ConversationDO } from "./conversation-do";
@@ -40,6 +41,10 @@ export default {
       }
       // Répondre vite : Meta renvoie la notification si le 200 tarde.
       return new Response("OK");
+    }
+
+    if (url.pathname === "/chat" || url.pathname === "/chat/config") {
+      return handleChat(request, env, url);
     }
 
     if (url.pathname === "/" || url.pathname === "/health") {

@@ -11,6 +11,10 @@
     "bindings": [{ "name": "CONVERSATIONS", "class_name": "ConversationDO" }]
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ConversationDO"] }],
+  // Le script du chat web (public/wakil-chat.js), servi tel quel
+  "assets": { "directory": "./public" },
+  // Chat web : 20 messages par minute au plus par adresse IP
+  "ratelimits": [{ "name": "CHAT_LIMITER", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } }],
   // Les secrets (clés) se mettent avec `npx wrangler secret put NOM`, jamais ici.
   "vars": {
     "CLAUDE_MODEL": "claude-opus-5-5",

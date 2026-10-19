@@ -1,6 +1,6 @@
-# Wakil — commercial IA sur WhatsApp
+# Wakil — commercial IA sur WhatsApp et sur le site web
 
-Wakil répond aux clients d'une entreprise sur WhatsApp. Il comprend les messages, les vocaux et les photos, conseille les produits du catalogue, estime les quantités et prend les commandes. Le patron reçoit chaque commande sur son propre WhatsApp.
+Wakil répond aux clients d'une entreprise sur WhatsApp et dans un chat sur son site web. Il comprend les messages, les vocaux et les photos, conseille les produits du catalogue, estime les quantités et prend les commandes. Le patron reçoit chaque commande sur son propre WhatsApp.
 
 Premier client : **SICAR SARL**. Le catalogue est lu directement sur le site (`data/products.json` et `data/site.json`), donc une modification faite dans l'administration du site est prise en compte par Wakil en moins de 5 minutes.
 
@@ -17,6 +17,7 @@ Premier client : **SICAR SARL**. Le catalogue est lu directement sur le site (`d
 | Commande / devis | Récapitulatif, confirmation du client, référence `W-XXXXXX`, envoi au patron |
 | Passage à un humain | Sur demande, réclamation, négociation… : le patron est prévenu et Wakil se tait 12 h |
 | Prix | Jamais inventés : « sur devis » quand le site n'en affiche pas |
+| Chat du site web | Même assistant, même catalogue ; il demande le numéro du client avant d'enregistrer une commande |
 
 ## Architecture
 
@@ -30,11 +31,15 @@ Client WhatsApp ──► Meta (WhatsApp Cloud API) ──► Cloudflare Worker 
                                                      ▼
                          Claude (API Anthropic) + outils ──► réponses WhatsApp
                          catalogue lu sur le site            notifications au patron
+                                                     ▲
+Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (même moteur, réponse immédiate)
 ```
 
 | Fichier | Rôle |
 |---|---|
 | `src/index.ts` | Webhook (vérification Meta, signature), commandes du patron |
+| `src/web.ts` | Chat du site web : `/chat` et `/chat/config`, contrôle du site d'origine et du débit |
+| `public/wakil-chat.js` | Le chat à intégrer dans un site (une seule balise `<script>`) |
 | `src/conversation-do.ts` | Durable Object : une conversation par client, traitée dans l'ordre |
 | `src/engine.ts` | File d'attente, vocaux/photos, réponse, notifications au patron |
 | `src/agent.ts` | Appel à Claude et boucle d'outils |
@@ -81,6 +86,40 @@ Dans **WhatsApp → Configuration** sur Meta :
 - Puis **Webhook fields → messages → Subscribe**.
 
 Envoyez « Bonjour » au numéro de test : Wakil répond.
+
+## Chat du site web
+
+### Sur le site SICAR
+
+Une fois le Worker déployé : **Administration → Informations → « Assistant Wakil : adresse du chat »**, coller l'adresse du Worker (`https://wakil-whatsapp.<votre-compte>.workers.dev`), puis publier. Le chat apparaît en bas à droite, au-dessus du bouton WhatsApp. Laisser le champ vide le désactive.
+
+### Sur n'importe quel site
+
+```html
+<script src="https://wakil-whatsapp.<votre-compte>.workers.dev/wakil-chat.js"
+        data-tenant="sicar" data-accent="#e30613" data-position="right" defer></script>
+```
+
+| Attribut | Rôle |
+|---|---|
+| `data-tenant` | Identifiant de l'entreprise (`id` dans `config/tenants.json`), obligatoire |
+| `data-accent` | Couleur du chat |
+| `data-position` | `left` ou `right` |
+| `data-offset` | Distance au bas de l'écran, en pixels (24 par défaut) |
+| `data-title` | Titre de la fenêtre (par défaut « Assistant » + nom de l'entreprise) |
+| `data-teaser` | Phrase de la bulle d'invitation affichée une fois par visite |
+
+Le site doit être déclaré dans `webOrigins` de l'entreprise (`config/tenants.json`), par exemple `"https://yassine1158.github.io"`. Avec un nom de domaine (ex. `https://sicar-sarl.ci`), l'ajouter aussi.
+
+### Protections contre les abus
+
+Chaque message coûte un appel au modèle, et l'adresse du chat est publique. Plusieurs limites s'appliquent donc :
+- seuls les sites listés dans `webOrigins` sont acceptés ;
+- 20 messages par minute au plus par adresse IP (`CHAT_LIMITER` dans `wrangler.jsonc`) ;
+- 60 messages par jour au plus par visiteur, et 1 000 caractères au plus par message ;
+- une conversation web inactive pendant 30 jours est effacée.
+
+Le contrôle du site d'origine arrête les autres sites web, pas un script lancé hors navigateur. Les limites de débit et de messages par jour plafonnent ce cas.
 
 ## Commandes du patron
 
@@ -131,6 +170,7 @@ En local, la transcription des vocaux demande d'être connecté à Cloudflare (`
 
 - **Vocaux** : WhatsApp envoie des fichiers OGG/Opus. Le format est accepté par Whisper, mais la qualité sur l'accent ivoirien et le nouchi reste à mesurer avec de vrais vocaux de clients.
 - **Indicateur « en train d'écrire »** : nécessite une version récente de l'API ; s'il est refusé, l'erreur est seulement journalisée.
+- **Chat web** : testé dans Chromium (ordinateur et téléphone, thème clair et sombre) contre le Worker en local, avec de fausses clés. Une vraie conversation avec le modèle reste à faire après le déploiement.
 
 ## Prochaines étapes
 

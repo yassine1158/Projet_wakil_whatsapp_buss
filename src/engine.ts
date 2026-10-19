@@ -4,7 +4,7 @@ import { sanitizeHistory, trimHistory } from "./history";
 import { buildSystemPrompt, buildTurnContext } from "./prompt";
 import type { ToolContext } from "./tools";
 import type { Transcriber } from "./transcribe";
-import type { Catalog, IncomingMessage, Order, Tenant } from "./types";
+import type { Catalog, ConversationMeta, IncomingMessage, Order, Tenant } from "./types";
 import { bytesToBase64 } from "./encoding";
 
 type MessageParam = Anthropic.Beta.BetaMessageParam;
@@ -27,10 +27,10 @@ export interface WhatsAppSender {
   downloadMedia(mediaId: string): Promise<{ bytes: Uint8Array; mimeType: string }>;
 }
 
-interface Meta {
-  phoneNumberId: string;
-  customerPhone: string;
-  customerName?: string;
+/** Où partent les réponses destinées au client : WhatsApp, ou la réponse HTTP du chat web. */
+export interface ReplySink {
+  sendText(text: string): Promise<void>;
+  sendImage(link: string, caption?: string): Promise<void>;
 }
 
 const MAX_SEEN = 100;
@@ -41,11 +41,35 @@ const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp
 
 export const TECHNICAL_ISSUE_REPLY =
   "Désolé, j'ai un petit souci technique. Un conseiller de l'équipe va vous recontacter très vite.";
+export const WEB_HANDOFF_REPLY = "Votre message a bien été transmis à un conseiller, qui va vous recontacter.";
 
 /**
- * Met un message en file d'attente. La réponse part après `debounceMs` sans nouveau
- * message (au plus MAX_WAIT_MS après le premier), pour répondre une seule fois à un
- * client qui envoie plusieurs messages d'affilée. Renvoie false pour un doublon.
+ * Ajoute un message à la file d'attente de la conversation.
+ * Renvoie false pour un doublon (Meta renvoie parfois la même notification).
+ */
+export async function addIncoming(
+  storage: ConversationStorage,
+  meta: ConversationMeta,
+  message: IncomingMessage,
+): Promise<boolean> {
+  const seen = (await storage.get<string[]>("seen")) ?? [];
+  if (seen.includes(message.id)) return false;
+  await storage.put("seen", [...seen, message.id].slice(-MAX_SEEN));
+
+  const saved = (await storage.get<ConversationMeta>("meta")) ?? meta;
+  if (message.name) saved.customerName = message.name;
+  await storage.put("meta", saved);
+
+  const pending = (await storage.get<IncomingMessage[]>("pending")) ?? [];
+  pending.push(message);
+  await storage.put("pending", pending);
+  return true;
+}
+
+/**
+ * Met un message WhatsApp en file d'attente. La réponse part après `debounceMs` sans
+ * nouveau message (au plus MAX_WAIT_MS après le premier), pour répondre une seule fois
+ * à un client qui envoie plusieurs messages d'affilée.
  */
 export async function enqueueMessage(
   storage: ConversationStorage,
@@ -54,18 +78,13 @@ export async function enqueueMessage(
   now: number,
   debounceMs: number,
 ): Promise<boolean> {
-  const seen = (await storage.get<string[]>("seen")) ?? [];
-  if (seen.includes(message.id)) return false;
-  await storage.put("seen", [...seen, message.id].slice(-MAX_SEEN));
-
-  const meta = (await storage.get<Meta>("meta")) ?? { phoneNumberId, customerPhone: message.from };
-  if (message.name) meta.customerName = message.name;
-  await storage.put("meta", meta);
-
-  const pending = (await storage.get<IncomingMessage[]>("pending")) ?? [];
-  pending.push(message);
-  await storage.put("pending", pending);
-
+  const meta: ConversationMeta = {
+    channel: "whatsapp",
+    phoneNumberId,
+    customerId: message.from,
+    customerPhone: message.from,
+  };
+  if (!(await addIncoming(storage, meta, message))) return false;
   let firstAt = await storage.get<number>("firstPendingAt");
   if (firstAt === undefined) {
     firstAt = now;
@@ -86,7 +105,10 @@ export async function resumeAssistant(storage: ConversationStorage) {
 export interface EngineDeps {
   storage: ConversationStorage;
   tenant: Tenant;
+  /** Sert aux notifications du patron, et sur WhatsApp aux réponses et aux médias. */
   whatsapp: WhatsAppSender;
+  /** Destination des réponses ; par défaut, le WhatsApp du client. */
+  sink?: ReplySink;
   claude: ClaudeClient;
   agentConfig: AgentConfig;
   transcribe: Transcriber;
@@ -95,18 +117,23 @@ export interface EngineDeps {
   log?: (message: string, err?: unknown) => void;
 }
 
-/** Traite les messages en attente : comprend, répond, enregistre. Appelé par l'alarme. */
+/** Traite les messages en attente : comprend, répond, enregistre. */
 export async function processPending(deps: EngineDeps): Promise<void> {
   const { storage, tenant, whatsapp } = deps;
   const log = deps.log ?? ((m, e) => console.error(m, e ?? ""));
 
   const pending = (await storage.get<IncomingMessage[]>("pending")) ?? [];
-  const meta = await storage.get<Meta>("meta");
+  const meta = await storage.get<ConversationMeta>("meta");
   await storage.delete("pending");
   await storage.delete("firstPendingAt");
   if (!pending.length || !meta) return;
 
-  const customer = meta.customerPhone;
+  const isWeb = meta.channel === "web";
+  const sink: ReplySink = deps.sink ?? {
+    sendText: (text) => whatsapp.sendText(meta.customerId, text),
+    sendImage: (link, caption) => whatsapp.sendImage(meta.customerId, link, caption),
+  };
+  const reply = (text: string) => sink.sendText(text).catch((e) => log("Envoi au client échoué", e));
   const now = deps.now();
   const history = (await storage.get<MessageParam[]>("history")) ?? [];
   const notifyOwner = (text: string) => sendToOwner(deps, text).catch((e) => log("Notification patron échouée", e));
@@ -124,48 +151,61 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   // Conversation confiée à un conseiller : l'assistant se tait et fait suivre au patron.
   const handoffUntil = (await storage.get<number>("handoffUntil")) ?? 0;
   if (now < handoffUntil) {
-    await notifyOwner(
-      `💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}\n${waLink(customer)}`,
-    );
+    await notifyOwner(`💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}${contactLine(meta)}`);
+    if (isWeb) await reply(WEB_HANDOFF_REPLY);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
     return;
   }
 
-  await whatsapp.markReadWithTyping(pending[pending.length - 1].id).catch((e) => log("Accusé de lecture échoué", e));
+  if (!isWeb) {
+    await whatsapp.markReadWithTyping(pending[pending.length - 1].id).catch((e) => log("Accusé de lecture échoué", e));
+  }
 
   if (!catalog) {
-    await whatsapp.sendText(customer, TECHNICAL_ISSUE_REPLY).catch((e) => log("Envoi échoué", e));
-    await notifyOwner(`⚠️ Wakil n'a pas pu charger le catalogue. Message de ${who(meta)} :\n${blocksToText(blocks)}\n${waLink(customer)}`);
+    await reply(TECHNICAL_ISSUE_REPLY);
+    await notifyOwner(`⚠️ Wakil n'a pas pu charger le catalogue. Message de ${who(meta)} :\n${blocksToText(blocks)}${contactLine(meta)}`);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
     return;
   }
 
-  const userContent: BlockParam[] = [
-    { type: "text", text: buildTurnContext(tenant, customer, meta.customerName, now) },
-    ...blocks,
-  ];
+  const userContent: BlockParam[] = [{ type: "text", text: buildTurnContext(tenant, meta, now) }, ...blocks];
+
+  const rememberPhone = async (raw: string | undefined) => {
+    const phone = normalizePhone(raw, tenant.defaultCountryCode);
+    if (phone && phone !== meta.customerPhone) {
+      meta.customerPhone = phone;
+      await storage.put("meta", meta);
+    }
+    return meta.customerPhone;
+  };
 
   const toolContext: ToolContext = {
     catalog,
-    customerPhone: customer,
-    sendImage: (link, caption) => whatsapp.sendImage(customer, link, caption),
-    saveOrder: async (data) => {
+    sendImage: (link, caption) => sink.sendImage(link, caption),
+    saveOrder: async (data, phone) => {
+      const customerPhone = await rememberPhone(phone);
+      if (!customerPhone) return null;
       const order: Order = {
         ...data,
         reference: `W-${now.toString(36).toUpperCase().slice(-6)}`,
         createdAt: now,
-        customerPhone: customer,
+        channel: meta.channel,
+        customerPhone,
       };
       const orders = (await storage.get<Order[]>("orders")) ?? [];
       await storage.put("orders", [...orders, order].slice(-MAX_ORDERS));
       await notifyOwner(formatOrderForOwner(order));
       return order;
     },
-    requestHuman: async (reason, summary) => {
+    requestHuman: async (reason, summary, phone) => {
+      const customerPhone = await rememberPhone(phone);
+      if (!customerPhone) return false;
       await pauseAssistant(storage, now + (tenant.handoffHours ?? 12) * 3_600_000);
+      const resume = isWeb ? "" : `\nPour réactiver l'assistant : #reprendre ${meta.customerId}`;
       await notifyOwner(
-        `🙋 Un client demande un conseiller\nClient : ${who(meta)}\nMotif : ${reason}\nRésumé : ${summary}\nRépondre : ${waLink(customer)}\nPour réactiver l'assistant : #reprendre ${customer}`,
+        `🙋 Un client demande un conseiller\nClient : ${who(meta)}${isWeb ? " · via le site web" : ""}\nMotif : ${reason}\nRésumé : ${summary}${contactLine(meta)}${resume}`,
       );
+      return true;
     },
   };
 
@@ -174,28 +214,40 @@ export async function processPending(deps: EngineDeps): Promise<void> {
     result = await runAgent(
       deps.claude,
       deps.agentConfig,
-      buildSystemPrompt(tenant, catalog),
+      buildSystemPrompt(tenant, catalog, meta.channel),
       history,
       userContent,
       toolContext,
     );
   } catch (err) {
     log("Appel à Claude échoué", err);
-    await whatsapp.sendText(customer, TECHNICAL_ISSUE_REPLY).catch((e) => log("Envoi échoué", e));
-    await notifyOwner(`⚠️ Wakil n'a pas pu répondre à ${who(meta)} :\n${blocksToText(blocks)}\n${waLink(customer)}`);
+    await reply(TECHNICAL_ISSUE_REPLY);
+    await notifyOwner(`⚠️ Wakil n'a pas pu répondre à ${who(meta)} :\n${blocksToText(blocks)}${contactLine(meta)}`);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
     return;
   }
 
-  const replies = result.replies.length ? result.replies : [TECHNICAL_ISSUE_REPLY];
-  for (const reply of replies) {
-    await whatsapp.sendText(customer, reply).catch((e) => log("Envoi de la réponse échoué", e));
-  }
+  for (const text of result.replies.length ? result.replies : [TECHNICAL_ISSUE_REPLY]) await reply(text);
   await saveHistory(storage, [...history, ...result.newMessages]);
 }
 
 async function saveHistory(storage: ConversationStorage, messages: MessageParam[]) {
   await storage.put("history", trimHistory(sanitizeHistory(messages)));
+}
+
+/**
+ * Garde un numéro au format international, chiffres seuls. Un numéro local
+ * (10 chiffres au plus, sans l'indicatif) reçoit l'indicatif par défaut.
+ */
+export function normalizePhone(raw: string | undefined, defaultCountryCode?: string): string | undefined {
+  if (!raw) return undefined;
+  const international = /^\s*(\+|00)/.test(raw);
+  let digits = raw.replace(/\D/g, "");
+  if (raw.trim().startsWith("00")) digits = digits.slice(2);
+  if (!international && defaultCountryCode && digits.length <= 10 && !digits.startsWith(defaultCountryCode)) {
+    digits = defaultCountryCode + digits;
+  }
+  return digits.length >= 8 && digits.length <= 15 ? digits : undefined;
 }
 
 async function toContentBlocks(
@@ -265,8 +317,13 @@ function blocksToText(blocks: BlockParam[]): string {
   return blocks.map((b) => (b.type === "text" ? b.text : b.type === "image" ? "[Photo]" : "")).filter(Boolean).join("\n");
 }
 
-function who(meta: Meta): string {
-  return meta.customerName ? `${meta.customerName} (+${meta.customerPhone})` : `+${meta.customerPhone}`;
+function who(meta: ConversationMeta): string {
+  const phone = meta.customerPhone ? `+${meta.customerPhone}` : "visiteur du site web, numéro inconnu";
+  return meta.customerName ? `${meta.customerName} (${phone})` : phone;
+}
+
+function contactLine(meta: ConversationMeta): string {
+  return meta.customerPhone ? `\nRépondre : ${waLink(meta.customerPhone)}` : "";
 }
 
 function waLink(phone: string): string {
@@ -275,7 +332,7 @@ function waLink(phone: string): string {
 
 export function formatOrderForOwner(order: Order): string {
   const lines = [
-    `🛒 Nouvelle demande Wakil · Réf ${order.reference}`,
+    `🛒 Nouvelle demande Wakil · Réf ${order.reference}${order.channel === "web" ? " · via le site web" : ""}`,
     `Client : ${order.customerName} (+${order.customerPhone})`,
     ...order.items.map((i) => `• ${i.productName} : ${i.quantity} ${i.unit}${i.quantity > 1 ? "s" : ""}`),
     order.fulfilment === "livraison" ? `Livraison : ${order.deliveryLocation}` : "Enlèvement sur site",

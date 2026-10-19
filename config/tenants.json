@@ -5,6 +5,10 @@
     "assistantName": "Wakil",
     "ownerPhone": "2250000000000",
     "timezone": "Africa/Abidjan",
+    "defaultCountryCode": "225",
+    "webOrigins": [
+      "https://yassine1158.github.io"
+    ],
     "catalog": {
       "productsUrl": "https://yassine1158.github.io/SICAR_SARL/data/products.json",
       "siteUrl": "https://yassine1158.github.io/SICAR_SARL/data/site.json",

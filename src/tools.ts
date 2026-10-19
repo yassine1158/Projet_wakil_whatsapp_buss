@@ -4,11 +4,21 @@ import type { Catalog, Order, OrderItem } from "./types";
 /** Actions que les outils peuvent déclencher ; fournies par le moteur de conversation. */
 export interface ToolContext {
   catalog: Catalog;
-  customerPhone: string;
   sendImage(link: string, caption?: string): Promise<void>;
-  saveOrder(order: Omit<Order, "reference" | "createdAt" | "customerPhone">): Promise<Order>;
-  requestHuman(reason: string, summary: string): Promise<void>;
+  /** Renvoie null si le numéro du client n'est ni connu ni fourni. */
+  saveOrder(
+    order: Omit<Order, "reference" | "createdAt" | "channel" | "customerPhone">,
+    customerPhone?: string,
+  ): Promise<Order | null>;
+  /** Renvoie false si le numéro du client n'est ni connu ni fourni. */
+  requestHuman(reason: string, summary: string, customerPhone?: string): Promise<boolean>;
 }
+
+const CUSTOMER_PHONE = {
+  type: "string",
+  description:
+    "Numéro de téléphone du client (WhatsApp de préférence). Obligatoire sur le chat du site web ; inutile sur WhatsApp, où il est déjà connu.",
+};
 
 export const TOOLS: Anthropic.Beta.BetaTool[] = [
   {
@@ -54,6 +64,7 @@ export const TOOLS: Anthropic.Beta.BetaTool[] = [
         delivery_location: { type: "string", description: "Lieu de livraison (quartier, ville, repère)" },
         desired_date: { type: "string", description: "Date ou moment souhaité, tel que dit par le client" },
         notes: { type: "string", description: "Autres précisions utiles à l'équipe" },
+        customer_phone: CUSTOMER_PHONE,
       },
       required: ["customer_name", "items", "fulfilment"],
       additionalProperties: false,
@@ -68,6 +79,7 @@ export const TOOLS: Anthropic.Beta.BetaTool[] = [
       properties: {
         reason: { type: "string", description: "Pourquoi un humain est nécessaire" },
         summary: { type: "string", description: "Résumé de la demande du client pour le conseiller" },
+        customer_phone: CUSTOMER_PHONE,
       },
       required: ["reason", "summary"],
       additionalProperties: false,
@@ -79,6 +91,9 @@ export interface ToolOutcome {
   content: string;
   isError?: boolean;
 }
+
+const MISSING_PHONE =
+  "Numéro de téléphone du client manquant ou invalide : demande-le-lui (pour que l'équipe le recontacte), puis rappelle l'outil avec customer_phone.";
 
 const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
 
@@ -114,20 +129,25 @@ export async function runTool(name: string, input: unknown, ctx: ToolContext): P
       if (args.fulfilment === "livraison" && !deliveryLocation) {
         return { content: "Lieu de livraison manquant : demande-le au client.", isError: true };
       }
-      const order = await ctx.saveOrder({
-        customerName,
-        items,
-        fulfilment: args.fulfilment,
-        deliveryLocation,
-        desiredDate: str(args.desired_date),
-        notes: str(args.notes),
-      });
+      const order = await ctx.saveOrder(
+        {
+          customerName,
+          items,
+          fulfilment: args.fulfilment,
+          deliveryLocation,
+          desiredDate: str(args.desired_date),
+          notes: str(args.notes),
+        },
+        str(args.customer_phone),
+      );
+      if (!order) return { content: MISSING_PHONE, isError: true };
       return {
         content: `Commande enregistrée. Référence : ${order.reference}. L'équipe a été prévenue et confirmera le prix et la livraison.`,
       };
     }
     case "request_human": {
-      await ctx.requestHuman(str(args.reason) ?? "non précisée", str(args.summary) ?? "");
+      const ok = await ctx.requestHuman(str(args.reason) ?? "non précisée", str(args.summary) ?? "", str(args.customer_phone));
+      if (!ok) return { content: MISSING_PHONE, isError: true };
       return { content: "Un conseiller a été prévenu et recontactera le client." };
     }
     default:

@@ -31,11 +31,14 @@ describe("catalogue SICAR", () => {
 
   it("met les infos et la FAQ dans le prompt, sans élément variable", () => {
     expect(formatBusinessInfo(catalog.info)).toContain("Comment passer commande ?");
-    const a = buildSystemPrompt(tenant, catalog);
-    const b = buildSystemPrompt(tenant, catalog);
+    const a = buildSystemPrompt(tenant, catalog, "whatsapp");
+    const b = buildSystemPrompt(tenant, catalog, "whatsapp");
     expect(a).toBe(b);
     expect(a).toContain("SICAR SARL");
     expect(a).toContain("record_order");
+    const web = buildSystemPrompt(tenant, catalog, "web");
+    expect(web).toContain("customer_phone");
+    expect(a).not.toContain("demande-lui son numéro");
   });
 
   it("ignore les entrées invalides", () => {
