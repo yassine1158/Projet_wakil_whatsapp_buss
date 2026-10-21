@@ -48,6 +48,9 @@ describe("catalogue SANA (data/content.js du site)", () => {
     expect(prompt).toContain("confidentielles");
     expect(prompt).toContain("aucun diagnostic");
     expect(tenant.webOrigins).toContain("https://sana-sa.ci");
+    // le chat du site affiche déjà l'accueil : pas de deuxième présentation
+    expect(prompt).not.toContain("présente-toi brièvement");
+    expect(buildSystemPrompt(tenant, catalog, "whatsapp")).toContain("présente-toi brièvement");
   });
 
   it("affiche tel quel un prix déjà rédigé sur le site", () => {

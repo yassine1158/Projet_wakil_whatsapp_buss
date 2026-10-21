@@ -712,7 +712,9 @@
       try {
         const { replies } = await api("test-chat", { tenant: state.tenant, session, text });
         typing.remove();
-        for (const r of replies) add("msg wakil", r.type === "image"
+        for (const r of replies) add("msg wakil", r.type === "link"
+          ? `<small>Wakil · bouton WhatsApp proposé au visiteur</small><span>${esc(r.label)}</span>`
+          : r.type === "image"
           ? `<small>Wakil · photo</small><img src="${esc(r.url)}" alt="${esc(r.caption || "Photo du produit")}" style="max-width:220px;border-radius:10px">${r.caption ? `<span>${format(r.caption)}</span>` : ""}`
           : `<small>Wakil</small><span>${format(r.text)}</span>`);
       } catch {

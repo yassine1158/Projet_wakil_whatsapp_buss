@@ -31,6 +31,8 @@ export interface WhatsAppSender {
 export interface ReplySink {
   sendText(text: string): Promise<void>;
   sendImage(link: string, caption?: string): Promise<void>;
+  /** Chat web seulement : bouton qui ouvre WhatsApp, affiché sous les réponses. */
+  sendLink?(label: string, url: string): Promise<void>;
 }
 
 const MAX_SEEN = 100;
@@ -227,6 +229,11 @@ export async function processPending(deps: EngineDeps): Promise<void> {
     return meta.customerPhone;
   };
 
+  // Chat web : après une commande ou une demande de conseiller, le visiteur peut aussi l'envoyer
+  // sur le WhatsApp de l'entreprise. L'équipe la reçoit même si ses notifications ne sont pas encore reliées.
+  const links: { label: string; url: string }[] = [];
+  const businessWa = isWeb && sink.sendLink ? businessWhatsApp(tenant, catalog) : undefined;
+
   const toolContext: ToolContext = {
     catalog,
     sendImage: (link, caption) => {
@@ -247,6 +254,7 @@ export async function processPending(deps: EngineDeps): Promise<void> {
       await storage.put("orders", [...orders, order].slice(-MAX_ORDERS));
       await notifyOwner(formatOrderForOwner(order));
       if (!meta.test) await deps.inbox?.order(order).catch((e) => log("Commande non transmise à l'application", e));
+      if (businessWa) links.push({ label: "Envoyer aussi ma demande sur WhatsApp", url: waLink(businessWa, formatOrderForCustomer(tenant, order)) });
       return order;
     },
     requestHuman: async (reason, summary, phone) => {
@@ -257,6 +265,7 @@ export async function processPending(deps: EngineDeps): Promise<void> {
       await notifyOwner(
         `🙋 Un client demande un conseiller\nClient : ${who(meta)}${isWeb ? " · via le site web" : ""}\nMotif : ${reason}\nRésumé : ${summary}${contactLine(meta)}${resume}`,
       );
+      if (businessWa) links.push({ label: "Écrire à l'équipe sur WhatsApp", url: waLink(businessWa, `Bonjour ${tenant.businessName}, je viens de votre site web : ${summary}`) });
       return true;
     },
   };
@@ -281,6 +290,7 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   }
 
   for (const text of result.replies.length ? result.replies : [TECHNICAL_ISSUE_REPLY]) await reply(text);
+  for (const l of links) await sink.sendLink!(l.label, l.url).catch((e) => log("Envoi du lien échoué", e));
   await saveHistory(storage, [...history, ...result.newMessages]);
   await finish();
 }
@@ -380,8 +390,26 @@ function contactLine(meta: ConversationMeta): string {
   return meta.customerPhone ? `\nRépondre : ${waLink(meta.customerPhone)}` : "";
 }
 
-function waLink(phone: string): string {
-  return `https://wa.me/${phone}`;
+function waLink(phone: string, text?: string): string {
+  return `https://wa.me/${phone}${text ? `?text=${encodeURIComponent(text)}` : ""}`;
+}
+
+/** Numéro WhatsApp public de l'entreprise : celui relié à Wakil, sinon celui affiché sur son site. */
+export function businessWhatsApp(tenant: Tenant, catalog: Catalog): string | undefined {
+  return normalizePhone(tenant.whatsapp?.displayPhone || catalog.info.phone, tenant.defaultCountryCode);
+}
+
+/** Récapitulatif que le visiteur du site envoie lui-même sur WhatsApp. */
+export function formatOrderForCustomer(tenant: Tenant, order: Order): string {
+  const lines = [
+    `Bonjour ${tenant.businessName}, voici ma demande faite sur votre site (réf. ${order.reference}) :`,
+    ...order.items.map((i) => `• ${i.productName} : ${i.quantity} ${i.unit}${i.quantity > 1 ? "s" : ""}`),
+    order.fulfilment === "livraison" ? `Livraison : ${order.deliveryLocation}` : "Enlèvement sur site",
+  ];
+  if (order.desiredDate) lines.push(`Date souhaitée : ${order.desiredDate}`);
+  if (order.notes) lines.push(`Notes : ${order.notes}`);
+  lines.push(`Nom : ${order.customerName}`);
+  return lines.join("\n");
 }
 
 export function formatOrderForOwner(order: Order): string {

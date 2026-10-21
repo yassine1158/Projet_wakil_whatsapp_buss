@@ -52,7 +52,7 @@ Les entreprises de `config/tenants.json` (SICAR, la démonstration) apparaissent
 | Commande / devis | Récapitulatif, confirmation du client, référence `W-XXXXXX`, envoi au patron |
 | Passage à un humain | Sur demande, réclamation, négociation… : le patron est prévenu et Wakil se tait 12 h |
 | Prix | Jamais inventés : « sur devis » quand le site n'en affiche pas |
-| Chat du site web | Même assistant, même catalogue ; il demande le numéro du client avant d'enregistrer une commande |
+| Chat du site web | Même assistant, même catalogue ; il demande le numéro du client avant d'enregistrer une commande, puis propose au visiteur un bouton pour envoyer aussi sa demande sur le WhatsApp de l'entreprise (numéro relié à Wakil, sinon celui du site) |
 
 ## Architecture
 
@@ -185,6 +185,7 @@ Une fois le Worker déployé : **Administration → Informations → « Assistan
 | `data-title` | Titre de la fenêtre (par défaut « Assistant » + nom de l'entreprise) |
 | `data-teaser` | Phrase de la bulle d'invitation affichée une fois par visite |
 | `data-greeting` | Message d'accueil du chat (par défaut : présentation de l'assistant de l'entreprise) |
+| `data-suggestions` | Questions proposées sous l'accueil, séparées par `|` (ex. `Réserver des poussins|Prix et acompte`) |
 | `data-on-accent` | Couleur du texte et des icônes posés sur la couleur du chat (blanc par défaut) |
 
 La page peut aussi piloter le chat : `WakilChat.open()`, `WakilChat.send("Bonjour")`.

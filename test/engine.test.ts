@@ -339,6 +339,28 @@ describe("chat du site web", () => {
     expect((await storage.get<Order[]>("orders"))![0]).toMatchObject({ channel: "web", customerPhone: "2250707070707" });
   });
 
+  it("propose au visiteur d'envoyer aussi sa demande sur le WhatsApp de l'entreprise", async () => {
+    await addIncoming(storage, webMeta, webMsg("w1", "10 tonnes de 15/25 à Cocody, au nom d'Awa, 07 07 07 07 07"));
+    const { client } = fakeClaude([
+      { stop_reason: "tool_use", content: [order({ customer_phone: "07 07 07 07 07" })] },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "C'est enregistré." } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    const out: string[] = [];
+    const sink = {
+      sendText: async (t: string) => void out.push(t),
+      sendImage: async () => {},
+      sendLink: async (label: string, url: string) => void out.push(`[${label}] ${url}`),
+    };
+    const withSitePhone = { products: catalog.products, info: { ...catalog.info, phone: "+225 05 00 00 00 00" } };
+    await processPending(deps(client, { sink, tenant: { ...tenant, defaultCountryCode: "225" }, loadCatalog: async () => withSitePhone }));
+    expect(out[0]).toBe("C'est enregistré.");
+    expect(out[1]).toMatch(/^\[Envoyer aussi ma demande sur WhatsApp\] https:\/\/wa\.me\/2250500000000\?text=/);
+    const text = decodeURIComponent(out[1].split("text=")[1]);
+    expect(text).toContain("Gravier 15/25 : 10 tonnes");
+    expect(text).toContain("Nom : Awa");
+    expect(text).toMatch(/réf\. W-/);
+  });
+
   it("répond au visiteur quand un conseiller a pris la main", async () => {
     await storage.put("handoffUntil", NOW + 1000);
     await addIncoming(storage, webMeta, webMsg("w1", "Vous êtes là ?"));
