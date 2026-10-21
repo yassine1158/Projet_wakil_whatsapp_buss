@@ -1,26 +1,96 @@
-import type { BusinessInfo, Catalog, Product, Tenant } from "./types";
+import type { BusinessInfo, Catalog, Product, RawProduct, Tenant } from "./types";
 
 type FetchLike = typeof fetch;
 
 /**
  * Charge le catalogue de l'entreprise : les produits saisis dans l'application, ou ceux
- * de son site (format products.json / site.json du site SICAR), mis en cache 5 minutes.
+ * de son site, mis en cache 5 minutes. Deux formats de site sont lus :
+ * - products.json / site.json (site SICAR) ;
+ * - data/content.js du site SANA (« window.SANA_CONTENT = {…} ») : produits et informations
+ *   dans un seul fichier, celui que publie l'administration du site.
  */
 export async function loadCatalog(tenant: Tenant, fetchFn: FetchLike = fetch): Promise<Catalog> {
   const get = async (url: string) => {
     const res = await fetchFn(url, { cf: { cacheTtl: 300, cacheEverything: true } } as RequestInit);
     if (!res.ok) throw new Error(`Catalogue indisponible (${res.status}) : ${url}`);
-    return res.json();
+    return parseDocument(await res.text(), url);
   };
   const { products, productsUrl, siteUrl, assetBaseUrl } = tenant.catalog;
-  const [rawProducts, rawSite] = await Promise.all([
+  let [rawProducts, rawSite] = await Promise.all([
     products ?? (productsUrl ? get(productsUrl) : Promise.resolve([])),
-    siteUrl ? get(siteUrl) : Promise.resolve({}),
+    siteUrl ? get(siteUrl) : Promise.resolve(undefined),
   ]);
-  const info = normalizeInfo(rawSite);
+  if (isSiteContent(rawProducts)) {
+    rawSite ??= siteContentInfo(rawProducts);
+    rawProducts = siteContentProducts(rawProducts);
+  }
+  const info = normalizeInfo(rawSite ?? {});
   // Ce qui est saisi dans l'application complète ou remplace les informations du site.
   for (const [k, v] of Object.entries(tenant.info ?? {})) if (v) (info as unknown as Record<string, unknown>)[k] = v;
   return { products: normalizeProducts(rawProducts, assetBaseUrl), info };
+}
+
+/** JSON, ou fichier JavaScript de la forme « window.NOM = {…}; ». */
+export function parseDocument(text: string, url = ""): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    const m = text.match(/=\s*(\{[\s\S]*\})\s*;?\s*$/);
+    if (m) {
+      try {
+        return JSON.parse(m[1]);
+      } catch {
+        /* format inconnu : erreur ci-dessous */
+      }
+    }
+    throw new Error(`Catalogue illisible : ${url}`);
+  }
+}
+
+// ---------- Contenu d'un site au format SANA (data/content.js) ----------
+
+type Offer = { id?: string; title?: string; usage?: string; desc?: string; items?: string[]; price?: string; status?: string; visible?: boolean };
+
+function isSiteContent(raw: unknown): raw is Record<string, any> {
+  return !!raw && typeof raw === "object" && !Array.isArray(raw) && "company" in raw;
+}
+
+const sentence = (s: string) => (/[.!?:]$/.test(s.trim()) ? s.trim() : `${s.trim()}.`);
+const describe = (o: Offer, extra: string[] = []) =>
+  [o.usage, o.desc, ...extra, ...(o.items ?? [])].filter((x): x is string => !!x && !!x.trim()).map(sentence).join(" ");
+const shown = (o: Offer | undefined): o is Offer => !!o && o.visible !== false && !!o.title?.trim();
+
+/** Produits d'un contenu de site SANA ; « bientôt » = indisponible pour le moment. */
+export function siteContentProducts(c: Record<string, any>): RawProduct[] {
+  const out: RawProduct[] = [];
+  const add = (o: Offer, id: string, category: string, unit: string, extra?: string[]) =>
+    out.push({ id, name: o.title!.trim(), category, description: describe(o, extra), price: String(o.price ?? "").trim(), unit, available: o.status !== "soon" });
+  if (shown(c.hatching)) add(c.hatching, "oeufs-a-couver", "Œufs", "œuf");
+  for (const o of (c.chickens?.offers ?? []) as Offer[]) {
+    if (!shown(o)) continue;
+    const id = o.id || o.title!;
+    add(o, id, "Volailles", /poussin/i.test(`${o.id} ${o.title}`) ? "poussin" : "sujet");
+  }
+  if (shown(c.eggs)) add(c.eggs, "oeufs-frais", "Œufs", "plateau");
+  if (shown(c.feed)) {
+    const species = ((c.species ?? []) as { name?: string }[]).map((s) => s.name).filter(Boolean);
+    add(c.feed, "aliments", "Aliments", "sac", species.length ? [`Pour : ${species.join(", ")}`] : []);
+  }
+  return out;
+}
+
+/** Informations de l'entreprise d'un contenu de site SANA, au format de site.json. */
+export function siteContentInfo(c: Record<string, any>) {
+  const co = c.company ?? {};
+  const about = [c.about?.title, ...(c.about?.paragraphs ?? [])].filter(Boolean).map(String).join(" ");
+  return {
+    phone: co.phone,
+    email: co.email,
+    address: co.address,
+    hours: co.hours,
+    about: [co.fullName ? `${co.name ?? ""} (${co.fullName}).` : "", about].join(" ").trim() || undefined,
+    faq: c.faq,
+  };
 }
 
 /** Identifiant stable tiré d'un nom de produit : « Gravier 15/25 » → « gravier-15-25 ». */
@@ -84,7 +154,8 @@ export function normalizeInfo(raw: any): BusinessInfo {
 /** Rend le catalogue en texte pour le prompt système. L'ordre est stable (cache du prompt). */
 export function formatCatalog(catalog: Catalog): string {
   const lines = catalog.products.map((p) => {
-    const price = p.price ? `${p.price} FCFA / ${p.unit}` : `sur devis (vendu à la ${p.unit})`;
+    // Prix en chiffres (« 25000 ») ou déjà rédigé sur le site (« 650 FCFA par poussin »)
+    const price = !p.price ? `sur devis (unité de vente : ${p.unit})` : /[a-z]/i.test(p.price) ? p.price : `${p.price} FCFA / ${p.unit}`;
     const parts = [
       `- ${p.name} [id: ${p.id}]`,
       `  Catégorie : ${p.category}${p.granulometrie ? ` · Granulométrie : ${p.granulometrie}` : ""}`,

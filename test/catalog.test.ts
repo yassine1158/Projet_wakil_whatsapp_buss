@@ -25,7 +25,7 @@ describe("catalogue SICAR", () => {
   it("affiche « sur devis » quand le prix est vide", () => {
     const text = formatCatalog(catalog);
     expect(text).toContain("Gravier 15/25 [id: gravier-15-25]");
-    expect(text).toContain("sur devis (vendu à la tonne)");
+    expect(text).toContain("sur devis (unité de vente : tonne)");
     expect(text).not.toContain("FCFA");
   });
 

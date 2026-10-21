@@ -2,7 +2,7 @@
 
 Wakil répond aux clients d'une entreprise sur WhatsApp et dans un chat sur son site web. Il comprend les messages, les vocaux et les photos, conseille les produits du catalogue, estime les quantités et prend les commandes. Le patron reçoit chaque commande sur son propre WhatsApp.
 
-Premier client : **SICAR SARL**. Le catalogue est lu directement sur le site (`data/products.json` et `data/site.json`), donc une modification faite dans l'administration du site est prise en compte par Wakil en moins de 5 minutes.
+Clients : **SICAR SARL** (carrière) et **SANA** (nutrition animale et élevage, chat sur https://sana-sa.ci). Le catalogue est lu directement sur le site (`data/products.json` et `data/site.json`), donc une modification faite dans l'administration du site est prise en compte par Wakil en moins de 5 minutes.
 
 ## L'application (`/app`) : votre espace de travail
 
@@ -28,7 +28,7 @@ Pour l'activer : `ADMIN_PASSWORD` dans les secrets (choisissez un mot de passe l
 Dans l'application, **Entreprises → Nouvelle entreprise** :
 
 1. **La fiche** : nom, identifiant de connexion (proposé à partir du nom), numéro WhatsApp du patron (il y reçoit les commandes), horaires, adresse, moyens de paiement, consignes pour l'assistant.
-2. **Le catalogue** : soit un tableau rempli dans Wakil (ou importé d'un fichier Excel/CSV avec les colonnes Nom, Catégorie, Prix, Unité, Description, Photo, Disponible), soit l'adresse d'un fichier `products.json` tenu à jour sur le site de l'entreprise, comme pour SICAR.
+2. **Le catalogue** : soit un tableau rempli dans Wakil (ou importé d'un fichier Excel/CSV avec les colonnes Nom, Catégorie, Prix, Unité, Description, Photo, Disponible), soit l'adresse d'un fichier `products.json` tenu à jour sur le site de l'entreprise, comme pour SICAR, soit l'adresse du `data/content.js` d'un site fait comme celui de SANA (produits, horaires, contacts et FAQ dans un seul fichier).
 3. **L'accès du patron** : **Générer** un mot de passe, **Enregistrer**, puis **Envoyer sur WhatsApp** au patron l'adresse de l'application, son identifiant et son mot de passe.
 4. **WhatsApp** : 
    - **Connecter WhatsApp** (inscription intégrée de Meta) : le patron se connecte à Facebook, choisit ou crée son compte WhatsApp Business et son numéro ; Wakil reçoit un accès à ce numéro, l'active et s'abonne à ses messages. Demande les secrets `META_APP_ID`, `META_CONFIG_ID` et `WHATSAPP_APP_SECRET` (voir « Meta » plus bas) ;
