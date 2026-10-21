@@ -1,0 +1,310 @@
+{
+  "company": {
+    "name": "SANA",
+    "fullName": "Société Afriqaine de Nutrition Animale",
+    "phone": "+2250715500000",
+    "whatsapp": "2250715500000",
+    "email": "contact@sana.com",
+    "address": "Yamoussoukro, Côte d'Ivoire",
+    "hours": "Lundi – samedi, 7 h 00 – 18 h 00"
+  },
+  "hero": {
+    "title": "L'aliment de tous vos animaux,",
+    "highlight": "formulé par nos experts.",
+    "lead": "Les œufs à couver SANA sont disponibles et les précommandes de poussins de chair sont ouvertes. Aliments pour tous les animaux, poulets et œufs frais arrivent bientôt."
+  },
+  "hatching": {
+    "title": "Œufs à couver",
+    "usage": "Disponible maintenant",
+    "desc": "Œufs fécondés pour vos incubateurs et vos poules couveuses.",
+    "items": [
+      "Œufs fécondés pour incubateur ou poule couveuse",
+      "Commande sur WhatsApp",
+      "Retrait ou livraison à convenir"
+    ],
+    "price": "",
+    "status": "available",
+    "visible": true
+  },
+  "about": {
+    "title": "Une production complète, de l'aliment à l'animal",
+    "paragraphs": [
+      "SANA maîtrise toute la chaîne : nous fabriquons nos aliments, élevons nos volailles avec ces mêmes aliments et collectons nos œufs chaque jour.",
+      "Notre différence est la formulation à la demande. Éleveur professionnel, ferme familiale ou revendeur : vous nous indiquez la composition voulue, ou nous la construisons avec vous selon l'espèce, l'âge des animaux et votre objectif."
+    ],
+    "features": [
+      {
+        "icon": "flask",
+        "title": "Dosage précis",
+        "text": "Chaque matière première pesée avec précision selon nos formules."
+      },
+      {
+        "icon": "shield",
+        "title": "Qualité suivie",
+        "text": "Matières premières sélectionnées et traçabilité de chaque lot fabriqué."
+      },
+      {
+        "icon": "truck",
+        "title": "Livraison",
+        "text": "Livraison à la ferme ou retrait sur notre site, à la date convenue."
+      },
+      {
+        "icon": "chat",
+        "title": "Conseil technique",
+        "text": "Nous vous aidons à choisir et ajuster la formule adaptée à votre élevage."
+      }
+    ]
+  },
+  "steps": [
+    {
+      "title": "Votre demande",
+      "text": "Vous choisissez vos produits ou demandez votre aliment en ligne."
+    },
+    {
+      "title": "Validation",
+      "text": "Notre technicien établit la formule et vous envoie un devis sous 24 h."
+    },
+    {
+      "title": "Fabrication",
+      "text": "Votre aliment est dosé et fabriqué selon la composition validée."
+    },
+    {
+      "title": "Livraison",
+      "text": "Retrait sur place ou livraison directe à votre ferme."
+    }
+  ],
+  "chatbot": {
+    "visible": true,
+    "name": "Assistant SANA",
+    "greeting": "Bonjour 👋 Je suis l'assistant de SANA. Je réponds tout de suite à vos questions et je prépare votre demande pour WhatsApp."
+  },
+  "marketing": {
+    "promo": {
+      "visible": true,
+      "text": "Œufs à couver disponibles · Poussins de chair : précommandes ouvertes pour le 28 octobre.",
+      "linkText": "Commander",
+      "link": "#disponible"
+    },
+    "cta": {
+      "title": "Des œufs à couver ou des poussins pour votre élevage ?",
+      "text": "Écrivez-nous sur WhatsApp : disponibilité, quantité et livraison, nous vous répondons rapidement.",
+      "button": "Commander sur WhatsApp"
+    },
+    "social": {
+      "facebook": "https://www.facebook.com/profile.php?id=61595550723119",
+      "instagram": "",
+      "tiktok": "",
+      "youtube": ""
+    },
+    "analytics": {
+      "ga4": "",
+      "metaPixel": ""
+    },
+    "seo": {
+      "title": "SANA — Aliments pour animaux sur mesure, poulets et œufs",
+      "description": "SANA, Société Afriqaine de Nutrition Animale : aliments composés sur mesure pour volailles, bovins, ovins, porcins, lapins et poissons. Poussins, poulets d'élevage et d'abattage, œufs frais.",
+      "siteUrl": "https://sana-sa.ci/"
+    }
+  },
+  "testimonials": [],
+  "faq": [
+    {
+      "q": "Puis-je fournir ma propre formule ?",
+      "a": "Oui. Décrivez la composition voulue dans votre message ; notre technicien la vérifie avant fabrication. Sinon, nous établissons la formule pour vous."
+    },
+    {
+      "q": "Quelle est la quantité minimum ?",
+      "a": "La commande minimum d'aliment est de 25 kg. Il n'y a pas de maximum : nous livrons aussi en vrac."
+    },
+    {
+      "q": "Livrez-vous à la ferme ?",
+      "a": "Oui, nous livrons directement à votre ferme. Vous pouvez aussi retirer votre commande sur notre site."
+    },
+    {
+      "q": "Comment recevoir un devis ?",
+      "a": "Remplissez le formulaire de commande ou écrivez-nous sur WhatsApp. Nous répondons sous 24 h."
+    }
+  ],
+  "chickens": {
+    "title": "Nos poulets, selon votre besoin",
+    "intro": "Du poussin d'un jour au poulet prêt pour l'abattage, choisissez l'offre qui correspond à votre activité.",
+    "offers": [
+      {
+        "id": "poussins",
+        "icon": "chick",
+        "title": "Poussins de chair",
+        "usage": "Précommandes ouvertes",
+        "desc": "Disponibles le mercredi 28 octobre 2026, à Abidjan, Bouaké, Yamoussoukro et Toumodi.",
+        "items": [
+          "Poussins de qualité, bien vaccinés",
+          "Acompte de 50 % à la réservation",
+          "Transport à la charge du client"
+        ],
+        "price": "",
+        "visible": true,
+        "status": "available"
+      },
+      {
+        "id": "elevage",
+        "icon": "chicken",
+        "title": "Poulets pour l'élevage",
+        "usage": "Pour continuer l'élevage",
+        "desc": "Jeunes poulets et poulettes démarrés, prêts à être élevés chez vous.",
+        "items": [
+          "Poulets démarrés de 2 à 4 semaines",
+          "Poulettes prêtes à pondre",
+          "Poulets fermiers reproducteurs",
+          "Suivi sanitaire fourni"
+        ],
+        "price": "",
+        "visible": true,
+        "status": "soon"
+      },
+      {
+        "id": "abattage",
+        "icon": "drumstick",
+        "title": "Poulets pour l'abattage",
+        "usage": "Pour la consommation",
+        "desc": "Poulets de chair arrivés à poids, vivants ou abattus prêts à cuire.",
+        "items": [
+          "Poulets vivants à poids",
+          "Poulets abattus prêts à cuire",
+          "Vente au détail et en gros",
+          "Restaurants et revendeurs"
+        ],
+        "price": "",
+        "visible": false,
+        "status": "soon"
+      }
+    ]
+  },
+  "eggs": {
+    "title": "Œufs frais",
+    "desc": "Œufs frais extra, calibrés et collectés chaque jour.",
+    "items": [
+      "Plateaux de 30 œufs",
+      "Calibres M, L et XL",
+      "Vente en gros et au détail"
+    ],
+    "price": "",
+    "visible": true,
+    "status": "soon"
+  },
+  "feed": {
+    "title": "Aliments pour tous les animaux",
+    "desc": "Formulés par notre technicien selon l'espèce, le stade et vos objectifs.",
+    "items": [
+      "Farine, miettes ou granulés",
+      "Sacs de 25 ou 50 kg, ou vrac",
+      "Formule validée par notre technicien"
+    ],
+    "forms": [
+      "Farine",
+      "Miettes",
+      "Granulés",
+      "Bouchons"
+    ],
+    "minKg": 25,
+    "status": "soon"
+  },
+  "species": [
+    {
+      "id": "volailles",
+      "name": "Volailles",
+      "icon": "chicken",
+      "stages": [
+        {
+          "id": "demarrage",
+          "label": "Poulet de chair — Démarrage (0–10 j)"
+        },
+        {
+          "id": "croissance",
+          "label": "Poulet de chair — Croissance (11–24 j)"
+        },
+        {
+          "id": "finition",
+          "label": "Poulet de chair — Finition (25 j et +)"
+        },
+        {
+          "id": "pondeuse",
+          "label": "Poules pondeuses — Ponte"
+        },
+        {
+          "id": "fermier",
+          "label": "Poulet fermier"
+        }
+      ]
+    },
+    {
+      "id": "bovins",
+      "name": "Bovins",
+      "icon": "cow",
+      "stages": [
+        {
+          "id": "laitiere",
+          "label": "Vaches laitières — Concentré de production"
+        },
+        {
+          "id": "engraissement",
+          "label": "Taurillons — Engraissement"
+        }
+      ]
+    },
+    {
+      "id": "ovins",
+      "name": "Ovins & caprins",
+      "icon": "sheep",
+      "stages": [
+        {
+          "id": "agneaux",
+          "label": "Agneaux — Engraissement"
+        },
+        {
+          "id": "brebis",
+          "label": "Brebis et chèvres — Lactation"
+        }
+      ]
+    },
+    {
+      "id": "porcins",
+      "name": "Porcins",
+      "icon": "pig",
+      "stages": [
+        {
+          "id": "porcelets",
+          "label": "Porcelets — Premier âge"
+        },
+        {
+          "id": "porc-croissance",
+          "label": "Porcs — Croissance et finition"
+        },
+        {
+          "id": "truies",
+          "label": "Truies gestantes"
+        }
+      ]
+    },
+    {
+      "id": "lapins",
+      "name": "Lapins",
+      "icon": "rabbit",
+      "stages": [
+        {
+          "id": "lapin-engr",
+          "label": "Lapins — Engraissement"
+        }
+      ]
+    },
+    {
+      "id": "poissons",
+      "name": "Poissons",
+      "icon": "fish",
+      "stages": [
+        {
+          "id": "grossissement",
+          "label": "Poissons d'élevage — Grossissement"
+        }
+      ]
+    }
+  ]
+}
