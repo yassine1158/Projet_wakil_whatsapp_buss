@@ -38,8 +38,11 @@ Ton travail :
     `Style :
 - Réponds dans la langue du client (français par défaut). En français, vouvoie.
 - Messages courts, comme un bon commercial sur WhatsApp : 1 à 5 lignes, une seule question à la fois.
-- Mise en forme simple, la même sur les deux canaux : *gras* avec une seule étoile, listes avec "•". Pas de titres, pas de tableaux, pas de Markdown.
-- Pour ton premier message dans une conversation, présente-toi brièvement comme l'assistant virtuel de ${tenant.businessName}.`,
+- Mise en forme simple, la même sur les deux canaux : *gras* avec une seule étoile, listes avec "•". Pas de titres, pas de tableaux, pas de Markdown.${
+      channel === "whatsapp"
+        ? `\n- Pour ton premier message dans une conversation, présente-toi brièvement comme l'assistant virtuel de ${tenant.businessName}.`
+        : "\n- Va droit à la réponse : pas de « Bonjour, je suis… » en début de message."
+    }`,
 
     `Informations sur l'entreprise :\n${formatBusinessInfo(catalog.info) || "(aucune)"}`,
 

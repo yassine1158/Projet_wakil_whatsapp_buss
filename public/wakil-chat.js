@@ -5,7 +5,8 @@
  * Options (attributs data-) : tenant (obligatoire), accent (couleur, ex. #e30613),
  * on-accent (couleur du texte posé sur l'accent, blanc par défaut),
  * position (left | right), offset (distance au bas de l'écran en px, par défaut 24),
- * title (titre de la fenêtre), teaser (bulle d'invitation).
+ * title (titre de la fenêtre), teaser (bulle d'invitation), greeting (message d'accueil),
+ * suggestions (questions proposées au départ, séparées par « | »).
  * La page peut piloter le chat : WakilChat.open(), WakilChat.send("Bonjour").
  */
 (() => {
@@ -95,6 +96,13 @@
   .me a { color: var(--on-accent); }
   .bot a { color: inherit; text-decoration: underline; }
   .err { align-self: center; color: var(--muted); font-size: 13px; text-align: center; }
+  .cta { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 999px;
+         background: #25d366; color: #fff; font-weight: 700; text-decoration: none; box-shadow: 0 6px 16px -8px rgba(0,0,0,.4); }
+  .cta svg { width: 18px; height: 18px; flex: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+  .chips button { border: 1.5px solid var(--accent); background: var(--paper); color: var(--ink); border-radius: 999px;
+                  padding: 8px 13px; font: inherit; font-size: 14px; cursor: pointer; text-align: left; }
+  .chips button:hover { background: var(--accent); color: var(--on-accent); }
   .img { padding: 4px; }
   .img img { display: block; width: 100%; max-width: 260px; border-radius: 12px; }
   .img span { display: block; padding: 6px 8px 4px; font-size: 14px; }
@@ -151,8 +159,19 @@
     `Bonjour 👋 Je suis ${config.assistantName}, l'assistant virtuel${config.businessName ? ` de ${config.businessName}` : ""}. ` +
       "Une question sur nos produits, une quantité à estimer ou un devis ?";
 
+  const suggestions = (script.dataset.suggestions || "").split("|").map((x) => x.trim()).filter(Boolean).slice(0, 6);
+  const WA_ICON = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 2.9 2.9 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3z"/></svg>';
+
   function bubble(entry) {
     const el = document.createElement("div");
+    if (entry.type === "link") {
+      // seuls les liens WhatsApp préparés par Wakil sont affichés
+      if (!/^https:\/\/wa\.me\//.test(entry.url || "")) return document.createTextNode("");
+      const a = document.createElement("a");
+      a.className = "cta"; a.href = entry.url; a.target = "_blank"; a.rel = "noopener";
+      a.innerHTML = `${WA_ICON}<span>${esc(entry.label)}</span>`;
+      return a;
+    }
     if (entry.type === "image") {
       el.className = "msg bot img";
       el.innerHTML = `<img src="${esc(entry.url)}" alt="${esc(entry.caption || "Photo du produit")}" loading="lazy">` +
@@ -167,8 +186,22 @@
     return el;
   }
 
+  function chips() {
+    const box = document.createElement("div");
+    box.className = "chips";
+    for (const q of suggestions) {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = q;
+      b.addEventListener("click", () => sendMessage(q));
+      box.appendChild(b);
+    }
+    return box;
+  }
+
   function render() {
-    logEl.replaceChildren(bubble({ from: "bot", text: greeting() }), ...log.map(bubble));
+    const start = [bubble({ from: "bot", text: greeting() })];
+    if (!log.length && suggestions.length) start.push(chips());
+    logEl.replaceChildren(...start, ...log.map(bubble));
     logEl.scrollTop = logEl.scrollHeight;
   }
 
@@ -204,6 +237,7 @@
     if (busy || !text) return;
     busy = true;
     send.disabled = true;
+    logEl.querySelector(".chips")?.remove();
     push({ from: "me", text });
     const typing = document.createElement("div");
     typing.className = "typing";
@@ -222,6 +256,7 @@
       const data = await res.json();
       for (const r of data.replies || []) {
         if (r.type === "image") push({ type: "image", url: r.url, caption: r.caption });
+        else if (r.type === "link") push({ type: "link", url: r.url, label: r.label });
         else push({ from: "bot", text: r.text });
       }
     } catch (err) {

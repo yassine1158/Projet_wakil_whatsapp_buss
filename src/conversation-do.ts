@@ -19,7 +19,10 @@ import { workersAiTranscriber } from "./transcribe";
 import type { ConversationMeta, Env, IncomingMessage, LogEntry, Tenant } from "./types";
 import { WhatsAppError } from "./whatsapp";
 
-export type WebReply = { type: "text"; text: string } | { type: "image"; url: string; caption?: string };
+export type WebReply =
+  | { type: "text"; text: string }
+  | { type: "image"; url: string; caption?: string }
+  | { type: "link"; label: string; url: string };
 
 export interface Transcript {
   meta: ConversationMeta | null;
@@ -83,6 +86,7 @@ export class ConversationDO extends DurableObject<Env> {
       sink: {
         sendText: async (t) => void replies.push({ type: "text", text: t }),
         sendImage: async (url, caption) => void replies.push({ type: "image", url, caption }),
+        sendLink: async (label, url) => void replies.push({ type: "link", label, url }),
       },
     });
     await storage.setAlarm(now + WEB_TTL_MS);
