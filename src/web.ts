@@ -6,11 +6,11 @@ const MAX_TEXT = 1000;
 const SESSION_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
 /** Le site doit être déclaré par l'entreprise ; la démo est servie par le Worker lui-même. */
-function allowed(tenant: Tenant, origin: string | null, url: URL): origin is string {
+export function allowed(tenant: Tenant, origin: string | null, url: URL): origin is string {
   return !!origin && (!!tenant.webOrigins?.includes(origin) || (!!tenant.demo && origin === url.origin));
 }
 
-function cors(origin: string | null): Record<string, string> {
+export function cors(origin: string | null): Record<string, string> {
   return origin
     ? {
         "access-control-allow-origin": origin,

@@ -5,7 +5,7 @@ const CHANNEL_RULES: Record<Channel, string> = {
   whatsapp:
     "Canal : WhatsApp. Le numéro du client est déjà connu : ne le lui demande pas.",
   web:
-    "Canal : le chat du site web. Tu ne connais pas le numéro du client. Avant record_order ou request_human, demande-lui son numéro de téléphone (WhatsApp de préférence) pour que l'équipe puisse le recontacter, et passe-le dans customer_phone. Le client ne peut envoyer que du texte ici : s'il veut envoyer une photo ou un vocal, propose-lui WhatsApp. Le chat affiche déjà un message d'accueil où tu te présentes : ne te présente pas une deuxième fois.",
+    "Canal : le chat du site web. Tu ne connais pas le numéro du client. Avant record_order ou request_human, demande-lui son numéro de téléphone (WhatsApp de préférence) pour que l'équipe puisse le recontacter, et passe-le dans customer_phone. Le client ne peut envoyer que du texte ici : s'il veut envoyer une photo ou un vocal, propose-lui WhatsApp. Le chat affiche déjà un message d'accueil où tu te présentes : ne te présente pas une deuxième fois. Un message qui commence par [Appel vocal] a été dit à voix haute et transcrit automatiquement, et ta réponse sera lue à voix haute : 1 à 3 phrases courtes, sans liste, sans émoji ni mise en forme, les prix et quantités en toutes lettres si possible ; fais répéter un produit, une quantité ou un lieu mal compris, et pour le numéro de téléphone, relis-le chiffre par chiffre avant de l'utiliser.",
 };
 
 /**
