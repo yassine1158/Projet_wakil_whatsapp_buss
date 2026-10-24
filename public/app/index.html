@@ -384,6 +384,7 @@
     { id: "reglages", label: "Réglages", icon: "i-gear" },
     { id: "demandes", label: "Demandes", icon: "i-users", admin: true },
     { id: "entreprises", label: "Entreprises", icon: "i-building", admin: true },
+    { id: "brain", label: "Wakil Brain", short: "Brain", icon: "i-spark", admin: true },
   ];
   const navItems = () => NAV.filter((n) => !n.admin || isAdmin());
   const badgeFor = (id) => {
@@ -680,6 +681,47 @@
       try { await api(`leads/${b.dataset.lead}`, { status: b.dataset.status }); } catch { toast("La mise à jour n'a pas abouti."); }
       await viewDemandes(); refreshOverview();
     }));
+  }
+
+  const BRAIN_LABELS = { reponse: "Répondre", humain: "Passer à un conseiller", commande: "Enregistrer la commande", photo: "Envoyer une photo" };
+  const pct = (a, b) => (b ? Math.round((100 * a) / b) + " %" : "–");
+  async function viewBrain() {
+    main().innerHTML = `<div class="view"><div class="head"><div><h1>Wakil Brain</h1></div></div><div class="loading">Chargement…</div></div>`;
+    const { stats, model } = await api("brain");
+    const rows = Object.keys(BRAIN_LABELS).map((k) => {
+      const t = stats.byTeacher[k] || { total: 0, agreed: 0 };
+      return `<tr><td>${esc(BRAIN_LABELS[k])}</td><td>${t.total}</td><td>${pct(t.agreed, t.total)}</td></tr>`;
+    }).join("");
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>Wakil Brain</h1><p class="muted">Votre propre modèle, construit et entraîné de zéro. Il tourne en <b>mode ombre</b> : pour chaque message réel, il devine ce qu'il faut faire, et on compare avec ce que Claude a fait. Il ne répond jamais aux clients.</p></div></div>
+        <div class="stats">
+          <div class="stat"><b>${stats.total}</b><span>messages observés</span></div>
+          <div class="stat ${stats.total ? "hot" : ""}"><b>${pct(stats.agreed, stats.total)}</b><span>d'accord avec Claude</span></div>
+          <div class="stat"><b>${esc(String(model.real_examples ?? 0))}</b><span>exemples réels appris</span></div>
+        </div>
+        <section class="card">
+          <h2>Par action de Claude</h2>
+          <div class="table-wrap"><table class="ptable"><thead><tr><th>Ce que Claude a fait</th><th>Fois</th><th>Wakil Brain d'accord</th></tr></thead><tbody>${rows}</tbody></table></div>
+          <p class="muted">Modèle entraîné le ${esc(model.trained_at || "?")} sur ${esc(String(model.synthetic_examples ?? 0))} exemples écrits à la main et ${esc(String(model.real_examples ?? 0))} exemples réels.</p>
+          <div class="actions"><button class="btn primary" type="button" id="brain-export">Télécharger les exemples pour l'entraîner</button></div>
+          <p class="muted">Puis, dans WAKIL-AI : <code>python train_intent.py --teacher brain-samples.json --out …/src/brain-model.json</code></p>
+        </section>
+        <section class="card">
+          <h2>Derniers messages</h2>
+          ${stats.recent.length ? `<div class="table-wrap"><table class="ptable"><thead><tr><th>Message</th><th>Wakil Brain</th><th>Claude</th></tr></thead><tbody>${stats.recent.map((r) => `
+            <tr><td>${esc(r.text)}</td><td>${esc(BRAIN_LABELS[r.predicted] || r.predicted)} <span class="muted">${Math.round(r.confidence * 100)} %</span></td><td>${r.predicted === r.teacher ? "✅ " : "❌ "}${esc(BRAIN_LABELS[r.teacher] || r.teacher)}</td></tr>`).join("")}</tbody></table></div>`
+          : `<p class="muted">Pas encore de message réel. Les conversations d'essai (onglet Tester) ne comptent pas.</p>`}
+        </section>
+      </div>`;
+    document.getElementById("brain-export").addEventListener("click", async () => {
+      try {
+        const data = await api("brain/export");
+        const url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: "application/json" }));
+        const a = Object.assign(document.createElement("a"), { href: url, download: "brain-samples.json" });
+        a.click(); URL.revokeObjectURL(url);
+      } catch { toast("Le téléchargement n'a pas abouti."); }
+    });
   }
 
   const TRIES = ["Bonjour, qu'est-ce que vous proposez ?", "C'est combien ?", "Je voudrais passer une commande", "Je veux parler à quelqu'un"];
@@ -1198,7 +1240,7 @@
       if (view === "conversations" && arg) await viewConversation(decodeURIComponent(arg));
       else if (view === "entreprises" && arg && isAdmin()) await viewEntreprise(decodeURIComponent(arg));
       else await ({ accueil: viewAccueil, conversations: viewConversations, commandes: viewCommandes, tester: viewTester, reglages: viewReglages,
-                    ...(isAdmin() ? { demandes: viewDemandes, entreprises: viewEntreprises } : {}) }[view] || viewAccueil)();
+                    ...(isAdmin() ? { demandes: viewDemandes, entreprises: viewEntreprises, brain: viewBrain } : {}) }[view] || viewAccueil)();
       main().querySelector("h1")?.setAttribute("tabindex", "-1");
     } catch (err) {
       if (err.message !== "unauthorized") main().innerHTML = `<div class="view"><div class="card empty"><b>Impossible de charger cette page.</b><span>Vérifiez votre connexion, puis réessayez.</span><button class="btn" type="button" onclick="location.reload()">Réessayer</button></div></div>`;
