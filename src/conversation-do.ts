@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { DurableObject } from "cloudflare:workers";
 import type { Effort } from "./agent";
+import { defaultBrain, predict } from "./brain";
 import { DEFAULT_FREE_MODEL, withFreeFallback, workersAiClient } from "./free-model";
 import { loadCatalog } from "./catalog";
 import {
@@ -197,6 +198,9 @@ export class ConversationDO extends DurableObject<Env> {
           status: "nouvelle",
         });
       },
+      brainSample: async (sample) => {
+        await this.inbox().addBrainSample({ ...sample, tenant: tenant.id });
+      },
     };
   }
 
@@ -219,6 +223,7 @@ export class ConversationDO extends DurableObject<Env> {
       loadCatalog: () => loadCatalog(tenant),
       now: Date.now,
       inbox: this.reporter(tenant),
+      brain: (context, text) => predict(defaultBrain(), context, text),
     };
   }
 }

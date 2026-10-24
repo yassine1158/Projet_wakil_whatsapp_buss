@@ -4,6 +4,8 @@ import type { Channel, Env, Order, Tenant } from "./types";
 
 export * from "./inbox-types";
 import type {
+  BrainSampleRow,
+  BrainStats,
   ConversationRow,
   ConversationStatus,
   LeadRow,
@@ -40,6 +42,10 @@ export class InboxDO extends DurableObject<Env> {
       CREATE TABLE IF NOT EXISTS tenants (
         id TEXT PRIMARY KEY, data TEXT NOT NULL, password_hash TEXT, wa_token TEXT, wa_pin TEXT,
         created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL);
+      CREATE TABLE IF NOT EXISTS brain_samples (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, tenant TEXT NOT NULL, at INTEGER NOT NULL, context TEXT NOT NULL,
+        text TEXT NOT NULL, predicted TEXT NOT NULL, confidence REAL NOT NULL, teacher TEXT NOT NULL);
+      CREATE INDEX IF NOT EXISTS brain_samples_by_tenant ON brain_samples (tenant, at);
     `);
   }
 
@@ -165,6 +171,49 @@ export class InboxDO extends DurableObject<Env> {
       .exec("SELECT * FROM leads ORDER BY created_at DESC LIMIT ?", limit)
       .toArray()
       .map((r) => ({ ...(JSON.parse(String(r.data)) as Lead), id: Number(r.id), status: r.status as LeadStatus }));
+  }
+
+  /* ---------- Wakil Brain (mode ombre) ---------- */
+
+  async addBrainSample(sample: Omit<BrainSampleRow, "id">): Promise<void> {
+    this.sql.exec(
+      "INSERT INTO brain_samples (tenant, at, context, text, predicted, confidence, teacher) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      sample.tenant, sample.at, sample.context, sample.text, sample.predicted, sample.confidence, sample.teacher,
+    );
+    // On garde les 20 000 derniers exemples.
+    this.sql.exec("DELETE FROM brain_samples WHERE id <= (SELECT MAX(id) FROM brain_samples) - 20000");
+  }
+
+  async brainSamples(tenant: string | null, limit = 5000): Promise<BrainSampleRow[]> {
+    const rows = tenant
+      ? this.sql.exec("SELECT * FROM brain_samples WHERE tenant = ? ORDER BY id DESC LIMIT ?", tenant, limit)
+      : this.sql.exec("SELECT * FROM brain_samples ORDER BY id DESC LIMIT ?", limit);
+    return rows.toArray().map((r) => ({
+      id: Number(r.id),
+      tenant: String(r.tenant),
+      at: Number(r.at),
+      context: String(r.context),
+      text: String(r.text),
+      predicted: String(r.predicted),
+      confidence: Number(r.confidence),
+      teacher: String(r.teacher),
+    }));
+  }
+
+  async brainStats(tenant: string | null): Promise<BrainStats> {
+    const samples = await this.brainSamples(tenant, 20000);
+    const byTeacher: BrainStats["byTeacher"] = {};
+    for (const s of samples) {
+      const t = (byTeacher[s.teacher] ??= { total: 0, agreed: 0 });
+      t.total++;
+      if (s.predicted === s.teacher) t.agreed++;
+    }
+    return {
+      total: samples.length,
+      agreed: samples.filter((s) => s.predicted === s.teacher).length,
+      byTeacher,
+      recent: samples.slice(0, 30),
+    };
   }
 
   async overview(tenant: string, now: number): Promise<Overview> {

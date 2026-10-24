@@ -483,3 +483,65 @@ describe("normalizePhone", () => {
     expect(normalizePhone(undefined)).toBeUndefined();
   });
 });
+
+describe("Wakil Brain en mode ombre", () => {
+  const humanTurn = () =>
+    fakeClaude([
+      {
+        stop_reason: "tool_use",
+        content: [
+          { type: "tool_use", id: "t1", name: "request_human", input: { reason: "réclamation", summary: "s" } } as Anthropic.Beta.BetaContentBlock,
+        ],
+      },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Un conseiller va vous rappeler." } as Anthropic.Beta.BetaContentBlock] },
+    ]).client;
+
+  it("enregistre la prédiction et ce que Claude a fait, sans toucher la réponse", async () => {
+    const samples: unknown[] = [];
+    const seen: string[] = [];
+    const inbox = { conversation: async () => {}, order: async () => {}, brainSample: async (s: unknown) => void samples.push(s) };
+    await storage.put("history", [
+      { role: "user", content: [{ type: "text", text: "Bonjour" }] },
+      { role: "assistant", content: [{ type: "text", text: "Bonjour, comment puis-je vous aider ?" }] },
+    ]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "Le sable est arrivé mouillé, appelez-moi au 07 08 09 10 11" }), NOW, 4000);
+    const brain = (context: string, text: string) => {
+      seen.push(`${context} | ${text}`);
+      return { label: "reponse", confidence: 0.7, probs: [0.7, 0.1, 0.1, 0.1] };
+    };
+    await processPending(deps(humanTurn(), { inbox, brain }));
+
+    expect(whatsapp.sent.filter((s) => s.to === CLIENT)).toEqual([{ to: CLIENT, kind: "text", body: "Un conseiller va vous rappeler." }]);
+    expect(seen).toEqual(["Bonjour, comment puis-je vous aider ? | Le sable est arrivé mouillé, appelez-moi au [numéro]"]);
+    expect(samples).toEqual([
+      {
+        at: NOW,
+        context: "Bonjour, comment puis-je vous aider ?",
+        text: "Le sable est arrivé mouillé, appelez-moi au [numéro]",
+        predicted: "reponse",
+        confidence: 0.7,
+        teacher: "humain",
+      },
+    ]);
+  });
+
+  it("une panne de Wakil Brain ne gêne pas le client", async () => {
+    const inbox = { conversation: async () => {}, order: async () => {}, brainSample: async () => {} };
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "Je veux un conseiller" }), NOW, 4000);
+    const brain = () => {
+      throw new Error("modèle cassé");
+    };
+    await processPending(deps(humanTurn(), { inbox, brain }));
+    expect(whatsapp.sent.filter((s) => s.to === CLIENT).map((s) => s.body)).toEqual(["Un conseiller va vous rappeler."]);
+  });
+
+  it("n'apprend rien des conversations d'essai", async () => {
+    const samples: unknown[] = [];
+    const inbox = { conversation: async () => {}, order: async () => {}, brainSample: async (s: unknown) => void samples.push(s) };
+    await addIncoming(storage, { channel: "web", tenantId: "sicar", phoneNumberId: "PNID", customerId: "test-abcdefghijklmnop", test: true }, msg("m1", { from: "test-abcdefghijklmnop" }));
+    const { client } = fakeClaude([{ stop_reason: "end_turn", content: [{ type: "text", text: "Bonjour !" } as Anthropic.Beta.BetaContentBlock] }]);
+    const sink = { sendText: async () => {}, sendImage: async () => {} };
+    await processPending(deps(client, { inbox, sink, brain: () => ({ label: "reponse", confidence: 1, probs: [1, 0, 0, 0] }) }));
+    expect(samples).toEqual([]);
+  });
+});
