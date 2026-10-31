@@ -60,6 +60,7 @@ const NO_WHATSAPP: WhatsAppSender = {
   sendText: async () => { throw new Error("Aucun numéro WhatsApp configuré"); },
   sendImage: async () => { throw new Error("Aucun numéro WhatsApp configuré"); },
   sendTemplate: async () => { throw new Error("Aucun numéro WhatsApp configuré"); },
+  sendAudio: async () => { throw new Error("Aucun numéro WhatsApp configuré"); },
   markReadWithTyping: async () => {},
   downloadMedia: async () => { throw new Error("Aucun numéro WhatsApp configuré"); },
 };

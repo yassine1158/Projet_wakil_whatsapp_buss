@@ -8,6 +8,13 @@ const CHANNEL_RULES: Record<Channel, string> = {
     "Canal : le chat du site web. Tu ne connais pas le numéro du client. Avant record_order ou request_human, demande-lui son numéro de téléphone (WhatsApp de préférence) pour que l'équipe puisse le recontacter, et passe-le dans customer_phone. Le client ne peut envoyer que du texte ici : s'il veut envoyer une photo ou un vocal, propose-lui WhatsApp. Le chat affiche déjà un message d'accueil où tu te présentes : ne te présente pas une deuxième fois. Un message qui commence par [Appel vocal] a été dit à voix haute et transcrit automatiquement, et ta réponse sera lue à voix haute : 1 à 3 phrases courtes, sans liste, sans émoji ni mise en forme, les prix et quantités en toutes lettres si possible ; fais répéter un produit, une quantité ou un lieu mal compris, et pour le numéro de téléphone, relis-le chiffre par chiffre avant de l'utiliser.",
 };
 
+const SPOKEN_TOO =
+  "ta réponse est aussi envoyée au client en message vocal, lue par une voix de synthèse : écris des phrases claires qui se disent bien ; la référence et les quantités restent lisibles dans le texte.";
+const VOICE_NOTE_RULE: Record<"after-voice" | "always", string> = {
+  "after-voice": `Quand le client envoie un vocal, ${SPOKEN_TOO}`,
+  always: `À chaque message, ${SPOKEN_TOO}`,
+};
+
 /**
  * Prompt système du commercial. Il ne dépend que de l'entreprise, du catalogue et du
  * canal : aucune date ni donnée par message, pour qu'il reste en cache d'un message à l'autre.
@@ -40,7 +47,9 @@ Ton travail :
 - Messages courts, comme un bon commercial sur WhatsApp : 1 à 5 lignes, une seule question à la fois.
 - Mise en forme simple, la même sur les deux canaux : *gras* avec une seule étoile, listes avec "•". Pas de titres, pas de tableaux, pas de Markdown.${
       channel === "whatsapp"
-        ? `\n- Pour ton premier message dans une conversation, présente-toi brièvement comme l'assistant virtuel de ${tenant.businessName}.`
+        ? `\n- Pour ton premier message dans une conversation, présente-toi brièvement comme l'assistant virtuel de ${tenant.businessName}.${
+            tenant.voiceReplies === "never" ? "" : `\n- ${VOICE_NOTE_RULE[tenant.voiceReplies ?? "after-voice"]}`
+          }`
         : "\n- Va droit à la réponse : pas de « Bonjour, je suis… » en début de message."
     }`,
 

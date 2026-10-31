@@ -23,6 +23,7 @@ export interface WhatsAppSender {
   sendText(to: string, body: string): Promise<void>;
   sendImage(to: string, link: string, caption?: string): Promise<void>;
   sendTemplate(to: string, name: string, language: string, bodyParams: string[]): Promise<void>;
+  sendAudio(to: string, audio: Uint8Array, mimeType: string): Promise<void>;
   markReadWithTyping(messageId: string): Promise<void>;
   downloadMedia(mediaId: string): Promise<{ bytes: Uint8Array; mimeType: string }>;
 }
@@ -33,7 +34,12 @@ export interface ReplySink {
   sendImage(link: string, caption?: string): Promise<void>;
   /** Chat web seulement : bouton qui ouvre WhatsApp, affiché sous les réponses. */
   sendLink?(label: string, url: string): Promise<void>;
+  /** WhatsApp seulement : la réponse dite à voix haute. */
+  sendAudio?(audio: Uint8Array, mimeType: string): Promise<void>;
 }
+
+/** Synthèse vocale d'une réponse écrite, ou null si elle échoue. */
+export type VoiceMaker = (text: string) => Promise<{ bytes: Uint8Array; mimeType: string } | null>;
 
 const MAX_SEEN = 100;
 const MAX_LOG = 200;
@@ -136,6 +142,8 @@ export interface EngineDeps {
   claude: ClaudeClient;
   agentConfig: AgentConfig;
   transcribe: Transcriber;
+  /** Réponses vocales sur WhatsApp (voir Tenant.voiceReplies) ; sans elle, Wakil n'écrit que du texte. */
+  speak?: VoiceMaker;
   loadCatalog: () => Promise<Catalog>;
   now: () => number;
   inbox?: InboxReporter;
@@ -157,6 +165,7 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   const sink: ReplySink = deps.sink ?? {
     sendText: (text) => whatsapp.sendText(meta.customerId, text),
     sendImage: (link, caption) => whatsapp.sendImage(meta.customerId, link, caption),
+    sendAudio: (audio, mimeType) => whatsapp.sendAudio(meta.customerId, audio, mimeType),
   };
   const now = deps.now();
   const sent: LogEntry[] = [];
@@ -290,6 +299,20 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   }
 
   for (const text of result.replies.length ? result.replies : [TECHNICAL_ISSUE_REPLY]) await reply(text);
+  // Le texte part d'abord (références, quantités) ; la version vocale suit.
+  const voice = tenant.voiceReplies ?? "after-voice";
+  const speakNow = voice === "always" || (voice === "after-voice" && pending.some((m) => m.kind === "audio"));
+  if (deps.speak && sink.sendAudio && speakNow && result.replies.length && !result.refused) {
+    try {
+      const audio = await deps.speak(result.replies.join("\n"));
+      if (audio) {
+        await sink.sendAudio(audio.bytes, audio.mimeType);
+        sent.push({ from: "wakil", text: "[Réponse vocale]", at: now });
+      }
+    } catch (err) {
+      log("Réponse vocale échouée", err);
+    }
+  }
   for (const l of links) await sink.sendLink!(l.label, l.url).catch((e) => log("Envoi du lien échoué", e));
   await saveHistory(storage, [...history, ...result.newMessages]);
   await finish();

@@ -6,6 +6,14 @@ export const MAX_TEXT_LENGTH = 4096;
 
 type FetchLike = typeof fetch;
 
+const AUDIO_EXTENSIONS: Record<string, string> = {
+  "audio/mpeg": "mp3",
+  "audio/ogg": "ogg",
+  "audio/mp4": "m4a",
+  "audio/aac": "aac",
+  "audio/amr": "amr",
+};
+
 /** Vérifie l'en-tête X-Hub-Signature-256 envoyé par Meta (HMAC-SHA256 du corps brut). */
 export async function verifySignature(
   rawBody: string,
@@ -147,6 +155,27 @@ export class WhatsAppClient {
 
   async sendImage(to: string, link: string, caption?: string): Promise<void> {
     await this.send({ to, type: "image", image: caption ? { link, caption } : { link } });
+  }
+
+  /**
+   * Envoie un fichier audio : téléversé chez Meta, puis envoyé par son identifiant.
+   * Seul un OGG/OPUS s'affiche comme message vocal ; un MP3 part comme fichier audio.
+   */
+  async sendAudio(to: string, audio: Uint8Array, mimeType: string): Promise<void> {
+    const id = await this.uploadMedia(audio, mimeType);
+    await this.send({ to, type: "audio", audio: mimeType.startsWith("audio/ogg") ? { id, voice: true } : { id } });
+  }
+
+  /** Téléverse un média chez Meta (valable 30 jours) et renvoie son identifiant. */
+  async uploadMedia(bytes: Uint8Array, mimeType: string): Promise<string> {
+    const form = new FormData();
+    form.append("messaging_product", "whatsapp");
+    form.append("type", mimeType);
+    form.append("file", new Blob([new Uint8Array(bytes)], { type: mimeType }), `wakil.${AUDIO_EXTENSIONS[mimeType] ?? "bin"}`);
+    const res = await this.request(`${this.base}/${this.phoneNumberId}/media`, { method: "POST", body: form });
+    const { id } = (await res.json()) as { id?: string };
+    if (!id) throw new WhatsAppError("Média refusé par WhatsApp", res.status);
+    return id;
   }
 
   async sendTemplate(to: string, name: string, language: string, bodyParams: string[]) {

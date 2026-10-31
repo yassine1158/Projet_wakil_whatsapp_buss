@@ -45,6 +45,7 @@ Les entreprises de `config/tenants.json` (SICAR, la démonstration) apparaissent
 |---|---|
 | Messages texte | Réponse en quelques secondes, dans la langue du client |
 | Vocaux | Transcrits par Whisper (Workers AI), avec les noms des produits comme vocabulaire |
+| Réponses vocales | À un client qui envoie un vocal, Wakil répond aussi en vocal (MeloTTS, français), après le texte. Réglable par entreprise : après un vocal, à chaque message, ou jamais |
 | Photos | Le client peut envoyer une photo de son chantier ; Wakil la voit |
 | Position | Une position partagée est comprise comme lieu de livraison |
 | Messages en rafale | Wakil attend 4 s de calme (15 s au plus) et répond une seule fois |

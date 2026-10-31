@@ -856,6 +856,7 @@
             <div class="grid2">
               ${field("ownerPhone", "Son numéro WhatsApp", t.ownerPhone ? "+" + t.ownerPhone : "", 'inputmode="tel" autocomplete="tel"', "Il y reçoit les nouvelles commandes et les clients qui demandent l'équipe.")}
               <label for="f-handoffHours">Quand l'équipe prend la main, Wakil se tait pendant<select id="f-handoffHours" name="handoffHours">${[1, 2, 4, 8, 12, 24, 48, 72].map((h) => `<option value="${h}" ${h === (t.handoffHours || 12) ? "selected" : ""}>${h} h</option>`).join("")}</select></label>
+              <label for="f-voiceReplies">Réponses vocales sur WhatsApp<select id="f-voiceReplies" name="voiceReplies">${[["after-voice", "Quand le client envoie un vocal"], ["always", "À chaque message"], ["never", "Jamais"]].map(([v, l]) => `<option value="${v}" ${v === (t.voiceReplies || "after-voice") ? "selected" : ""}>${l}</option>`).join("")}</select></label>
             </div>
           </section>
 
@@ -997,7 +998,7 @@
       const body = {
         id: creating ? v("id").toLowerCase() : t.id,
         businessName: v("businessName"), assistantName: v("assistantName"), timezone: v("timezone"), defaultCountryCode: v("defaultCountryCode"),
-        ownerPhone: v("ownerPhone"), handoffHours: Number(v("handoffHours")),
+        ownerPhone: v("ownerPhone"), handoffHours: Number(v("handoffHours")), voiceReplies: v("voiceReplies"),
         info: { phone: v("info.phone"), email: v("info.email"), address: v("info.address"), hours: v("info.hours"), about: v("info.about") },
         catalog: mode === "table" ? { products: products.filter((p) => String(p.name || "").trim()) } : { productsUrl: v("catalog.productsUrl"), siteUrl: v("catalog.siteUrl"),
             ...(v("catalog.productsUrl") === t.catalog.productsUrl && t.catalog.assetBaseUrl ? { assetBaseUrl: t.catalog.assetBaseUrl } : {}) },

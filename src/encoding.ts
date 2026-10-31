@@ -8,6 +8,10 @@ export function bytesToBase64(bytes: Uint8Array): string {
   return btoa(binary);
 }
 
+export function base64ToBytes(base64: string): Uint8Array {
+  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+}
+
 export function bytesToHex(bytes: Uint8Array): string {
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }

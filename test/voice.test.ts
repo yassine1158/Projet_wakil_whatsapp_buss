@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Env } from "../src/types";
+import { parseTenantInput } from "../src/companies";
+import { buildSystemPrompt } from "../src/prompt";
+import type { Tenant } from "../src/types";
 import { handleVoice, NOT_HEARD_REPLY, speakable, VOICE_PREFIX, type VoiceDeps } from "../src/voice";
 
 const SITE = "https://yassine1158.github.io";
@@ -112,5 +115,25 @@ describe("POST /voice", () => {
     expect((await call(post(SITE, new Uint8Array(2_000_001)), env, deps)).status).toBe(413);
     expect((await call(post(), setup({ limited: true }).env, deps)).status).toBe(429);
     expect(chats).toHaveLength(0);
+  });
+});
+
+describe("réponses vocales sur WhatsApp : réglage et prompt", () => {
+  const company = { id: "acme", businessName: "Acme", catalog: { products: [] } };
+
+  it("garde le réglage choisi dans l'application, « après un vocal » par défaut", () => {
+    expect((parseTenantInput({ ...company, voiceReplies: "always" }) as Tenant).voiceReplies).toBe("always");
+    expect((parseTenantInput({ ...company, voiceReplies: "never" }) as Tenant).voiceReplies).toBe("never");
+    expect((parseTenantInput({ ...company, voiceReplies: "after-voice" }) as Tenant).voiceReplies).toBeUndefined();
+    expect((parseTenantInput({ ...company, voiceReplies: "n'importe quoi" }) as Tenant).voiceReplies).toBeUndefined();
+  });
+
+  it("prévient le modèle que sa réponse sera dite, sur WhatsApp seulement", () => {
+    const tenant = parseTenantInput(company) as Tenant;
+    const catalog = { products: [], info: { faq: [] } };
+    expect(buildSystemPrompt(tenant, catalog, "whatsapp")).toContain("Quand le client envoie un vocal, ta réponse est aussi envoyée au client en message vocal");
+    expect(buildSystemPrompt({ ...tenant, voiceReplies: "always" }, catalog, "whatsapp")).toContain("À chaque message, ta réponse est aussi envoyée");
+    expect(buildSystemPrompt({ ...tenant, voiceReplies: "never" }, catalog, "whatsapp")).not.toContain("message vocal");
+    expect(buildSystemPrompt(tenant, catalog, "web")).not.toContain("en message vocal");
   });
 });
