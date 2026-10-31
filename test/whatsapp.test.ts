@@ -91,6 +91,27 @@ describe("WhatsAppClient", () => {
     });
   });
 
+  it("téléverse un audio puis l'envoie ; seul l'OGG/OPUS part comme message vocal", async () => {
+    const calls: { url: string; init: RequestInit }[] = [];
+    const fake = (async (url: string, init: RequestInit) => {
+      calls.push({ url, init });
+      return new Response(JSON.stringify(url.endsWith("/media") ? { id: "MEDIA1" } : {}), { status: 200 });
+    }) as unknown as typeof fetch;
+    const client = new WhatsAppClient("TOKEN", "PNID", "v23.0", fake);
+    await client.sendAudio("225070", new Uint8Array([1, 2, 3]), "audio/mpeg");
+    await client.sendAudio("225070", new Uint8Array([4]), "audio/ogg");
+
+    expect(calls[0].url).toBe("https://graph.facebook.com/v23.0/PNID/media");
+    expect((calls[0].init.headers as Record<string, string>).authorization).toBe("Bearer TOKEN");
+    const form = calls[0].init.body as FormData;
+    expect(form.get("messaging_product")).toBe("whatsapp");
+    expect(form.get("type")).toBe("audio/mpeg");
+    const file = form.get("file") as File;
+    expect([file.name, file.type, file.size]).toEqual(["wakil.mp3", "audio/mpeg", 3]);
+    expect(JSON.parse(calls[1].init.body as string)).toMatchObject({ to: "225070", type: "audio", audio: { id: "MEDIA1" } });
+    expect(JSON.parse(calls[3].init.body as string).audio).toEqual({ id: "MEDIA1", voice: true });
+  });
+
   it("remonte le code d'erreur de Meta", async () => {
     const fake = (async () =>
       new Response(JSON.stringify({ error: { message: "Re-engagement message", code: 131047 } }), { status: 400 })) as unknown as typeof fetch;

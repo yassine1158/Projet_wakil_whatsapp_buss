@@ -1,4 +1,6 @@
 import { loadCatalog } from "./catalog";
+import { base64ToBytes } from "./encoding";
+import type { VoiceMaker } from "./engine";
 import { webConversation } from "./names";
 import { isKnownWebOrigin, tenantById } from "./registry";
 import { workersAiTranscriber, type Transcriber } from "./transcribe";
@@ -54,6 +56,16 @@ export function workersAiSpeaker(ai: Ai): Speaker {
   return async (text) => {
     const result = (await (ai as any).run(TTS_MODEL, { prompt: text, lang: "fr" })) as { audio?: string };
     return result?.audio ?? null;
+  };
+}
+
+/** Réponse vocale envoyée sur WhatsApp : le texte rendu facile à dire, lu par MeloTTS (MP3). */
+export function workersAiVoice(ai: Ai): VoiceMaker {
+  const speak = workersAiSpeaker(ai);
+  return async (text) => {
+    const said = speakable(text);
+    const audio = said ? await speak(said) : null;
+    return audio ? { bytes: base64ToBytes(audio), mimeType: "audio/mpeg" } : null;
   };
 }
 

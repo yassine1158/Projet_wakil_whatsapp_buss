@@ -1,6 +1,6 @@
 import { slugify } from "./catalog";
 import { normalizePhone } from "./engine";
-import type { RawProduct, Tenant } from "./types";
+import { VOICE_REPLIES, type RawProduct, type Tenant } from "./types";
 
 export const TENANT_ID_RE = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
 const MAX_PRODUCTS = 500;
@@ -129,6 +129,7 @@ export function parseTenantInput(body: Record<string, unknown>, existing?: Tenan
   const paymentInstructions = text(body.paymentInstructions, 1000);
   if (paymentInstructions === null) return { error: "too_long", field: "paymentInstructions" };
   const handoffHours = Math.min(72, Math.max(1, Math.round(Number(body.handoffHours) || 12)));
+  const voiceReplies = VOICE_REPLIES.find((v) => v === body.voiceReplies);
 
   return {
     id,
@@ -146,6 +147,7 @@ export function parseTenantInput(body: Record<string, unknown>, existing?: Tenan
     ...(paymentInstructions ? { paymentInstructions } : {}),
     ...(instructions ? { instructions } : {}),
     handoffHours,
+    ...(voiceReplies && voiceReplies !== "after-voice" ? { voiceReplies } : {}),
   };
 }
 
