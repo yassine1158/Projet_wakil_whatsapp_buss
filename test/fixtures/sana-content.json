@@ -2,7 +2,7 @@
   "company": {
     "name": "SANA",
     "fullName": "Société Afriqaine de Nutrition Animale",
-    "phone": "+2250715500000",
+    "phone": "+225 07 89 69 58 12",
     "whatsapp": "2250715500000",
     "email": "contact@sana.com",
     "address": "Yamoussoukro, Côte d'Ivoire",
@@ -11,18 +11,18 @@
   "hero": {
     "title": "L'aliment de tous vos animaux,",
     "highlight": "formulé par nos experts.",
-    "lead": "Les œufs à couver SANA sont disponibles et les précommandes de poussins de chair sont ouvertes. Aliments pour tous les animaux, poulets et œufs frais arrivent bientôt."
+    "lead": "Les œufs à couver SANA sont disponibles et les précommandes de poussins de chair sont ouvertes pour le 14 et le 27 novembre. Aliments pour tous les animaux, poulets et œufs frais arrivent bientôt."
   },
   "hatching": {
     "title": "Œufs à couver",
     "usage": "Disponible maintenant",
-    "desc": "Œufs fécondés pour vos incubateurs et vos poules couveuses.",
+    "desc": "Œufs fécondés pour vos incubateurs et vos poules couveuses, avec un taux d'éclosion supérieur à 85 %.",
     "items": [
-      "Œufs fécondés pour incubateur ou poule couveuse",
-      "Commande sur WhatsApp",
-      "Retrait ou livraison à convenir"
+      "Taux d'éclosion supérieur à 85 %",
+      "Pour incubateur ou poule couveuse",
+      "Commande par appel ou sur WhatsApp"
     ],
-    "price": "",
+    "price": "400 FCFA l'œuf",
     "status": "available",
     "visible": true
   },
@@ -76,18 +76,27 @@
   "chatbot": {
     "visible": true,
     "name": "Assistant SANA",
-    "greeting": "Bonjour 👋 Je suis l'assistant de SANA. Je réponds tout de suite à vos questions et je prépare votre demande pour WhatsApp."
+    "wakilUrl": "https://wakil-whatsapp.yassinechaabane72.workers.dev",
+    "wakilTenant": "sana",
+    "suggestions": [
+      "Réserver des poussins de chair",
+      "Commander des œufs à couver",
+      "Prix et dates de sortie",
+      "Taux d'éclosion des œufs",
+      "Conseils pour démarrer mes poussins"
+    ],
+    "greeting": "Bonjour 👋 Je suis l'assistant virtuel de SANA. Posez-moi vos questions sur nos poussins de chair et nos œufs à couver : je vous réponds tout de suite et je peux préparer votre réservation."
   },
   "marketing": {
     "promo": {
       "visible": true,
-      "text": "Œufs à couver disponibles · Poussins de chair : précommandes ouvertes pour le 28 octobre.",
+      "text": "Poussins de chair à 640 FCFA : précommandes ouvertes pour le 14 et le 27 novembre · Œufs à couver à 400 FCFA.",
       "linkText": "Commander",
       "link": "#disponible"
     },
     "cta": {
       "title": "Des œufs à couver ou des poussins pour votre élevage ?",
-      "text": "Écrivez-nous sur WhatsApp : disponibilité, quantité et livraison, nous vous répondons rapidement.",
+      "text": "Appelez le 07 89 69 58 12 ou écrivez-nous sur WhatsApp au 07 15 50 00 00 : disponibilité, quantité et réservation, nous vous répondons rapidement.",
       "button": "Commander sur WhatsApp"
     },
     "social": {
@@ -134,13 +143,13 @@
         "icon": "chick",
         "title": "Poussins de chair",
         "usage": "Précommandes ouvertes",
-        "desc": "Disponibles le mercredi 28 octobre 2026, à Abidjan, Bouaké, Yamoussoukro et Toumodi.",
+        "desc": "Prochaines sorties : samedi 14 novembre et vendredi 27 novembre 2026.",
         "items": [
           "Poussins de qualité, bien vaccinés",
-          "Acompte de 50 % à la réservation",
-          "Transport à la charge du client"
+          "Places limitées à chaque sortie",
+          "Réservation par appel ou sur WhatsApp"
         ],
-        "price": "",
+        "price": "640 FCFA le poussin",
         "visible": true,
         "status": "available"
       },
