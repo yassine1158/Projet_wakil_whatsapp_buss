@@ -6,11 +6,11 @@ const MAX_TEXT = 1000;
 const SESSION_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
 /** Le site doit être déclaré par l'entreprise ; la démo est servie par le Worker lui-même. */
-function allowed(tenant: Tenant, origin: string | null, url: URL): origin is string {
+export function allowed(tenant: Tenant, origin: string | null, url: URL): origin is string {
   return !!origin && (!!tenant.webOrigins?.includes(origin) || (!!tenant.demo && origin === url.origin));
 }
 
-function cors(origin: string | null): Record<string, string> {
+export function cors(origin: string | null): Record<string, string> {
   return origin
     ? {
         "access-control-allow-origin": origin,
@@ -31,7 +31,7 @@ function json(body: unknown, status: number, origin: string | null): Response {
 
 /**
  * Chat du site web :
- *   GET  /chat/config?tenant=sicar → nom de l'entreprise et de l'assistant
+ *   GET  /chat/config?tenant=sicar → nom de l'entreprise et de l'assistant, appel en direct proposé ou non
  *   POST /chat {tenant, session, text} → réponses de l'assistant
  * Seuls les sites listés dans webOrigins de l'entreprise peuvent l'utiliser.
  */
@@ -47,7 +47,10 @@ export async function handleChat(request: Request, env: Env, url: URL): Promise<
     // Sans en-tête Origin (requête GET depuis le même site), la réponse n'a rien de sensible.
     if (!tenant || (origin !== null && !allowed(tenant, origin, url))) return json({ error: "forbidden" }, 403, null);
     const { businessName, assistantName } = tenant;
-    return json({ businessName, assistantName }, 200, origin);
+    // L'appel en direct n'est proposé qu'avec une voix française fiable (ElevenLabs) :
+    // la voix gratuite de Workers AI est annoncée en retrait, et un appel muet serait pire que pas d'appel.
+    const call = !!env.ELEVENLABS_API_KEY?.trim();
+    return json({ businessName, assistantName, call }, 200, origin);
   }
 
   if (url.pathname !== "/chat" || request.method !== "POST") return json({ error: "not_found" }, 404, null);

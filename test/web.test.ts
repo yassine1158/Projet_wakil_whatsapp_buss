@@ -78,7 +78,7 @@ describe("démonstration sur le site de Wakil", () => {
     expect(calls[0].args[0]).toBe("wakil");
     expect((await call(own("sicar"), env)).status).toBe(403);
     const config = await call(new Request("https://wakil.example/chat/config?tenant=wakil"), env);
-    expect(await config.json()).toEqual({ businessName: "Wakil", assistantName: "Wakil" });
+    expect(await config.json()).toEqual({ businessName: "Wakil", assistantName: "Wakil", call: false });
   });
 });
 
@@ -88,8 +88,16 @@ describe("GET /chat/config et pré-vérification CORS", () => {
     const req = (origin: string) =>
       new Request("https://wakil.example/chat/config?tenant=sicar", { headers: { origin } });
     const ok = await call(req(SITE), env);
-    expect(await ok.json()).toEqual({ businessName: "SICAR SARL", assistantName: "Wakil" });
+    expect(await ok.json()).toEqual({ businessName: "SICAR SARL", assistantName: "Wakil", call: false });
     expect((await call(req("https://pirate.example"), env)).status).toBe(403);
+  });
+
+  it("propose l'appel en direct seulement avec la voix ElevenLabs", async () => {
+    const { env } = fakeEnv();
+    const req = () => new Request("https://wakil.example/chat/config?tenant=sicar", { headers: { origin: SITE } });
+    expect(((await (await call(req(), env)).json()) as any).call).toBe(false);
+    env.ELEVENLABS_API_KEY = "cle";
+    expect(((await (await call(req(), env)).json()) as any).call).toBe(true);
   });
 
   it("répond au preflight pour un site connu", async () => {
