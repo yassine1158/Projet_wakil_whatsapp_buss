@@ -204,7 +204,8 @@ export class WhatsAppClient {
   private async request(url: string, init: RequestInit): Promise<Response> {
     const res = await this.fetchFn(url, {
       ...init,
-      headers: { ...(init.headers as Record<string, string>), authorization: `Bearer ${this.token}` },
+      // Un jeton recopié avec un espace ou un retour à la ligne en trop serait refusé par fetch.
+      headers: { ...(init.headers as Record<string, string>), authorization: `Bearer ${this.token.trim()}` },
     });
     if (!res.ok) {
       const detail = (await res.json().catch(() => ({}))) as { error?: { message?: string; code?: number } };
