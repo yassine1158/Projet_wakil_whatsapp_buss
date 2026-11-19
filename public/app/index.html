@@ -563,7 +563,7 @@
 
   function initials(c) {
     const n = c.name || (c.channel === "web" ? "Site" : c.phone || "?");
-    return esc(n.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase());
+    return esc((n.match(/[\p{L}\p{N}]+/gu) || ["?"]).map((w) => w[0]).join("").slice(0, 2).toUpperCase());
   }
   const convName = (c) => c.name || (c.phone ? "+" + c.phone : "Visiteur du site");
   const chan = (c) => c.channel === "web" ? `<span class="chan">${icon("i-web")}Site web</span>` : `<span class="chan whatsapp">${icon("i-wa")}WhatsApp</span>`;
@@ -917,7 +917,7 @@
           <a class="btn primary" href="#entreprises/new">${icon("i-plus")}Nouvelle entreprise</a></div>
         <div class="list">${list.map(({ tenant: t, hasPassword }) => `
           <a class="row company" href="#entreprises/${encodeURIComponent(t.id)}">
-            <div class="av">${esc(t.businessName.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase())}</div>
+            <div class="av">${esc(((t.businessName.match(/\p{L}+/gu) || ["?"]).map((w) => w[0]).join("")).slice(0, 2).toUpperCase())}</div>
             <div style="min-width:0"><div class="who"><b>${esc(t.businessName)}</b>${t.demo ? '<span class="pill annulee">Démo</span>' : ""}</div>
               <div class="last chips" style="margin-top:6px;gap:6px">
                 ${t.hostedNumber && t.hostedNumber.state !== "connected" ? `<span class="pill nouvelle">${t.hostedNumber.state === "submitted" ? "Numéro à valider" : "Code envoyé"}</span>` : tag(t.whatsapp, `WhatsApp ${esc(t.whatsapp?.displayPhone || "relié")}`, "WhatsApp à relier")}

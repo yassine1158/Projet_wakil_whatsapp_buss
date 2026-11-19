@@ -1,0 +1,36 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "wakil-whatsapp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+  // Workers AI : Whisper (vocaux) et le modèle gratuit de relais
+  
+  // Un Durable Object par conversation client
+  "durable_objects": {
+    "bindings": [
+      { "name": "CONVERSATIONS", "class_name": "ConversationDO" },
+      // Boîte de réception lue par l'application (/app)
+      { "name": "INBOX", "class_name": "InboxDO" },
+      // Appels en direct depuis le chat du site
+      { "name": "CALLS", "class_name": "CallDO" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["ConversationDO", "InboxDO"] },
+    { "tag": "v2", "new_sqlite_classes": ["CallDO"] }
+  ],
+  // Le script du chat web (public/wakil-chat.js), servi tel quel
+  "assets": { "directory": "./public" },
+  // Chat web : 20 messages par minute au plus par adresse IP
+  "ratelimits": [{ "name": "CHAT_LIMITER", "namespace_id": "1001", "simple": { "limit": 20, "period": 60 } }],
+  // Les secrets (clés) se mettent avec `npx wrangler secret put NOM`, jamais ici.
+  "vars": {
+    "CLAUDE_MODEL": "claude-opus-5-5",
+    "CLAUDE_EFFORT": "low",
+    // Relais gratuit (Workers AI) quand Claude ne répond pas : pas de clé, crédit épuisé, panne
+    "FREE_MODEL": "@cf/google/gemma-4-26b-a4b-it",
+    "GRAPH_API_VERSION": "v23.0",
+    "DEBOUNCE_MS": "4000"
+  }
+}
