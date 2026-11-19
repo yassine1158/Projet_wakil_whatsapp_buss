@@ -4,6 +4,8 @@ import type { IncomingMessage } from "./types";
 /** Limite de Meta pour le corps d'un message texte. */
 export const MAX_TEXT_LENGTH = 4096;
 
+const MEDIA_USER_AGENT = "Wakil/1.0";
+
 type FetchLike = typeof fetch;
 
 /** Vérifie l'en-tête X-Hub-Signature-256 envoyé par Meta (HMAC-SHA256 du corps brut). */
@@ -178,11 +180,15 @@ export class WhatsAppClient {
     const meta = await this.request(`${this.base}/${mediaId}`, { method: "GET" });
     const info = (await meta.json()) as { url?: string; mime_type?: string };
     if (!info.url) throw new WhatsAppError("Média introuvable", meta.status);
-    const file = await this.request(info.url, { method: "GET" });
-    return {
-      bytes: new Uint8Array(await file.arrayBuffer()),
-      mimeType: info.mime_type ?? file.headers.get("content-type") ?? "application/octet-stream",
-    };
+    // Le serveur de fichiers de Meta peut refuser une requête sans User-Agent.
+    const file = await this.request(info.url, { method: "GET", headers: { "user-agent": MEDIA_USER_AGENT } });
+    const type = file.headers.get("content-type") ?? "";
+    if (type.startsWith("text/html")) {
+      throw new WhatsAppError("Meta a renvoyé une page web au lieu du fichier", file.status);
+    }
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    if (!bytes.length) throw new WhatsAppError("Fichier reçu vide", file.status);
+    return { bytes, mimeType: info.mime_type ?? (type || "application/octet-stream") };
   }
 
   private async send(message: Record<string, unknown>): Promise<void> {

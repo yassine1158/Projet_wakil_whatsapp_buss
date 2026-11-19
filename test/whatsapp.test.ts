@@ -91,6 +91,32 @@ describe("WhatsAppClient", () => {
     });
   });
 
+  it("télécharge un média avec le jeton et un User-Agent", async () => {
+    const calls: { url: string; init: RequestInit }[] = [];
+    const fake = (async (url: string, init: RequestInit) => {
+      calls.push({ url, init });
+      if (url.endsWith("/MEDIA")) {
+        return Response.json({ url: "https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=1", mime_type: "audio/ogg; codecs=opus" });
+      }
+      return new Response(new Uint8Array([79, 103, 103, 83]), { headers: { "content-type": "audio/ogg" } });
+    }) as unknown as typeof fetch;
+    const media = await new WhatsAppClient("TOKEN", "PNID", "v23.0", fake).downloadMedia("MEDIA");
+    expect(media).toEqual({ bytes: new Uint8Array([79, 103, 103, 83]), mimeType: "audio/ogg; codecs=opus" });
+    const file = calls[1].init.headers as Record<string, string>;
+    expect(file.authorization).toBe("Bearer TOKEN");
+    expect(file["user-agent"]).toBeTruthy();
+  });
+
+  it("refuse une page web reçue à la place du média", async () => {
+    const fake = (async (url: string) =>
+      url.endsWith("/MEDIA")
+        ? Response.json({ url: "https://lookaside.fbsbx.com/x", mime_type: "audio/ogg" })
+        : new Response("<html>Navigateur non pris en charge</html>", { headers: { "content-type": "text/html; charset=utf-8" } })) as unknown as typeof fetch;
+    const err = await new WhatsAppClient("T", "P", "v23.0", fake).downloadMedia("MEDIA").catch((e) => e);
+    expect(err).toBeInstanceOf(WhatsAppError);
+    expect(err.message).toMatch(/page web/);
+  });
+
   it("remonte le code d'erreur de Meta", async () => {
     const fake = (async () =>
       new Response(JSON.stringify({ error: { message: "Re-engagement message", code: 131047 } }), { status: 400 })) as unknown as typeof fetch;
