@@ -110,6 +110,46 @@ function normalizeMessage(m: any, name: string | undefined): IncomingMessage | n
   }
 }
 
+/** Message que le patron a envoyé lui-même à un client, depuis l'application WhatsApp Business. */
+export interface OwnerEcho {
+  phoneNumberId: string;
+  /** Numéro du client, absent quand WhatsApp ne le donne pas. */
+  to?: string;
+  id: string;
+  text: string;
+  timestamp: number;
+}
+
+const ECHO_LABELS: Record<string, string> = {
+  image: "[Photo]",
+  audio: "[Vocal]",
+  video: "[Vidéo]",
+  document: "[Document]",
+  sticker: "[Autocollant]",
+  location: "[Position]",
+};
+
+/**
+ * Échos d'un numéro en coexistence (champ « smb_message_echoes ») : ce que le patron a
+ * répondu depuis son téléphone. Ils ne sont jamais traités comme des messages de client.
+ */
+export function parseEchoes(payload: unknown): OwnerEcho[] {
+  const out: OwnerEcho[] = [];
+  for (const entry of ((payload as { entry?: unknown[] })?.entry ?? []) as { changes?: unknown[] }[]) {
+    for (const change of (entry.changes ?? []) as { field?: string; value?: any }[]) {
+      if (change.field !== "smb_message_echoes") continue;
+      const phoneNumberId: string | undefined = change.value?.metadata?.phone_number_id;
+      if (!phoneNumberId) continue;
+      for (const m of change.value?.message_echoes ?? []) {
+        if (!m?.id) continue;
+        const text = m.type === "text" ? String(m.text?.body ?? "") : (m[m.type]?.caption as string | undefined) || ECHO_LABELS[m.type] || `[${m.type}]`;
+        out.push({ phoneNumberId, ...(m.to ? { to: String(m.to) } : {}), id: String(m.id), text, timestamp: Number(m.timestamp) * 1000 || Date.now() });
+      }
+    }
+  }
+  return out;
+}
+
 /** Découpe un texte trop long pour WhatsApp, de préférence sur un saut de ligne. */
 export function splitForWhatsApp(text: string, max = MAX_TEXT_LENGTH): string[] {
   const parts: string[] = [];

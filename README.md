@@ -25,6 +25,18 @@ Pour l'activer : `ADMIN_PASSWORD` dans les secrets (choisissez un mot de passe l
 
 ## Ajouter une entreprise cliente
 
+**Inscription libre, avec le numéro WhatsApp de Wakil** : une entreprise s'inscrit seule sur `/inscription`. Elle donne son numéro personnel (pour recevoir les commandes), **le numéro que Wakil utilisera** (une puce sans compte WhatsApp), ses produits et prix en texte libre, et ses horaires. Puis :
+
+1. **L'équipe valide** : dans l'application, la fiche affiche « Numéro à valider ». Le bouton **Valider et envoyer le code** ajoute le numéro au compte WhatsApp de Wakil (`WHATSAPP_WABA_ID`), au nom de l'entreprise, et Meta envoie un code au numéro, par SMS ou par appel.
+2. **Le patron saisit le code** sur sa page d'inscription, qui suit l'avancement toute seule (ou dans **Mon entreprise**, ou avec l'équipe sur la fiche).
+3. **Wakil répond sur ce numéro** : le numéro est activé avec un code PIN, et l'essai gratuit de 14 jours (offre Pro) commence ce jour-là.
+
+Le patron n'a pas besoin de l'application : ses produits donnés à l'inscription servent à Wakil dès le premier jour, et les commandes arrivent sur son WhatsApp personnel. Il peut quand même compléter sa fiche dans **Mon entreprise**. Si Meta refuse (numéro déjà sur WhatsApp, trop d'essais, nom refusé), la cause s'affiche sur la fiche et sur la page du patron ; une fois le problème réglé, l'équipe relance la validation sans recréer le numéro.
+
+Limites de Meta : le numéro **ne doit pas avoir de compte WhatsApp** (le patron le supprime d'abord, ou prend une nouvelle puce) ; un portefeuille d'entreprise vérifié peut avoir jusqu'à 20 numéros ; le nom affiché passe par la vérification de Meta. Pour garder le numéro de l'application WhatsApp Business, utiliser plutôt **Connecter WhatsApp** (coexistence, ci-dessous).
+
+À la fin de l'essai, Wakil ne répond plus aux clients : leurs messages sont transférés au patron sur WhatsApp. L'administrateur prolonge l'essai ou enregistre un paiement reçu depuis la fiche (carte **Abonnement**). Les entreprises créées par l'équipe n'ont pas d'abonnement et ne sont jamais coupées.
+
 Dans l'application, **Entreprises → Nouvelle entreprise** :
 
 1. **La fiche** : nom, identifiant de connexion (proposé à partir du nom), numéro WhatsApp du patron (il y reçoit les commandes), horaires, adresse, moyens de paiement, consignes pour l'assistant.
@@ -77,6 +89,7 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/index.ts` | Webhook (vérification Meta, signature), commandes du patron |
 | `src/api.ts`, `src/auth.ts` | API de l'application, connexions (administrateur, patrons) |
 | `src/companies.ts` | Fiche d'une entreprise (vérification), inscription WhatsApp de Meta |
+| `src/hosted-number.ts` | Numéro donné à l'inscription : ajout au compte WhatsApp de Wakil, code, activation |
 | `src/registry.ts` | Registre des entreprises : fichier de configuration + base, numéro WhatsApp de chacune |
 | `src/inbox-do.ts` | Boîte de réception (SQLite) : conversations, commandes, demandes, entreprises |
 | `public/app/index.html` | L'application |
@@ -177,6 +190,7 @@ Tout se règle dans GitHub ; Cloudflare fait tourner Wakil sans qu'on ait à y r
 | `ADMIN_PASSWORD` | le mot de passe de l'application | oui |
 | `WHATSAPP_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` | les valeurs de Meta | quand WhatsApp est prêt |
 | `META_APP_ID`, `META_CONFIG_ID` | l'App ID et la configuration de l'inscription intégrée | pour le bouton « Connecter WhatsApp » |
+| `WHATSAPP_WABA_ID` | l'identifiant du compte WhatsApp Business de Wakil (WhatsApp Manager → Comptes WhatsApp) | pour valider les numéros donnés à l'inscription |
 
 **Lancer** : onglet **Actions → Mettre en ligne → Run workflow**. Ensuite, chaque changement sur `main` est vérifié (tests) puis mis en ligne tout seul. Le résumé de chaque mise en ligne donne les adresses du site, de l'application et du webhook. Une clé ajoutée ou changée dans GitHub part au prochain lancement.
 
@@ -188,7 +202,11 @@ Tout se règle dans GitHub ; Cloudflare fait tourner Wakil sans qu'on ait à y r
 2. Dans **WhatsApp → API Setup** : noter le **Phone number ID** du numéro de test et ajouter votre numéro personnel comme destinataire de test.
 3. Créer un **jeton permanent** : Business Settings → System users → créer un utilisateur système admin, lui donner l'application et le compte WhatsApp, générer un jeton avec les permissions `whatsapp_business_messaging` et `whatsapp_business_management`. (Le jeton temporaire de la page API Setup expire en 24 h.)
 4. Noter la **clé secrète de l'application** : App settings → Basic → App secret.
-5. Pour **Connecter WhatsApp** (chaque client relie son propre numéro) : ajouter le produit **Facebook Login for Business**, y créer une **configuration** de type « WhatsApp Embedded Signup » et noter son **Configuration ID** (`META_CONFIG_ID`) ; noter l'**App ID** (`META_APP_ID`). Dans Facebook Login → Settings, ajouter l'adresse du Worker aux domaines autorisés. L'application doit passer la vérification d'entreprise de Meta (Tech Provider) avant d'être utilisée par de vrais clients.
+5. Pour **Connecter WhatsApp** (chaque entreprise relie son propre numéro, en un clic, depuis « Mon entreprise ») :
+   - Wakil doit être **Tech Provider** (vérification d'entreprise + accès avancé à `whatsapp_business_messaging` et `whatsapp_business_management`, vidéo d'App Review).
+   - **Facebook Login for Business → Configurations → Créer** : variante **Embedded Signup**, produit WhatsApp. Noter le **Configuration ID** (`META_CONFIG_ID`) et l'**App ID** (`META_APP_ID`), à mettre dans les secrets GitHub. Dans Facebook Login → Settings, ajouter l'adresse du Worker aux domaines autorisés. Une configuration d'avant la v4 ne marche plus : Meta a retiré les versions 2 et 3 le 15 octobre 2026.
+   - L'application lance l'inscription intégrée en **version 5**. Le patron peut connecter **le numéro de son application WhatsApp Business et la garder** (coexistence) : le numéro n'est pas réenregistré, Wakil lance la synchronisation des contacts et de l'historique (une seule fois, dans les 24 h exigées par Meta), et quand le patron répond depuis son téléphone, Wakil se tait pour ce client. Abonner le webhook aux champs **messages**, **smb_message_echoes**, **history**, **smb_app_state_sync** et **account_update**.
+   - En coexistence, si le numéro du patron est celui de l'assistant, les commandes ne lui sont pas renvoyées sur WhatsApp (un numéro ne s'écrit pas à lui-même) : il les suit dans l'application Wakil.
 
 ### 2. Configuration
 

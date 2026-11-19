@@ -3,6 +3,7 @@ import { runAgent, type AgentConfig, type ClaudeClient } from "./agent";
 import { anonymize, claudeAction, type BrainPrediction } from "./brain";
 import { sanitizeHistory, trimHistory } from "./history";
 import { buildSystemPrompt, buildTurnContext } from "./prompt";
+import { isServing } from "./subscription";
 import type { ToolContext } from "./tools";
 import type { Transcriber } from "./transcribe";
 import type { Catalog, ConversationMeta, IncomingMessage, LogEntry, Order, Tenant } from "./types";
@@ -52,6 +53,8 @@ const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp
 export const TECHNICAL_ISSUE_REPLY =
   "Désolé, j'ai un petit souci technique. Un conseiller de l'équipe va vous recontacter très vite.";
 export const WEB_HANDOFF_REPLY = "Votre message a bien été transmis à un conseiller, qui va vous recontacter.";
+export const TRIAL_ENDED_NOTICE =
+  "⏳ Votre essai Wakil est terminé : vos clients ne reçoivent plus de réponse automatique, leurs messages vous sont transférés ici. Pour réactiver Wakil, répondez à l'équipe Wakil ou ouvrez votre espace.";
 
 /**
  * Ajoute un message à la file d'attente de la conversation.
@@ -143,6 +146,33 @@ export async function pauseAssistant(storage: ConversationStorage, until: number
   await storage.put("handoffUntil", until);
 }
 
+/**
+ * Le patron a répondu lui-même depuis l'application WhatsApp Business (numéro en coexistence) :
+ * sa réponse rejoint le fil et l'historique, et l'assistant se met en retrait pour ce client,
+ * comme quand l'équipe répond depuis l'application Wakil.
+ */
+export async function recordOwnerReply(
+  storage: ConversationStorage,
+  meta: ConversationMeta,
+  echo: { id: string; text: string; at: number },
+  pauseUntil: number,
+): Promise<ConversationMeta | null> {
+  // Meta renvoie parfois la même notification.
+  const seen = (await storage.get<string[]>("seen")) ?? [];
+  if (seen.includes(echo.id)) return null;
+  await storage.put("seen", [...seen, echo.id].slice(-MAX_SEEN));
+  const { text, at } = echo;
+  const saved = (await storage.get<ConversationMeta>("meta")) ?? meta;
+  await storage.put("meta", saved);
+  const history = (await storage.get<MessageParam[]>("history")) ?? [];
+  if (history.length) {
+    await storage.put("history", [...history, { role: "assistant", content: [{ type: "text", text: `[Message de l'équipe] ${text}` }] }]);
+  }
+  await appendLog(storage, [{ from: "equipe", text, at }]);
+  await pauseAssistant(storage, Math.max(pauseUntil, (await storage.get<number>("handoffUntil")) ?? 0));
+  return saved;
+}
+
 export async function resumeAssistant(storage: ConversationStorage) {
   await storage.delete("handoffUntil");
 }
@@ -227,10 +257,21 @@ export async function processPending(deps: EngineDeps): Promise<void> {
       .catch((e) => log("Mise à jour de la boîte de réception échouée", e));
   };
 
+  // Essai ou abonnement terminé : comme pour un conseiller, l'assistant se tait et fait suivre au patron.
+  // Le mode essai de l'application reste ouvert, pour que le patron voie ce qu'il réactive.
+  if (!meta.test && !isServing(tenant, now)) {
+    await notifyOwner(`${TRIAL_ENDED_NOTICE}\n\n💬 Message de ${who(meta)} :\n${blocksToText(blocks)}${contactLine(meta)}`);
+    if (isWeb) await reply(WEB_HANDOFF_REPLY);
+    await saveHistory(storage, [...history, { role: "user", content: blocks }]);
+    await finish();
+    return;
+  }
+
   // Conversation confiée à un conseiller : l'assistant se tait et fait suivre au patron.
   const handoffUntil = (await storage.get<number>("handoffUntil")) ?? 0;
   if (now < handoffUntil) {
-    await notifyOwner(`💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}${contactLine(meta)}`);
+    // En coexistence, le patron voit déjà le message dans son application WhatsApp Business.
+    if (!(meta.channel === "whatsapp" && tenant.whatsapp?.coexistence)) await notifyOwner(`💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}${contactLine(meta)}`);
     if (isWeb) await reply(WEB_HANDOFF_REPLY);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
     await finish();
@@ -530,6 +571,9 @@ export function formatOrderForOwner(order: Order): string {
 async function sendToOwner(deps: EngineDeps, text: string) {
   const { tenant, whatsapp } = deps;
   if (!tenant.ownerPhone) return; // démonstration : personne à prévenir
+  // Le patron dont le numéro est celui de l'assistant (coexistence) ne peut pas s'écrire à lui-même :
+  // il suit commandes et demandes dans l'application Wakil.
+  if (tenant.ownerPhone === tenant.whatsapp?.displayPhone?.replace(/\D/g, "")) return;
   const template = tenant.ownerNotifyTemplate;
   if (!template) return whatsapp.sendText(tenant.ownerPhone, text);
   const oneLine = text.replace(/\s*\n\s*/g, " | ").replace(/\s{2,}/g, " ").slice(0, 1000);

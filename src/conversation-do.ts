@@ -10,6 +10,7 @@ import {
   enqueueMessage,
   pauseAssistant,
   processPending,
+  recordOwnerReply,
   resumeAssistant,
   type EngineDeps,
   type InboxReporter,
@@ -135,6 +136,15 @@ export class ConversationDO extends DurableObject<Env> {
     await pauseAssistant(storage, now + (tenant.handoffHours ?? 12) * 3_600_000);
     await this.reporter(tenant).conversation({ meta, lastText: text, lastFrom: "equipe", at: now, status: "equipe" });
     return { ok: true };
+  }
+
+  /** Réponse envoyée par le patron depuis son application WhatsApp Business (numéro en coexistence). */
+  async ownerEcho(tenantId: string, phoneNumberId: string, customer: string, echo: { id: string; text: string; at: number }): Promise<void> {
+    const tenant = await tenantById(this.env, tenantId);
+    if (!tenant) return;
+    const meta: ConversationMeta = { channel: "whatsapp", tenantId, phoneNumberId, customerId: customer, customerPhone: customer };
+    const saved = await recordOwnerReply(this.ctx.storage, meta, echo, Date.now() + (tenant.handoffHours ?? 12) * 3_600_000);
+    if (saved) await this.reporter(tenant).conversation({ meta: saved, lastText: echo.text, lastFrom: "equipe", at: echo.at, status: "equipe" });
   }
 
   async pause(hours: number): Promise<void> {
