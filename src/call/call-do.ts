@@ -3,10 +3,10 @@ import { loadCatalog } from "../catalog";
 import { webConversation } from "../names";
 import { tenantById } from "../registry";
 import { speakerFor } from "../speech";
-import { workersAiTranscriber } from "../transcribe";
 import type { Env } from "../types";
 import { VOICE_PREFIX } from "../voice";
 import { binaryMessage } from "./audio";
+import { callTranscriber } from "./stt";
 import { CallSession, type ClientMessage, type ServerMessage } from "./session";
 
 /** Un appel ne dure pas plus de 10 minutes. */
@@ -37,7 +37,7 @@ export class CallDO extends DurableObject<Env> {
     try {
       hint = (await loadCatalog(tenant)).products.map((p) => p.name).join(", ");
     } catch {}
-    const transcribe = workersAiTranscriber(this.env.AI);
+    const transcribe = callTranscriber(this.env.AI, hint, (message) => console.log("Appel :", message));
     const speak = speakerFor(this.env);
     const conversation = this.env.CONVERSATIONS.get(this.env.CONVERSATIONS.idFromName(webConversation(tenant.id, sessionId)));
 
@@ -49,7 +49,7 @@ export class CallDO extends DurableObject<Env> {
       } catch {}
     };
     const call = new CallSession({
-      transcribe: (wav) => transcribe(wav, "audio/wav", hint),
+      transcribe,
       think: (text) => conversation.chat(tenant.id, sessionId, VOICE_PREFIX + text),
       speak: (text) => speak(text),
       send,
