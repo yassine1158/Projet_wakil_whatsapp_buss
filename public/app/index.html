@@ -1000,9 +1000,9 @@
           ${self ? (state.metaSignup || t.whatsapp ? "" : `<p class="muted" style="margin:0">La connexion en un clic arrive bientôt. En attendant, l'équipe Wakil relie votre numéro avec vous.</p>`) : `
           <details ${!t.whatsapp && !state.metaSignup ? "open" : ""}><summary>Relier à la main</summary>
             <form id="wa-form" class="grid2">
-              ${field("wa-pnid", "Phone number ID", "", 'inputmode="numeric" required', "Meta → WhatsApp → Configuration de l'API.")}
-              ${field("wa-display", "Numéro affiché", "", 'placeholder="+225 07 00 00 00 00"')}
-              <label for="f-wa-token">Jeton d'accès (facultatif)<input id="f-wa-token" type="password" autocomplete="off"><span class="hint">Seulement si le numéro est dans un autre compte Meta que celui de Wakil.</span></label>
+              ${field("wa-pnid", "Phone number ID", "", 'inputmode="numeric" autocomplete="off" required', "Meta → WhatsApp → Configuration de l'API.")}
+              ${field("wa-display", "Numéro affiché", "", 'placeholder="+225 07 00 00 00 00" autocomplete="off"')}
+              <label for="f-wa-token">Jeton d'accès (facultatif)<input id="f-wa-token" type="password" autocomplete="new-password"><span class="hint">Seulement si le numéro est dans un autre compte Meta que celui de Wakil.</span></label>
               <div style="align-self:end"><button class="btn small primary" type="submit">Relier</button></div>
             </form>
           </details>`}
