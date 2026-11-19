@@ -1,6 +1,7 @@
 import { createToken, hashPassword, samePassword, verifyPassword, verifyToken, type Role } from "./auth";
 import { loadCatalog } from "./catalog";
 import { completeWhatsappSignup, parseTenantInput, TENANT_ID_RE } from "./companies";
+import { defaultBrain } from "./brain";
 import { checkClaude } from "./diagnostic";
 import { LEAD_STATUSES, ORDER_STATUSES, type LeadStatus, type OrderStatus } from "./inbox-types";
 import { INBOX_NAME, webConversation } from "./names";
@@ -126,6 +127,17 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
 
     case "GET leads":
       return isAdmin ? json(await inbox.listLeads()) : adminOnly();
+
+    // Wakil Brain en mode ombre : accord avec Claude (route[1] vide) ou export pour l'entraîner (route[1] = "export").
+    case "GET brain": {
+      if (!isAdmin) return adminOnly();
+      const only = url.searchParams.get("tenant") || null;
+      if (route[1] === "export") {
+        const samples = (await inbox.brainSamples(only, 20000)).map(({ context, text, predicted, teacher, at }) => ({ context, text, predicted, teacher, at }));
+        return json({ format: "wakil-brain-samples-1", samples });
+      }
+      return json({ stats: await inbox.brainStats(only), model: defaultBrain().metadata });
+    }
 
     case "POST leads": {
       if (!isAdmin) return adminOnly();

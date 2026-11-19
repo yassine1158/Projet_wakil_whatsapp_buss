@@ -1,5 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { runAgent, type AgentConfig, type ClaudeClient } from "./agent";
+import { anonymize, claudeAction, type BrainPrediction } from "./brain";
 import { sanitizeHistory, trimHistory } from "./history";
 import { buildSystemPrompt, buildTurnContext } from "./prompt";
 import type { ToolContext } from "./tools";
@@ -116,6 +117,20 @@ export interface InboxReporter {
     status: "wakil" | "equipe";
   }): Promise<void>;
   order(order: Order): Promise<void>;
+  /** Mode ombre de Wakil Brain : sa prédiction et ce que Claude a fait. */
+  brainSample?(sample: BrainSample): Promise<void>;
+}
+
+export interface BrainSample {
+  at: number;
+  /** Dernier message de l'assistant avant celui du client (sans numéros ni e-mails). */
+  context: string;
+  /** Message du client (sans numéros ni e-mails). */
+  text: string;
+  predicted: string;
+  confidence: number;
+  /** Ce que Claude a fait : reponse, humain, commande ou photo. */
+  teacher: string;
 }
 
 export async function pauseAssistant(storage: ConversationStorage, until: number) {
@@ -139,6 +154,8 @@ export interface EngineDeps {
   loadCatalog: () => Promise<Catalog>;
   now: () => number;
   inbox?: InboxReporter;
+  /** Wakil Brain, en mode ombre : ne change jamais la réponse envoyée. */
+  brain?: (context: string, text: string) => BrainPrediction;
   log?: (message: string, err?: unknown) => void;
 }
 
@@ -293,6 +310,51 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   for (const l of links) await sink.sendLink!(l.label, l.url).catch((e) => log("Envoi du lien échoué", e));
   await saveHistory(storage, [...history, ...result.newMessages]);
   await finish();
+  if (!meta.test && !result.refused) await shadowBrain(deps, history, blocks, result.newMessages, now, log);
+}
+
+/**
+ * Mode ombre : Wakil Brain devine ce qu'il faudrait faire, on le compare à ce que Claude a fait.
+ * Après les réponses au client, et toute erreur est ignorée : le client n'est jamais touché.
+ */
+async function shadowBrain(
+  deps: EngineDeps,
+  history: MessageParam[],
+  blocks: BlockParam[],
+  newMessages: MessageParam[],
+  now: number,
+  log: (message: string, err?: unknown) => void,
+) {
+  if (!deps.brain || !deps.inbox?.brainSample) return;
+  try {
+    const context = anonymize(lastAssistantText(history)).slice(-500);
+    const text = anonymize(blocksToText(blocks)).slice(0, 1000);
+    const prediction = deps.brain(context, text);
+    const toolNames = newMessages
+      .filter((m) => m.role === "assistant" && Array.isArray(m.content))
+      .flatMap((m) => (m.content as BlockParam[]).filter((b) => b.type === "tool_use").map((b) => (b as { name: string }).name));
+    await deps.inbox.brainSample({
+      at: now,
+      context,
+      text,
+      predicted: prediction.label,
+      confidence: prediction.confidence,
+      teacher: claudeAction(toolNames),
+    });
+  } catch (err) {
+    log("Wakil Brain (mode ombre) a échoué", err);
+  }
+}
+
+function lastAssistantText(history: MessageParam[]): string {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const m = history[i];
+    if (m.role !== "assistant") continue;
+    if (typeof m.content === "string") return m.content;
+    const text = m.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("\n");
+    if (text) return text;
+  }
+  return "";
 }
 
 async function saveHistory(storage: ConversationStorage, messages: MessageParam[]) {
