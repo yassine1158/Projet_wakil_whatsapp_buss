@@ -4,6 +4,7 @@ import { tenantByPhoneNumberId } from "./registry";
 import type { Env, IncomingMessage, Tenant } from "./types";
 import { handleLead } from "./leads";
 import { handleChat } from "./web";
+import { handleVoice } from "./voice";
 import { parseWebhook, verifySignature, WhatsAppClient } from "./whatsapp";
 
 export { ConversationDO } from "./conversation-do";
@@ -49,6 +50,10 @@ export default {
 
     if (url.pathname === "/chat" || url.pathname === "/chat/config") {
       return handleChat(request, env, url);
+    }
+
+    if (url.pathname === "/voice") {
+      return handleVoice(request, env, url);
     }
 
     if (url.pathname.startsWith("/api/")) {

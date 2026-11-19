@@ -6,7 +6,8 @@
  * on-accent (couleur du texte posé sur l'accent, blanc par défaut),
  * position (left | right), offset (distance au bas de l'écran en px, par défaut 24),
  * title (titre de la fenêtre), teaser (bulle d'invitation), greeting (message d'accueil),
- * suggestions (questions proposées au départ, séparées par « | »).
+ * suggestions (questions proposées au départ, séparées par « | »),
+ * voice (« off » pour masquer le bouton micro de l'appel vocal).
  * La page peut piloter le chat : WakilChat.open(), WakilChat.send("Bonjour").
  */
 (() => {
@@ -110,13 +111,23 @@
   .typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); animation: wk-dot 1.2s infinite ease-in-out; }
   .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
   @keyframes wk-dot { 0%, 60%, 100% { opacity: .3; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
-  @media (prefers-reduced-motion: reduce) { .typing i { animation: none; opacity: .6; } .launcher { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .typing i { animation: none; opacity: .6; } .launcher { transition: none; } .mic.rec { animation: none; } }
   form { border-top: 1px solid var(--line); padding: 10px; display: flex; gap: 8px; align-items: flex-end; }
   textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font: inherit;
              color: var(--ink); background: var(--paper); max-height: 120px; min-height: 44px; }
   .send { width: 44px; height: 44px; border: 0; border-radius: 12px; background: var(--accent); color: var(--on-accent); cursor: pointer; display: grid; place-items: center; flex: none; }
   .send:disabled { opacity: .5; cursor: default; }
   .send svg { width: 20px; height: 20px; }
+  .mic { width: 44px; height: 44px; border: 1.5px solid var(--accent); border-radius: 12px; background: var(--paper); color: var(--accent);
+         cursor: pointer; display: grid; place-items: center; flex: none; }
+  .mic svg { width: 20px; height: 20px; }
+  .mic[hidden] { display: none; }
+  .mic.rec { background: #d93025; border-color: #d93025; color: #fff; animation: wk-pulse 1.2s infinite; }
+  .mic.talk { background: var(--accent); color: var(--on-accent); }
+  .mic:disabled { opacity: .5; cursor: default; animation: none; }
+  @keyframes wk-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,48,37,.45); } 50% { box-shadow: 0 0 0 7px rgba(217,48,37,0); } }
+  .status { padding: 0 12px; min-height: 0; font-size: 12.5px; color: var(--muted); }
+  .status:empty { display: none; }
   .foot { padding: 0 12px 10px; font-size: 11.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
   .foot button { border: 0; background: none; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -141,10 +152,14 @@
     <form>
       <label class="sr" for="wk-input">Votre message</label>
       <textarea id="wk-input" rows="1" maxlength="1000" placeholder="Écrivez votre message…"></textarea>
+      <button class="mic" type="button" aria-label="Parler à l'assistant" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      </button>
       <button class="send" type="submit" aria-label="Envoyer">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </button>
     </form>
+    <div class="status" role="status" aria-live="polite"></div>
     <div class="foot"><span>Assistant virtuel : l'équipe confirme prix et livraison.</span><button class="reset" type="button">Effacer</button></div>
   </section>
 </div>`;
@@ -152,7 +167,7 @@
 
   const $ = (s) => root.querySelector(s);
   const launcher = $(".launcher"), panel = $(".panel"), logEl = $(".log"), form = $("form"), input = $("textarea"),
-        send = $(".send"), teaser = $(".teaser");
+        send = $(".send"), teaser = $(".teaser"), mic = $(".mic"), statusEl = $(".status");
 
   const greeting = () =>
     script.dataset.greeting ||
@@ -268,6 +283,141 @@
       input.focus();
     }
   }
+
+  /* ---------- Appel vocal : le visiteur parle, Wakil répond à voix haute ---------- */
+  const canTalk = script.dataset.voice !== "off" && !!(navigator.mediaDevices?.getUserMedia && window.MediaRecorder);
+  mic.hidden = !canTalk;
+  const VOICE_ERRORS = {
+    denied: "Autorisez le micro pour parler à l'assistant, ou écrivez votre message.",
+    413: "Message trop long : parlez moins de 30 secondes.",
+    422: "Je n'ai pas compris l'enregistrement. Réessayez, ou écrivez votre message.",
+  };
+  // Un son vide joué pendant le geste du visiteur : les navigateurs mobiles autorisent ensuite la réponse.
+  const SILENCE = (() => {
+    const samples = 800, buf = new ArrayBuffer(44 + samples), v = new DataView(buf);
+    const text = (o, t) => [...t].forEach((c, i) => v.setUint8(o + i, c.charCodeAt(0)));
+    text(0, "RIFF"); v.setUint32(4, 36 + samples, true); text(8, "WAVEfmt "); v.setUint32(16, 16, true);
+    v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true);
+    v.setUint16(32, 1, true); v.setUint16(34, 8, true); text(36, "data"); v.setUint32(40, samples, true);
+    new Uint8Array(buf, 44).fill(128);
+    return URL.createObjectURL(new Blob([buf], { type: "audio/wav" }));
+  })();
+  const player = new Audio();
+  let recorder = null, stopTimer = null, audioCtx = null;
+
+  const setStatus = (text) => { statusEl.textContent = text || ""; };
+  function setMic(state) {
+    mic.classList.toggle("rec", state === "rec");
+    mic.classList.toggle("talk", state === "talk");
+    mic.disabled = state === "wait";
+    mic.setAttribute("aria-label", { rec: "Arrêter et envoyer", talk: "Couper la voix et parler", wait: "Envoi en cours" }[state] || "Parler à l'assistant");
+    mic.setAttribute("aria-pressed", String(state === "rec"));
+  }
+
+  async function startRecording() {
+    player.pause();
+    player.src = SILENCE;
+    player.play().catch(() => {});
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      push({ from: "error", text: VOICE_ERRORS.denied });
+      return setMic("idle");
+    }
+    const type = ["audio/webm;codecs=opus", "audio/mp4", "audio/ogg;codecs=opus"].find((t) => MediaRecorder.isTypeSupported?.(t));
+    const chunks = [];
+    recorder = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
+    recorder.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+    recorder.onstop = () => {
+      stream.getTracks().forEach((t) => t.stop());
+      clearInterval(stopTimer);
+      audioCtx?.close().catch(() => {});
+      audioCtx = null;
+      recorder = null;
+      sendVoice(new Blob(chunks, { type: chunks[0]?.type || type || "audio/webm" }));
+    };
+    recorder.start();
+    setMic("rec");
+    setStatus("Je vous écoute… Parlez, puis touchez le bouton rouge (ou faites une pause).");
+
+    // Arrêt automatique : après 1,3 s de silence une fois la parole commencée, ou au bout de 30 s.
+    const started = Date.now();
+    let spoke = false, quietSince = 0;
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 1024;
+      audioCtx.createMediaStreamSource(stream).connect(analyser);
+      const data = new Float32Array(analyser.fftSize);
+      stopTimer = setInterval(() => {
+        analyser.getFloatTimeDomainData(data);
+        const level = Math.sqrt(data.reduce((s, v) => s + v * v, 0) / data.length);
+        const now = Date.now();
+        if (level > 0.03) { spoke = true; quietSince = 0; }
+        else if (spoke && !quietSince) quietSince = now;
+        if ((spoke && quietSince && now - quietSince > 1300) || now - started > 30000) stopRecording();
+      }, 100);
+    } catch {
+      stopTimer = setTimeout(stopRecording, 30000);
+    }
+  }
+
+  function stopRecording() {
+    if (recorder && recorder.state !== "inactive") recorder.stop();
+  }
+
+  async function sendVoice(blob) {
+    if (!blob.size) { setMic("idle"); return setStatus(""); }
+    busy = true;
+    send.disabled = true;
+    setMic("wait");
+    setStatus("");
+    logEl.querySelector(".chips")?.remove();
+    const typing = document.createElement("div");
+    typing.className = "typing";
+    typing.setAttribute("aria-label", "L'assistant vous a entendu et répond");
+    typing.innerHTML = "<i></i><i></i><i></i>";
+    logEl.appendChild(typing);
+    logEl.scrollTop = logEl.scrollHeight;
+    try {
+      const res = await fetch(`${API}/voice?tenant=${encodeURIComponent(tenant)}&session=${encodeURIComponent(sessionId)}`, {
+        method: "POST",
+        headers: { "content-type": blob.type || "audio/webm" },
+        body: blob,
+      });
+      typing.remove();
+      if (!res.ok) throw Object.assign(new Error("http"), { status: res.status });
+      const data = await res.json();
+      if (data.transcript) push({ from: "me", text: "🎤 " + data.transcript });
+      for (const r of data.replies || []) {
+        if (r.type === "image") push({ type: "image", url: r.url, caption: r.caption });
+        else if (r.type === "link") push({ type: "link", url: r.url, label: r.label });
+        else push({ from: "bot", text: r.text });
+      }
+      if (data.audio) {
+        player.src = "data:audio/mpeg;base64," + data.audio;
+        setMic("talk");
+        setStatus("L'assistant vous répond… Touchez le micro pour l'interrompre.");
+        player.onended = () => { setMic("idle"); setStatus(""); };
+        await player.play().catch(() => { setMic("idle"); setStatus(""); });
+      } else setMic("idle");
+    } catch (err) {
+      typing.remove();
+      setMic("idle");
+      push({ from: "error", text: VOICE_ERRORS[err.status] || ERRORS[err.status] || ERRORS.default });
+    } finally {
+      busy = false;
+      send.disabled = false;
+    }
+  }
+
+  mic.addEventListener("click", () => {
+    if (recorder) return stopRecording();
+    if (mic.classList.contains("talk")) { player.pause(); setMic("idle"); setStatus(""); }
+    if (busy) return;
+    startRecording();
+  });
 
   launcher.addEventListener("click", () => setOpen(panel.hidden));
   $(".close").addEventListener("click", () => { setOpen(false); launcher.focus(); });

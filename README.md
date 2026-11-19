@@ -52,6 +52,7 @@ Les entreprises de `config/tenants.json` (SICAR, la démonstration) apparaissent
 | Commande / devis | Récapitulatif, confirmation du client, référence `W-XXXXXX`, envoi au patron |
 | Passage à un humain | Sur demande, réclamation, négociation… : le patron est prévenu et Wakil se tait 12 h |
 | Prix | Jamais inventés : « sur devis » quand le site n'en affiche pas |
+| Appel vocal (chat du site) | Bouton 🎤 : le visiteur parle, Wakil répond à voix haute (voir « Appel vocal » plus bas) |
 | Chat du site web | Même assistant, même catalogue ; il demande le numéro du client avant d'enregistrer une commande, puis propose au visiteur un bouton pour envoyer aussi sa demande sur le WhatsApp de l'entreprise (numéro relié à Wakil, sinon celui du site) |
 
 ## Architecture
@@ -79,6 +80,7 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/inbox-do.ts` | Boîte de réception (SQLite) : conversations, commandes, demandes, entreprises |
 | `public/app/index.html` | L'application |
 | `src/web.ts` | Chat du site web : `/chat` et `/chat/config`, contrôle du site d'origine et du débit |
+| `src/voice.ts` | Appel vocal du chat : `/voice` (Whisper → même conversation → voix MeloTTS) |
 | `public/wakil-chat.js` | Le chat à intégrer dans un site (une seule balise `<script>`) |
 | `public/index.html` | Le site de Wakil (servi à l'adresse du Worker) |
 | `src/leads.ts` | Formulaire « Essayer Wakil » du site : `/leads` |
@@ -92,6 +94,26 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/catalog.ts` | Lecture et mise en forme du catalogue |
 | `src/whatsapp.ts` | Client de l'API WhatsApp Cloud |
 | `config/tenants.json` | Entreprises de départ (SICAR, démonstration) ; les autres se créent dans l'application |
+
+## Appel vocal dans le chat du site
+
+Le chat du site a un bouton **🎤** : le visiteur parle, Wakil l'écoute et lui répond **à voix haute** (le texte reste affiché). Pas de numéro de téléphone ni de compte en plus : tout passe par Cloudflare.
+
+```
+🎤 navigateur (MediaRecorder) ──► POST /voice?tenant=…&session=…
+      Whisper (Workers AI) : voix → texte
+      la même conversation que le chat écrit : catalogue, commandes, conseiller
+      MeloTTS (Workers AI, français) : réponse → voix (MP3)
+◄── { transcript, replies, audio }   le chat affiche et lit la réponse
+```
+
+- L'enregistrement s'arrête tout seul après une courte pause (ou au toucher du bouton rouge), 30 secondes au plus. Toucher le micro pendant que Wakil parle le coupe.
+- Le message arrive marqué `[Appel vocal]` : le modèle répond en 1 à 3 phrases courtes, sans liste ni émoji, fait répéter ce qui est mal compris et relit le numéro de téléphone chiffre par chiffre. Avant la voix, les émojis, liens et mises en forme sont retirés, et `m3`, `5/15`, `25 000 FCFA` sont rendus faciles à dire.
+- Mêmes protections que le chat : sites autorisés, 20 requêtes par minute et par adresse, 60 messages par jour et par visiteur, enregistrement de 2 Mo au plus.
+- Coût : la transcription et la voix utilisent Workers AI (quota gratuit quotidien, puis facturé à l'usage) ; la réponse elle-même coûte comme un message écrit.
+- `data-voice="off"` sur la balise `<script>` masque le bouton.
+
+Limites : ce n'est pas une conversation en continu (le visiteur parle, puis Wakil répond) ; la voix de synthèse reste un peu robotique ; la transcription peut se tromper sur les noms propres et les accents. Le navigateur demande l'autorisation du micro, et la page doit être en HTTPS.
 
 ## Mise en ligne depuis GitHub (recommandé)
 
