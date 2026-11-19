@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CALL_SAMPLE_RATE, pcm16ToWav, rms } from "../src/call/audio";
+import { binaryMessage, CALL_SAMPLE_RATE, pcm16ToWav, rms } from "../src/call/audio";
 import { Endpointer } from "../src/call/endpointer";
 import { speechChunks } from "../src/call/chunks";
 import { CallSession, type CallDeps, type ServerMessage } from "../src/call/session";
@@ -45,6 +45,14 @@ describe("audio", () => {
     expect(view.getUint32(40, true)).toBe(6);
     expect(view.getInt16(46, true)).toBe(1000);
     expect(wav.length).toBe(44 + 6);
+  });
+
+  it("lit le son d'un message WebSocket, en ArrayBuffer comme en Blob", async () => {
+    const bytes = new Uint8Array([1, 0, 2, 0]);
+    expect(new Uint8Array((await binaryMessage(bytes.buffer))!)).toEqual(bytes);
+    expect(new Uint8Array((await binaryMessage(new Blob([bytes])))!)).toEqual(bytes);
+    expect(new Uint8Array((await binaryMessage(new Uint8Array([9, 1, 0, 2, 0]).subarray(1)))!)).toEqual(bytes);
+    expect(await binaryMessage('{"type":"bye"}')).toBeNull();
   });
 
   it("mesure le niveau sonore", () => {
