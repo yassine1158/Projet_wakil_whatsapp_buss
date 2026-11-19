@@ -8,6 +8,7 @@ import {
   normalizePhone,
   processPending,
   TECHNICAL_ISSUE_REPLY,
+  TRIAL_ENDED_NOTICE,
   WEB_HANDOFF_REPLY,
   type ConversationStorage,
   type EngineDeps,
@@ -481,5 +482,42 @@ describe("normalizePhone", () => {
     expect(normalizePhone("2250707070707", "225")).toBe("2250707070707");
     expect(normalizePhone("123", "225")).toBeUndefined();
     expect(normalizePhone(undefined)).toBeUndefined();
+  });
+});
+
+describe("fin de l'essai gratuit", () => {
+  const ended = { ...tenant, subscription: { plan: "pro" as const, trialEndsAt: NOW - 1 } };
+
+  it("Wakil se tait et fait suivre le message au patron, sur WhatsApp comme sur le site", async () => {
+    const { client, requests } = fakeClaude([]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "Vous avez du gravier ?" }), NOW, 4000);
+    await processPending(deps(client, { tenant: ended }));
+    expect(requests).toHaveLength(0);
+    expect(whatsapp.sent).toHaveLength(1);
+    expect(whatsapp.sent[0].to).toBe("22599");
+    expect(whatsapp.sent[0].body).toContain(TRIAL_ENDED_NOTICE);
+    expect(whatsapp.sent[0].body).toContain("Vous avez du gravier ?");
+
+    const replies: string[] = [];
+    storage = new MemoryStorage();
+    await addIncoming(storage, { channel: "web", tenantId: "sicar", phoneNumberId: "", customerId: "session-abcdefgh12345678" },
+      { id: "w1", from: "session-abcdefgh12345678", timestamp: NOW, kind: "text", text: "Bonjour", rawType: "text" });
+    await processPending(deps(client, { tenant: ended, sink: { sendText: async (t) => void replies.push(t), sendImage: async () => {} } }));
+    expect(replies).toEqual([WEB_HANDOFF_REPLY]);
+    expect(requests).toHaveLength(0);
+  });
+
+  it("répond normalement pendant l'essai, et toujours dans le mode essai de l'application", async () => {
+    const answer = () => fakeClaude([{ stop_reason: "end_turn", content: [{ type: "text", text: "Oui." } as Anthropic.Beta.BetaContentBlock] }]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW, 4000);
+    await processPending(deps(answer().client, { tenant: { ...tenant, subscription: { plan: "pro", trialEndsAt: NOW + 1000 } } }));
+    expect(whatsapp.sent.map((x) => x.body)).toEqual(["Oui."]);
+
+    storage = new MemoryStorage();
+    const replies: string[] = [];
+    await addIncoming(storage, { channel: "web", tenantId: "sicar", phoneNumberId: "", customerId: "test-session-abcdefgh1234", test: true },
+      { id: "t1", from: "test-session-abcdefgh1234", timestamp: NOW, kind: "text", text: "Bonjour", rawType: "text" });
+    await processPending(deps(answer().client, { tenant: ended, sink: { sendText: async (t) => void replies.push(t), sendImage: async () => {} } }));
+    expect(replies).toEqual(["Oui."]);
   });
 });

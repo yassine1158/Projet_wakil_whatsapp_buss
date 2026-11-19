@@ -65,6 +65,19 @@ export interface Tenant {
   /** Connaissances métier propres à l'entreprise, ajoutées au prompt. */
   instructions?: string;
   handoffHours?: number;
+  /** Seulement pour une entreprise inscrite seule ; sans abonnement, Wakil répond sans limite. */
+  subscription?: Subscription;
+}
+
+export const PLANS = ["essentiel", "pro", "business"] as const;
+export type Plan = (typeof PLANS)[number];
+
+export interface Subscription {
+  plan: Plan;
+  /** Fin de l'essai gratuit (ms). */
+  trialEndsAt?: number;
+  /** Abonnement payé jusqu'à cette date (ms). */
+  paidUntil?: number;
 }
 
 /** Produit tel qu'il est saisi ou importé (Excel, CSV, products.json). */
