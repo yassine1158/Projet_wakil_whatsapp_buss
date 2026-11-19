@@ -47,7 +47,8 @@ export interface Tenant {
   /** Entreprise fictive de démonstration, affichée sur le site de Wakil lui-même. */
   demo?: boolean;
   /** Numéro WhatsApp de l'entreprise, relié à l'API WhatsApp Cloud. */
-  whatsapp?: { phoneNumberId: string; displayPhone?: string; wabaId?: string };
+  /** coexistence : numéro qui reste aussi dans l'application WhatsApp Business du patron. */
+  whatsapp?: { phoneNumberId: string; displayPhone?: string; wabaId?: string; coexistence?: boolean };
   /**
    * Catalogue : soit une adresse (products.json et site.json d'un site, format SICAR),
    * soit des produits saisis dans l'application.

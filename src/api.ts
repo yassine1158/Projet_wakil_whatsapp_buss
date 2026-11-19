@@ -285,19 +285,26 @@ async function handleCompanies(
     if (step === "signup") {
       if (!env.META_APP_ID || !env.WHATSAPP_APP_SECRET) return json({ error: "meta_not_configured" }, 400);
       const code = String(body.code ?? ""), phoneNumberId = String(body.phoneNumberId ?? ""), wabaId = String(body.wabaId ?? "");
-      if (!code || !/^\d{5,25}$/.test(phoneNumberId) || !/^\d{5,25}$/.test(wabaId)) return json({ error: "bad_request" }, 400);
-      if (others.some((t) => t.whatsapp?.phoneNumberId === phoneNumberId)) return json({ error: "number_in_use" }, 409);
+      const coexistence = body.coexistence === true;
+      if (!code || (phoneNumberId && !/^\d{5,25}$/.test(phoneNumberId)) || !/^\d{5,25}$/.test(wabaId)) return json({ error: "bad_request" }, 400);
+      if (phoneNumberId && others.some((t) => t.whatsapp?.phoneNumberId === phoneNumberId)) return json({ error: "number_in_use" }, 409);
       try {
         const result = await completeWhatsappSignup({
           appId: env.META_APP_ID,
           appSecret: env.WHATSAPP_APP_SECRET,
           apiVersion: env.GRAPH_API_VERSION ?? "v23.0",
           code,
-          phoneNumberId,
+          ...(phoneNumberId ? { phoneNumberId } : {}),
           wabaId,
+          coexistence,
         });
+        if (others.some((t) => t.whatsapp?.phoneNumberId === result.phoneNumberId)) return json({ error: "number_in_use" }, 409);
         await inbox.setTenantWhatsappSecrets(id, result.token, result.pin);
-        return saved({ ...tenant, whatsapp: { phoneNumberId, wabaId, displayPhone: result.displayPhone } });
+        if (result.syncError) console.error(`Synchronisation WhatsApp Business de ${id} échouée`, result.syncError);
+        return saved({
+          ...tenant,
+          whatsapp: { phoneNumberId: result.phoneNumberId, wabaId, displayPhone: result.displayPhone, ...(coexistence ? { coexistence: true } : {}) },
+        });
       } catch (err) {
         return json({ error: "meta_error", message: (err as Error).message }, 502);
       }

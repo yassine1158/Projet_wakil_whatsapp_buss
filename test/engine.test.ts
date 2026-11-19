@@ -7,6 +7,7 @@ import {
   enqueueMessage,
   normalizePhone,
   processPending,
+  recordOwnerReply,
   TECHNICAL_ISSUE_REPLY,
   TRIAL_ENDED_NOTICE,
   WEB_HANDOFF_REPLY,
@@ -519,5 +520,37 @@ describe("fin de l'essai gratuit", () => {
       { id: "t1", from: "test-session-abcdefgh1234", timestamp: NOW, kind: "text", text: "Bonjour", rawType: "text" });
     await processPending(deps(answer().client, { tenant: ended, sink: { sendText: async (t) => void replies.push(t), sendImage: async () => {} } }));
     expect(replies).toEqual(["Oui."]);
+  });
+});
+
+describe("numéro gardé dans l'application WhatsApp Business (coexistence)", () => {
+  const coexist = { ...tenant, ownerPhone: "2250711223344", whatsapp: { phoneNumberId: "PNID", displayPhone: "+225 07 11 22 33 44", coexistence: true } };
+  const meta = { channel: "whatsapp" as const, tenantId: "sicar", phoneNumberId: "PNID", customerId: CLIENT, customerPhone: CLIENT };
+
+  it("quand le patron répond depuis son téléphone, Wakil se tait pour ce client, une seule fois par message", async () => {
+    await storage.put("history", [{ role: "user", content: [{ type: "text", text: "Bonjour" }] }]);
+    expect(await recordOwnerReply(storage, meta, { id: "wamid.1", text: "Je m'en occupe", at: NOW }, NOW + 3_600_000)).toMatchObject({ customerId: CLIENT });
+    expect(await recordOwnerReply(storage, meta, { id: "wamid.1", text: "Je m'en occupe", at: NOW }, NOW + 3_600_000)).toBeNull();
+    expect(await storage.get("handoffUntil")).toBe(NOW + 3_600_000);
+    expect(await storage.get("log")).toEqual([{ from: "equipe", text: "Je m'en occupe", at: NOW }]);
+    expect((await storage.get<any[]>("history"))!.at(-1)).toEqual({ role: "assistant", content: [{ type: "text", text: "[Message de l'équipe] Je m'en occupe" }] });
+
+    // le client écrit ensuite : pas de réponse de Wakil, et pas de copie au patron, qui voit déjà le message
+    const { client, requests } = fakeClaude([]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m9", { text: "D'accord merci" }), NOW + 1000, 4000);
+    await processPending(deps(client, { tenant: coexist, now: () => NOW + 5000 }));
+    expect(requests).toHaveLength(0);
+    expect(whatsapp.sent).toEqual([]);
+  });
+
+  it("n'envoie pas de notification du numéro vers lui-même, la commande reste dans l'application", async () => {
+    const { client } = fakeClaude([
+      { stop_reason: "tool_use", content: [{ type: "tool_use", id: "t1", name: "record_order", input: { customer_name: "Awa", items: [{ product_id: "gravier-15-25", quantity: 5 }], fulfilment: "enlevement" } } as Anthropic.Beta.BetaContentBlock] },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "C'est noté." } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "5 tonnes, je passe les prendre" }), NOW, 4000);
+    await processPending(deps(client, { tenant: coexist }));
+    expect(whatsapp.sent.map((x) => [x.to, x.body])).toEqual([[CLIENT, "C'est noté."]]);
+    expect(await storage.get<unknown[]>("orders")).toHaveLength(1);
   });
 });

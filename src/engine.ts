@@ -125,6 +125,33 @@ export async function pauseAssistant(storage: ConversationStorage, until: number
   await storage.put("handoffUntil", until);
 }
 
+/**
+ * Le patron a répondu lui-même depuis l'application WhatsApp Business (numéro en coexistence) :
+ * sa réponse rejoint le fil et l'historique, et l'assistant se met en retrait pour ce client,
+ * comme quand l'équipe répond depuis l'application Wakil.
+ */
+export async function recordOwnerReply(
+  storage: ConversationStorage,
+  meta: ConversationMeta,
+  echo: { id: string; text: string; at: number },
+  pauseUntil: number,
+): Promise<ConversationMeta | null> {
+  // Meta renvoie parfois la même notification.
+  const seen = (await storage.get<string[]>("seen")) ?? [];
+  if (seen.includes(echo.id)) return null;
+  await storage.put("seen", [...seen, echo.id].slice(-MAX_SEEN));
+  const { text, at } = echo;
+  const saved = (await storage.get<ConversationMeta>("meta")) ?? meta;
+  await storage.put("meta", saved);
+  const history = (await storage.get<MessageParam[]>("history")) ?? [];
+  if (history.length) {
+    await storage.put("history", [...history, { role: "assistant", content: [{ type: "text", text: `[Message de l'équipe] ${text}` }] }]);
+  }
+  await appendLog(storage, [{ from: "equipe", text, at }]);
+  await pauseAssistant(storage, Math.max(pauseUntil, (await storage.get<number>("handoffUntil")) ?? 0));
+  return saved;
+}
+
 export async function resumeAssistant(storage: ConversationStorage) {
   await storage.delete("handoffUntil");
 }
@@ -210,7 +237,8 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   // Conversation confiée à un conseiller : l'assistant se tait et fait suivre au patron.
   const handoffUntil = (await storage.get<number>("handoffUntil")) ?? 0;
   if (now < handoffUntil) {
-    await notifyOwner(`💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}${contactLine(meta)}`);
+    // En coexistence, le patron voit déjà le message dans son application WhatsApp Business.
+    if (!(meta.channel === "whatsapp" && tenant.whatsapp?.coexistence)) await notifyOwner(`💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}${contactLine(meta)}`);
     if (isWeb) await reply(WEB_HANDOFF_REPLY);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
     await finish();
@@ -446,6 +474,9 @@ export function formatOrderForOwner(order: Order): string {
 async function sendToOwner(deps: EngineDeps, text: string) {
   const { tenant, whatsapp } = deps;
   if (!tenant.ownerPhone) return; // démonstration : personne à prévenir
+  // Le patron dont le numéro est celui de l'assistant (coexistence) ne peut pas s'écrire à lui-même :
+  // il suit commandes et demandes dans l'application Wakil.
+  if (tenant.ownerPhone === tenant.whatsapp?.displayPhone?.replace(/\D/g, "")) return;
   const template = tenant.ownerNotifyTemplate;
   if (!template) return whatsapp.sendText(tenant.ownerPhone, text);
   const oneLine = text.replace(/\s*\n\s*/g, " | ").replace(/\s{2,}/g, " ").slice(0, 1000);

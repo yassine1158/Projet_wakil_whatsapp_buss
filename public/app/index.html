@@ -992,11 +992,11 @@
         <section class="card" style="display:grid;gap:12px" id="wa-card"><h2>WhatsApp</h2>
           ${t.whatsapp ? `
             <p style="margin:0"><span class="ok">Relié.</span> ${t.whatsapp.displayPhone ? `Numéro <b>${esc(t.whatsapp.displayPhone)}</b> · ` : ""}Phone number ID <b>${esc(t.whatsapp.phoneNumberId)}</b></p>
-            <p class="muted" style="margin:0">${c.hasWhatsappToken ? "Ce numéro utilise son propre accès Meta." : "Ce numéro utilise l'accès Meta de Wakil (secret WHATSAPP_TOKEN)."}</p>
+            <p class="muted" style="margin:0">${t.whatsapp.coexistence ? "Le numéro reste aussi dans l'application WhatsApp Business : quand vous répondez depuis votre téléphone, Wakil se tait pour ce client." : c.hasWhatsappToken ? "Ce numéro utilise son propre accès Meta." : "Ce numéro utilise l'accès Meta de Wakil (secret WHATSAPP_TOKEN)."}</p>
             <div class="actions"><button class="btn small danger" type="button" id="wa-off">Délier ce numéro</button></div>`
           : `<p style="margin:0" class="muted">Pas encore de numéro : Wakil ne répond que sur le site.</p>`}
           ${state.metaSignup ? `<div class="actions"><button class="btn gold" type="button" id="wa-signup">${icon("i-wa")}${t.whatsapp ? "Relier un autre numéro" : "Connecter WhatsApp"}</button></div>
-            <p class="hint" style="margin:0">${self ? "Connectez-vous à Facebook et choisissez votre numéro : Meta s'occupe du reste." : "Le patron se connecte à Facebook et choisit son numéro : Meta s'occupe du reste. Faites-le avec lui, sur son téléphone ou le vôtre."}</p>` : ""}
+            <p class="hint" style="margin:0">${self ? "Connectez-vous à Facebook et choisissez votre numéro : Meta s'occupe du reste. Le numéro de votre application WhatsApp Business convient : vous la gardez." : "Le patron se connecte à Facebook et choisit son numéro, même celui de son application WhatsApp Business, qu'il garde. Faites-le avec lui, sur son téléphone ou le vôtre."}</p>` : ""}
           ${self ? (state.metaSignup || t.whatsapp ? "" : `<p class="muted" style="margin:0">La connexion en un clic arrive bientôt. En attendant, l'équipe Wakil relie votre numéro avec vous.</p>`) : `
           <details ${!t.whatsapp && !state.metaSignup ? "open" : ""}><summary>Relier à la main</summary>
             <form id="wa-form" class="grid2">
@@ -1161,9 +1161,9 @@
     document.getElementById("wa-signup")?.addEventListener("click", async (e) => {
       waError.textContent = ""; e.target.disabled = true;
       try {
-        const { code, phoneNumberId, wabaId } = await embeddedSignup(state.metaSignup);
+        const { code, phoneNumberId, wabaId, coexistence } = await embeddedSignup(state.metaSignup);
         e.target.textContent = "Activation du numéro…";
-        await api(`companies/${encodeURIComponent(t.id)}/whatsapp/signup`, { code, phoneNumberId, wabaId });
+        await api(`companies/${encodeURIComponent(t.id)}/whatsapp/signup`, { code, phoneNumberId, wabaId, coexistence });
         await reload("WhatsApp connecté : Wakil répond maintenant sur ce numéro.");
       } catch (err) {
         e.target.disabled = false;
@@ -1242,20 +1242,28 @@
       try {
         const d = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
         if (d?.type !== "WA_EMBEDDED_SIGNUP") return;
-        if (/^FINISH/.test(d.event)) session = d.data;
+        if (/^FINISH/.test(d.event)) session = { ...d.data, event: d.event };
         else if (d.event === "CANCEL") cancelled = true;
       } catch {}
     };
     addEventListener("message", onMessage);
     try {
       const code = await new Promise((resolve) => FB.login((r) => resolve(r.authResponse?.code || null), {
-        config_id: configId, response_type: "code", override_default_response_type: true, extras: { setup: {}, sessionInfoVersion: "3" },
+        // Version 5 : un numéro de l'application WhatsApp Business peut être gardé dans l'application (coexistence).
+        config_id: configId, response_type: "code", override_default_response_type: true, extras: { version: "v5" },
       }));
       // Les identifiants arrivent par un message séparé, parfois juste après la réponse.
       for (let i = 0; i < 30 && !session && !cancelled && code; i++) await new Promise((r) => setTimeout(r, 100));
       if (!code || cancelled) throw Object.assign(new Error("cancelled"), { code: "cancelled" });
-      if (!session?.phone_number_id || !session?.waba_id) throw Object.assign(new Error("incomplete"), { code: "incomplete" });
-      return { code, phoneNumberId: String(session.phone_number_id), wabaId: String(session.waba_id) };
+      // v5 donne messaging_account_ids à la place de waba_id ; sans phone_number_id, le serveur le lit sur le compte.
+      const wabaId = session?.waba_id || session?.messaging_account_ids?.[0];
+      if (!wabaId) throw Object.assign(new Error("incomplete"), { code: "incomplete" });
+      return {
+        code,
+        phoneNumberId: session.phone_number_id ? String(session.phone_number_id) : "",
+        wabaId: String(wabaId),
+        coexistence: session.is_on_biz_app === true || session.event === "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
+      };
     } finally {
       removeEventListener("message", onMessage);
     }
