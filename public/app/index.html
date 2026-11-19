@@ -742,6 +742,7 @@
               ? `<span class="ok">Numéro relié${s.whatsappPhone ? ` : ${esc(s.whatsappPhone)}` : ""}.</span> Wakil répond à vos clients sur ce numéro.`
               : `<span class="ko">Numéro pas encore relié.</span> ${s.isAdmin ? `Reliez-le depuis <a href="#entreprises/${encodeURIComponent(state.tenant)}">la fiche de l'entreprise</a>.` : "L'équipe Wakil s'en occupe avec vous."}`}</p>
             ${s.isAdmin ? `<p class="muted" style="margin:0">Adresse du webhook, à coller dans Meta → WhatsApp → Configuration :</p>${copyBox("webhook", s.webhookUrl)}` : ""}
+            ${s.isAdmin && s.whatsappConfigured ? `<button class="btn small gold" type="button" id="check-wa">Vérifier la connexion à WhatsApp</button><div id="check-wa-result" role="status" aria-live="polite"></div>` : ""}
             <p class="muted" style="margin:0">Commandes et alertes envoyées à : <b>${s.ownerPhone ? "+" + esc(s.ownerPhone) : "personne pour l'instant"}</b></p>
           </section>
           <section class="card"><h2>Chat sur votre site</h2>
@@ -763,6 +764,15 @@
           </section>
         </div>
       </div>`;
+    document.getElementById("check-wa")?.addEventListener("click", async (e) => {
+      const out = document.getElementById("check-wa-result");
+      e.target.disabled = true; out.innerHTML = '<p class="muted" style="margin:0">Vérification…</p>';
+      try {
+        const d = await api(withTenant("diagnostic-whatsapp"));
+        out.innerHTML = `<p class="${d.ok ? "ok" : "ko"}" style="margin:0">${d.ok ? "✓ " : ""}${esc(d.message)}</p>${d.detail ? `<p class="muted" style="margin:6px 0 0;font-size:13px;overflow-wrap:anywhere">Détail : ${esc(d.detail)}</p>` : ""}`;
+      } catch { out.innerHTML = '<p class="ko" style="margin:0">La vérification n\'a pas abouti. Réessayez.</p>'; }
+      e.target.disabled = false;
+    });
     document.getElementById("check-claude")?.addEventListener("click", async (e) => {
       const out = document.getElementById("check-result");
       e.target.disabled = true; out.innerHTML = '<p class="muted" style="margin:0">Vérification…</p>';
