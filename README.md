@@ -224,6 +224,10 @@ WhatsApp n'autorise un message libre que dans les 24 h qui suivent le dernier me
 
 Sans modèle, le patron doit avoir écrit au numéro de Wakil dans les dernières 24 h.
 
+## Comment Wakil parle aux clients
+
+Une personnalité (chaleureux, serviable, honnête, calme, efficace) et une méthode de conversation tirée de méthodes reconnues de vente et de service client (principe de coopération de Grice, *SPIN Selling*, LAER pour les objections, HEARD pour les réclamations), communes à toutes les entreprises : `src/playbook.ts`. Le détail, les sources et la façon d'ajuster le ton pour une entreprise : [`docs/conversation.md`](docs/conversation.md).
+
 ## Réglages
 
 Dans `wrangler.jsonc`, section `vars` :
