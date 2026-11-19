@@ -241,12 +241,13 @@ Envoyez « Bonjour » au numéro de test : Wakil répond.
 ## Le site de Wakil
 
 Le Worker sert aussi le site de présentation de Wakil (`public/index.html`), à sa propre adresse : `https://wakil-whatsapp.<votre-compte>.workers.dev/`. On y trouve :
-- **le haut de page à l'heure du visiteur** : « Il est 21 h 47. Un client vous écrit. », puis une phrase selon l'heure (« Vous dormez. », « Vous avez fermé. »…) et une conversation WhatsApp qui se déroule une fois, horodatée à l'heure de la visite (sans animation si le visiteur l'a demandé à son appareil) ;
+- **le site qui vous appelle** : le haut de page est un appel entrant de Wakil (« Allô ? Ici Wakil. Ce site vous appelle. »). **Décrocher** fait parler Wakil pendant 25 secondes avec la voix française de l'appareil (synthèse vocale du navigateur, sans serveur ni autorisation), et chaque mot s'affiche en très grand, le mot en cours en or. Sans voix française, les sous-titres défilent seuls. **Plus tard** affiche un « appel manqué » et le message vocal laissé par Wakil. À la fin : « À vous. », pour lui parler (appel en direct si la voix est prête, sinon le chat) ou s'inscrire ;
+- **une nuit sur votre téléphone** : l'écran verrouillé d'un patron ; le défilement fait passer la nuit de 21:47 à 07:30, le ciel passe à l'aube, et les notifications de Wakil arrivent (une commande, un client à rappeler), pendant que la liste à côté montre ce que Wakil règle seul ;
 - **Wakil en direct** : le chat de la page est Wakil lui-même (`wakil` dans `config/tenants.json`), qui présente l'offre aux patrons et peut jouer le rôle de leur assistant. Le bouton **Appeler Wakil** n'apparaît que lorsque la voix est prête (`call` dans `/chat/config`) ;
 - **l'inscription** (`/inscription`) mise en avant partout, avec les trois étapes : s'inscrire, saisir le code, recevoir les commandes ;
 - **le formulaire « être rappelé »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
 
-Sur téléphone, la bulle d'invitation du chat n'est pas montrée (`data-teaser="off"`), pour ne pas cacher les boutons du haut de page.
+Sur ce site, la bulle d'invitation du chat n'est pas montrée (`data-teaser="off"`) : l'appel du haut de page invite déjà à parler à Wakil. Le bouton flottant du chat se retire pendant l'appel et la nuit, tant que le visiteur ne l'a pas utilisé.
 
 Les messages de la démonstration sont de vrais appels au modèle : les limites du chat web s'appliquent aussi.
 
