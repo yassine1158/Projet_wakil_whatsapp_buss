@@ -5,7 +5,7 @@ import { normalizePhone } from "./engine";
 import { notifyWakilTeam } from "./leads";
 import { INBOX_NAME } from "./names";
 import { invalidateTenants, listTenants } from "./registry";
-import { startTrial, TRIAL_DAYS } from "./subscription";
+import { startTrial } from "./subscription";
 import type { Env, Tenant } from "./types";
 
 /** Indicatifs proposés à l'inscription, avec le fuseau horaire qui va avec. */
@@ -29,9 +29,15 @@ const RESERVED = new Set(["admin", "new", "wakil", "demo", "test", "api", "app"]
 export interface SignupForm {
   businessName: string;
   phone: string;
+  /** Numéro que Wakil utilisera sur WhatsApp, différent de celui du patron. */
+  wakilPhone: string;
   password: string;
   countryCode: string;
   sector: string;
+  /** Produits et prix, en texte libre : Wakil s'en sert dès le premier jour. */
+  catalogText: string;
+  /** Horaires, adresse, livraison, paiement. */
+  infoText: string;
 }
 
 const text = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -42,10 +48,24 @@ export function parseSignup(body: Record<string, unknown>): SignupForm | { error
   const countryCode = typeof body.countryCode === "string" && body.countryCode in SIGNUP_COUNTRIES ? body.countryCode : "225";
   const phone = normalizePhone(text(body.phone, 30), countryCode);
   if (!phone) return { error: "invalid_phone", field: "phone" };
+  const wakilPhone = normalizePhone(text(body.wakilPhone, 30), countryCode);
+  if (!wakilPhone) return { error: "invalid_phone", field: "wakilPhone" };
+  // Le patron reçoit les commandes sur son propre WhatsApp : il ne peut pas être aussi le numéro de Wakil.
+  if (wakilPhone === phone) return { error: "same_phone", field: "wakilPhone" };
+  if (body.numberFree !== true) return { error: "required", field: "numberFree" };
   const password = typeof body.password === "string" ? body.password : "";
   if (password.length < 8 || password.length > 200) return { error: "weak_password", field: "password" };
   if (body.accept !== true) return { error: "required", field: "accept" };
-  return { businessName, phone, password, countryCode, sector: text(body.sector, 60) };
+  return {
+    businessName,
+    phone,
+    wakilPhone,
+    password,
+    countryCode,
+    sector: text(body.sector, 60),
+    catalogText: text(body.catalogText, 3000),
+    infoText: text(body.infoText, 800),
+  };
 }
 
 /** Identifiant de connexion tiré du nom, rendu unique. */
@@ -63,8 +83,9 @@ const json = (body: unknown, status = 200) =>
   });
 
 /**
- * POST /api/signup, depuis la page /inscription : l'entreprise est créée avec un essai
- * gratuit et un catalogue vide, et le patron est connecté tout de suite.
+ * POST /api/signup, depuis la page /inscription : l'entreprise est créée avec un essai gratuit,
+ * ses produits en texte libre et le numéro que Wakil utilisera. Le numéro attend la validation
+ * de l'équipe ; le patron suit l'avancement (et saisit le code reçu) sur la page d'inscription.
  */
 export async function handleSignup(
   request: Request,
@@ -86,6 +107,15 @@ export async function handleSignup(
   const tenants = await listTenants(env, now);
   // Un essai par numéro : le même patron ne recommence pas un essai avec un autre nom.
   if (tenants.some((t) => t.ownerPhone === form.phone)) return json({ error: "phone_in_use", field: "phone" }, 409);
+  const numberTaken = (t: Tenant) =>
+    t.ownerPhone === form.wakilPhone || t.hostedNumber?.phone === form.wakilPhone || t.whatsapp?.displayPhone?.replace(/\D/g, "") === form.wakilPhone;
+  if (tenants.some(numberTaken)) return json({ error: "number_in_use", field: "wakilPhone" }, 409);
+  const instructions = [
+    form.catalogText && `Produits et prix donnés par l'entreprise à l'inscription :\n${form.catalogText}`,
+    form.infoText && `Informations utiles (horaires, adresse, livraison, paiement) :\n${form.infoText}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 
   const inbox = env.INBOX.get(env.INBOX.idFromName(INBOX_NAME));
   const taken = new Set(tenants.map((t) => t.id));
@@ -99,10 +129,15 @@ export async function handleSignup(
       timezone: SIGNUP_COUNTRIES[form.countryCode],
       defaultCountryCode: form.countryCode,
       catalog: { products: [] },
+      ...(instructions ? { instructions } : {}),
       handoffHours: 12,
     });
     if ("error" in parsed) return json(parsed, 400);
-    const candidate: Tenant = { ...parsed, subscription: startTrial("pro", now) };
+    const candidate: Tenant = {
+      ...parsed,
+      subscription: startTrial("pro", now),
+      hostedNumber: { phone: form.wakilPhone, countryCode: form.countryCode, state: "submitted", requestedAt: now },
+    };
     if (await inbox.insertTenant(candidate, now)) tenant = candidate;
     else taken.add(candidate.id);
   }
@@ -110,9 +145,13 @@ export async function handleSignup(
   const id = tenant.id;
   await inbox.setTenantPassword(id, await hashPassword(form.password));
   invalidateTenants();
-  const note = `Inscription en ligne · essai de ${TRIAL_DAYS} jours · identifiant « ${id} »`;
+  const note = `Inscription en ligne · identifiant « ${id} » · numéro pour Wakil : +${form.wakilPhone}`;
   await inbox.addLead({ createdAt: now, name: "", company: form.businessName, sector: form.sector, city: "", phone: form.phone, message: note });
-  await notifyWakilTeam(env, `🎉 Nouvelle inscription : ${form.businessName}\n${note}\nTéléphone : +${form.phone}\nRépondre : https://wa.me/${form.phone}`);
+  await notifyWakilTeam(
+    env,
+    `🎉 Nouvelle inscription : ${form.businessName}\n${note}\nPatron : +${form.phone} (https://wa.me/${form.phone})\n` +
+      `À valider : ${url.origin}/app/#entreprises/${encodeURIComponent(id)}`,
+  );
 
   return json({ token: await createToken(env.ADMIN_PASSWORD!, { kind: "tenant", tenantId: id }, now), login: id });
 }

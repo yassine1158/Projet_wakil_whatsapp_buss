@@ -25,7 +25,17 @@ Pour l'activer : `ADMIN_PASSWORD` dans les secrets (choisissez un mot de passe l
 
 ## Ajouter une entreprise cliente
 
-**Inscription libre** : une entreprise peut aussi s'inscrire seule sur `/inscription`. Elle reçoit un **essai gratuit de 14 jours** (offre Pro), un catalogue vide et un accès patron immédiat ; l'application lui montre une liste « Démarrer avec Wakil » (produits, horaires, WhatsApp, essai, chat du site) et le patron complète lui-même sa fiche dans **Mon entreprise**. À la fin de l'essai, Wakil ne répond plus aux clients : leurs messages sont transférés au patron sur WhatsApp. L'administrateur prolonge l'essai ou enregistre un paiement reçu depuis la fiche (carte **Abonnement**). Les entreprises créées par l'équipe n'ont pas d'abonnement et ne sont jamais coupées.
+**Inscription libre, avec le numéro WhatsApp de Wakil** : une entreprise s'inscrit seule sur `/inscription`. Elle donne son numéro personnel (pour recevoir les commandes), **le numéro que Wakil utilisera** (une puce sans compte WhatsApp), ses produits et prix en texte libre, et ses horaires. Puis :
+
+1. **L'équipe valide** : dans l'application, la fiche affiche « Numéro à valider ». Le bouton **Valider et envoyer le code** ajoute le numéro au compte WhatsApp de Wakil (`WHATSAPP_WABA_ID`), au nom de l'entreprise, et Meta envoie un code au numéro, par SMS ou par appel.
+2. **Le patron saisit le code** sur sa page d'inscription, qui suit l'avancement toute seule (ou dans **Mon entreprise**, ou avec l'équipe sur la fiche).
+3. **Wakil répond sur ce numéro** : le numéro est activé avec un code PIN, et l'essai gratuit de 14 jours (offre Pro) commence ce jour-là.
+
+Le patron n'a pas besoin de l'application : ses produits donnés à l'inscription servent à Wakil dès le premier jour, et les commandes arrivent sur son WhatsApp personnel. Il peut quand même compléter sa fiche dans **Mon entreprise**. Si Meta refuse (numéro déjà sur WhatsApp, trop d'essais, nom refusé), la cause s'affiche sur la fiche et sur la page du patron ; une fois le problème réglé, l'équipe relance la validation sans recréer le numéro.
+
+Limites de Meta : le numéro **ne doit pas avoir de compte WhatsApp** (le patron le supprime d'abord, ou prend une nouvelle puce) ; un portefeuille d'entreprise vérifié peut avoir jusqu'à 20 numéros ; le nom affiché passe par la vérification de Meta. Pour garder le numéro de l'application WhatsApp Business, utiliser plutôt **Connecter WhatsApp** (coexistence, ci-dessous).
+
+À la fin de l'essai, Wakil ne répond plus aux clients : leurs messages sont transférés au patron sur WhatsApp. L'administrateur prolonge l'essai ou enregistre un paiement reçu depuis la fiche (carte **Abonnement**). Les entreprises créées par l'équipe n'ont pas d'abonnement et ne sont jamais coupées.
 
 Dans l'application, **Entreprises → Nouvelle entreprise** :
 
@@ -77,6 +87,7 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/index.ts` | Webhook (vérification Meta, signature), commandes du patron |
 | `src/api.ts`, `src/auth.ts` | API de l'application, connexions (administrateur, patrons) |
 | `src/companies.ts` | Fiche d'une entreprise (vérification), inscription WhatsApp de Meta |
+| `src/hosted-number.ts` | Numéro donné à l'inscription : ajout au compte WhatsApp de Wakil, code, activation |
 | `src/registry.ts` | Registre des entreprises : fichier de configuration + base, numéro WhatsApp de chacune |
 | `src/inbox-do.ts` | Boîte de réception (SQLite) : conversations, commandes, demandes, entreprises |
 | `public/app/index.html` | L'application |
@@ -114,6 +125,7 @@ Tout se règle dans GitHub ; Cloudflare fait tourner Wakil sans qu'on ait à y r
 | `ADMIN_PASSWORD` | le mot de passe de l'application | oui |
 | `WHATSAPP_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` | les valeurs de Meta | quand WhatsApp est prêt |
 | `META_APP_ID`, `META_CONFIG_ID` | l'App ID et la configuration de l'inscription intégrée | pour le bouton « Connecter WhatsApp » |
+| `WHATSAPP_WABA_ID` | l'identifiant du compte WhatsApp Business de Wakil (WhatsApp Manager → Comptes WhatsApp) | pour valider les numéros donnés à l'inscription |
 
 **Lancer** : onglet **Actions → Mettre en ligne → Run workflow**. Ensuite, chaque changement sur `main` est vérifié (tests) puis mis en ligne tout seul. Le résumé de chaque mise en ligne donne les adresses du site, de l'application et du webhook. Une clé ajoutée ou changée dans GitHub part au prochain lancement.
 

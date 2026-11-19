@@ -2,12 +2,15 @@ import { createToken, hashPassword, samePassword, verifyPassword, verifyToken, t
 import { loadCatalog } from "./catalog";
 import { completeWhatsappSignup, parseTenantInput, TENANT_ID_RE } from "./companies";
 import { checkClaude } from "./diagnostic";
+import { MetaError, registerHostedNumber, requestHostedCode, verifyHostedCode } from "./hosted-number";
+import type { InboxDO } from "./inbox-do";
+import { notifyWakilTeam } from "./leads";
 import { LEAD_STATUSES, ORDER_STATUSES, type LeadStatus, type OrderStatus } from "./inbox-types";
 import { INBOX_NAME, webConversation } from "./names";
 import { configTenantIds, invalidateTenants, listTenants, tenantById } from "./registry";
 import { handleSignup } from "./signup";
-import { changeSubscription, subscriptionView } from "./subscription";
-import { PLANS, type Env, type Plan, type Tenant } from "./types";
+import { changeSubscription, startTrial, subscriptionView } from "./subscription";
+import { PLANS, type Env, type HostedNumber, type Plan, type Tenant } from "./types";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -203,7 +206,7 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
 function ownCompanyRoute(method: string, [id, action, step]: string[], body: Record<string, unknown>, own: string): boolean {
   if (method === "GET") return id === own && !action;
   if (!id) return body.id === own;
-  return id === own && action === "whatsapp" && (step === "signup" || step === "disconnect");
+  return id === own && action === "whatsapp" && (step === "signup" || step === "disconnect" || step === "verify");
 }
 
 /** Entreprises : liste, fiche, mot de passe du patron, WhatsApp, abonnement. */
@@ -282,6 +285,7 @@ async function handleCompanies(
       const { whatsapp: _removed, ...rest } = tenant;
       return saved(rest);
     }
+    if (step === "hosted" || step === "verify") return hostedNumberStep(step, tenant, others, body, env, inbox, saved, url);
     if (step === "signup") {
       if (!env.META_APP_ID || !env.WHATSAPP_APP_SECRET) return json({ error: "meta_not_configured" }, 400);
       const code = String(body.code ?? ""), phoneNumberId = String(body.phoneNumberId ?? ""), wabaId = String(body.wabaId ?? "");
@@ -321,4 +325,83 @@ async function handleCompanies(
 
   void url;
   return json({ error: "not_found" }, 404);
+}
+
+/**
+ * Numéro hébergé par Wakil (demandé à l'inscription) :
+ *   POST companies/:id/whatsapp/hosted { method: "SMS" | "VOICE" }   l'équipe valide : ajout du numéro et envoi du code
+ *   POST companies/:id/whatsapp/verify { code }                       le patron saisit le code : Wakil répond sur ce numéro
+ */
+async function hostedNumberStep(
+  step: "hosted" | "verify",
+  tenant: Tenant,
+  others: Tenant[],
+  body: Record<string, unknown>,
+  env: Env,
+  inbox: DurableObjectStub<InboxDO>,
+  saved: (t: Tenant) => Promise<Response>,
+  url: URL,
+): Promise<Response> {
+  const request = tenant.hostedNumber;
+  if (!request) return json({ error: "no_request" }, 400);
+  if (request.state === "connected") return json({ error: "already_connected" }, 409);
+  if (!env.WHATSAPP_WABA_ID || !env.WHATSAPP_TOKEN) return json({ error: "waba_not_configured" }, 400);
+  const ctx = { apiVersion: env.GRAPH_API_VERSION ?? "v23.0", token: env.WHATSAPP_TOKEN };
+  const now = Date.now();
+  const { error: _previous, ...current } = request;
+  const fail = async (err: unknown, changes: Partial<HostedNumber> = {}) => {
+    const message = (err as Error).message || "Erreur Meta";
+    await inbox.saveTenant({ ...tenant, hostedNumber: { ...current, ...changes, error: message } }, now);
+    invalidateTenants();
+    return message;
+  };
+
+  // Numéro vérifié : on l'active et Wakil répond dessus.
+  const connect = async (phoneNumberId: string) => {
+    if (others.some((t) => t.whatsapp?.phoneNumberId === phoneNumberId)) return json({ error: "number_in_use" }, 409);
+    let registered: { pin: string; displayPhone?: string };
+    try {
+      registered = await registerHostedNumber(ctx, phoneNumberId);
+    } catch (err) {
+      return json({ error: "meta_error", message: await fail(err, { phoneNumberId, state: "verified" }) }, 502);
+    }
+    await inbox.setTenantWhatsappSecrets(tenant.id, null, registered.pin);
+    // L'essai gratuit commence le jour où Wakil répond vraiment sur WhatsApp.
+    const subscription =
+      tenant.subscription && subscriptionView(tenant, now).status === "trial" ? startTrial(tenant.subscription.plan, now) : tenant.subscription;
+    const response = await saved({
+      ...tenant,
+      whatsapp: { phoneNumberId, wabaId: env.WHATSAPP_WABA_ID!, ...(registered.displayPhone ? { displayPhone: registered.displayPhone } : {}) },
+      hostedNumber: { ...current, phoneNumberId, state: "connected", connectedAt: now },
+      ...(subscription ? { subscription } : {}),
+    });
+    await notifyWakilTeam(env, `✅ ${tenant.businessName} : Wakil répond maintenant sur +${request.phone}.\n${url.origin}/app/#entreprises/${encodeURIComponent(tenant.id)}`).catch(() => {});
+    return response;
+  };
+
+  if (step === "hosted") {
+    const method = body.method === "VOICE" ? "VOICE" : "SMS";
+    if (request.state === "verified" && request.phoneNumberId) return connect(request.phoneNumberId);
+    try {
+      const { phoneNumberId, alreadyVerified } = await requestHostedCode(
+        { ...ctx, wabaId: env.WHATSAPP_WABA_ID },
+        { phone: request.phone, countryCode: request.countryCode, displayName: tenant.businessName, phoneNumberId: request.phoneNumberId, method },
+      );
+      if (alreadyVerified) return connect(phoneNumberId);
+      return saved({ ...tenant, hostedNumber: { ...current, phoneNumberId, state: "code_sent", codeMethod: method, codeSentAt: now } });
+    } catch (err) {
+      const phoneNumberId = (err as MetaError).phoneNumberId ?? request.phoneNumberId;
+      return json({ error: "meta_error", message: await fail(err, phoneNumberId ? { phoneNumberId } : {}) }, 502);
+    }
+  }
+
+  const code = String(body.code ?? "").replace(/\D/g, "");
+  if (!/^\d{6}$/.test(code)) return json({ error: "invalid", field: "code" }, 400);
+  if (request.state !== "code_sent" || !request.phoneNumberId) return json({ error: "no_code_requested" }, 400);
+  try {
+    await verifyHostedCode(ctx, request.phoneNumberId, code);
+  } catch (err) {
+    return json({ error: "wrong_code", message: await fail(err) }, 400);
+  }
+  return connect(request.phoneNumberId);
 }
