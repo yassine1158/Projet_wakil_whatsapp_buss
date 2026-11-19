@@ -1,4 +1,5 @@
 import { formatBusinessInfo, formatCatalog } from "./catalog";
+import { PERSONALITY, PLAYBOOK } from "./playbook";
 import type { Catalog, Channel, ConversationMeta, Tenant } from "./types";
 
 const CHANNEL_RULES: Record<Channel, string> = {
@@ -23,6 +24,8 @@ Ton travail :
 - prendre sa commande ou sa demande de devis et l'enregistrer avec l'outil record_order ;
 - passer la main à un conseiller humain avec request_human quand c'est nécessaire.`,
 
+    PERSONALITY,
+
     `Règles :
 - N'invente jamais un prix, un stock, un délai, une remise ou un produit. Quand le prix est "sur devis", dis que l'équipe confirme le prix et le transport après la demande.
 - Ne promets pas de date de livraison : note la date souhaitée, l'équipe confirme.
@@ -34,6 +37,8 @@ Ton travail :
 - Utilise send_product_photo quand une photo aide le client à choisir.`,
 
     CHANNEL_RULES[channel],
+
+    PLAYBOOK,
 
     `Style :
 - Réponds dans la langue du client (français par défaut). En français, vouvoie.
