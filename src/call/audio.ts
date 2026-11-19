@@ -33,3 +33,14 @@ export function pcm16ToWav(samples: Int16Array, sampleRate = CALL_SAMPLE_RATE): 
   for (let i = 0; i < samples.length; i++) view.setInt16(44 + i * 2, samples[i], true);
   return out;
 }
+
+/**
+ * Octets d'un message WebSocket binaire. Selon la date de compatibilité des Workers, il arrive
+ * en ArrayBuffer ou en Blob (norme) : les deux sont acceptés. Rend null pour un message texte.
+ */
+export async function binaryMessage(data: unknown): Promise<ArrayBuffer | null> {
+  if (data instanceof ArrayBuffer) return data;
+  if (ArrayBuffer.isView(data)) return data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
+  if (typeof Blob !== "undefined" && data instanceof Blob) return data.arrayBuffer();
+  return null;
+}

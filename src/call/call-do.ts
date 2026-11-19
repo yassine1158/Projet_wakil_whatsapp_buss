@@ -6,6 +6,7 @@ import { speakerFor } from "../speech";
 import { workersAiTranscriber } from "../transcribe";
 import type { Env } from "../types";
 import { VOICE_PREFIX } from "../voice";
+import { binaryMessage } from "./audio";
 import { CallSession, type ClientMessage, type ServerMessage } from "./session";
 
 /** Un appel ne dure pas plus de 10 minutes. */
@@ -57,15 +58,24 @@ export class CallDO extends DurableObject<Env> {
     });
     const timer = setTimeout(() => call.end("time"), MAX_CALL_MS);
 
+    // Sans ce réglage, les Workers récents livrent le son en Blob, et il était ignoré.
+    server.binaryType = "arraybuffer";
+    let order = Promise.resolve();
     server.addEventListener("message", (event) => {
-      if (typeof event.data === "string") {
+      const data: unknown = event.data;
+      if (typeof data === "string") {
         try {
-          call.control(JSON.parse(event.data) as ClientMessage);
+          call.control(JSON.parse(data) as ClientMessage);
         } catch {}
         return;
       }
-      const data = event.data as ArrayBuffer;
-      if (data.byteLength && data.byteLength % 2 === 0) call.audio(new Int16Array(data));
+      // Lu dans l'ordre d'arrivée, même si un Blob demande une lecture asynchrone.
+      order = order
+        .then(async () => {
+          const bytes = await binaryMessage(data);
+          if (bytes?.byteLength && bytes.byteLength % 2 === 0) call.audio(new Int16Array(bytes));
+        })
+        .catch(() => {});
     });
     const hangUp = () => {
       clearTimeout(timer);
