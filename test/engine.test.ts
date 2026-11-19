@@ -48,6 +48,9 @@ class FakeWhatsApp implements WhatsAppSender {
   async sendTemplate(to: string, name: string, _lang: string, params: string[]) {
     this.sent.push({ to, kind: `template:${name}`, body: params.join() });
   }
+  async sendAudio(to: string, audio: Uint8Array, mimeType: string) {
+    this.sent.push({ to, kind: "audio", body: `${mimeType} ${audio.length}` });
+  }
   async markReadWithTyping(id: string) {
     this.read.push(id);
   }
@@ -573,5 +576,53 @@ describe("Wakil Brain en mode ombre", () => {
     const sink = { sendText: async () => {}, sendImage: async () => {} };
     await processPending(deps(client, { inbox, sink, brain: () => ({ label: "reponse", confidence: 1, probs: [1, 0, 0, 0] }) }));
     expect(samples).toEqual([]);
+  });
+});
+
+describe("réponses vocales sur WhatsApp", () => {
+  const answer = () =>
+    fakeClaude([{ stop_reason: "end_turn", content: [{ type: "text", text: "Oui, le *gravier 15/25* est disponible." } as Anthropic.Beta.BetaContentBlock] }]).client;
+  const vocal = msg("v1", { kind: "audio", text: undefined, mediaId: "a1", rawType: "audio" });
+
+  function speaker(fails = false) {
+    const said: string[] = [];
+    const speak = async (text: string) => {
+      if (fails) throw new Error("tts");
+      said.push(text);
+      return { bytes: new Uint8Array(1200), mimeType: "audio/mpeg" };
+    };
+    return { said, speak };
+  }
+
+  it("répond aussi en vocal à un client qui envoie un vocal, après le texte", async () => {
+    const { said, speak } = speaker();
+    await enqueueMessage(storage, "sicar", "PNID", vocal, NOW, 4000);
+    await processPending(deps(answer(), { speak }));
+    expect(said).toEqual(["Oui, le *gravier 15/25* est disponible."]);
+    expect(whatsapp.sent.map((s) => [s.to, s.kind, s.body])).toEqual([
+      [CLIENT, "text", "Oui, le *gravier 15/25* est disponible."],
+      [CLIENT, "audio", "audio/mpeg 1200"],
+    ]);
+    expect((await storage.get<{ text: string }[]>("log"))!.at(-1)!.text).toBe("[Réponse vocale]");
+  });
+
+  it("n'envoie que du texte à un client qui écrit, sauf si l'entreprise veut toujours la voix", async () => {
+    const { said, speak } = speaker();
+    await enqueueMessage(storage, "sicar", "PNID", msg("t1"), NOW, 4000);
+    await processPending(deps(answer(), { speak }));
+    expect(whatsapp.sent.map((s) => s.kind)).toEqual(["text"]);
+
+    await enqueueMessage(storage, "sicar", "PNID", msg("t2"), NOW, 4000);
+    await processPending(deps(answer(), { speak, tenant: { ...tenant, voiceReplies: "always" } }));
+    expect(whatsapp.sent.map((s) => s.kind)).toEqual(["text", "text", "audio"]);
+    expect(said).toHaveLength(1);
+  });
+
+  it("se tait en vocal quand l'entreprise l'a désactivé, et garde le texte si la voix échoue", async () => {
+    await enqueueMessage(storage, "sicar", "PNID", vocal, NOW, 4000);
+    await processPending(deps(answer(), { speak: speaker().speak, tenant: { ...tenant, voiceReplies: "never" } }));
+    await enqueueMessage(storage, "sicar", "PNID", msg("v2", { ...vocal, id: "v2" }), NOW, 4000);
+    await processPending(deps(answer(), { speak: speaker(true).speak }));
+    expect(whatsapp.sent.map((s) => s.kind)).toEqual(["text", "text"]);
   });
 });

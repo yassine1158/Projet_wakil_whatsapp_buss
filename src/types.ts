@@ -72,7 +72,12 @@ export interface Tenant {
   /** Connaissances métier propres à l'entreprise, ajoutées au prompt. */
   instructions?: string;
   handoffHours?: number;
+  /** Réponses vocales sur WhatsApp : au client qui envoie un vocal (par défaut), à tous, ou jamais. */
+  voiceReplies?: VoiceReplies;
 }
+
+export const VOICE_REPLIES = ["after-voice", "always", "never"] as const;
+export type VoiceReplies = (typeof VOICE_REPLIES)[number];
 
 /** Produit tel qu'il est saisi ou importé (Excel, CSV, products.json). */
 export interface RawProduct {

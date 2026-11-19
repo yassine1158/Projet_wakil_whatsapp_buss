@@ -18,6 +18,8 @@ import { conversationKey, INBOX_NAME } from "./names";
 import { tenantById, whatsappFor } from "./registry";
 import { workersAiTranscriber } from "./transcribe";
 import type { ConversationMeta, Env, IncomingMessage, LogEntry, Tenant } from "./types";
+import { speakerFor } from "./speech";
+import { whatsappVoice } from "./voice";
 import { WhatsAppError } from "./whatsapp";
 
 export type WebReply =
@@ -220,6 +222,7 @@ export class ConversationDO extends DurableObject<Env> {
         effort: (this.env.CLAUDE_EFFORT ?? "low") as Effort,
       },
       transcribe: workersAiTranscriber(this.env.AI),
+      speak: whatsappVoice(speakerFor(this.env)),
       loadCatalog: () => loadCatalog(tenant),
       now: Date.now,
       inbox: this.reporter(tenant),
