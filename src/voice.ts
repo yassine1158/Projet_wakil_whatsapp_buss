@@ -2,13 +2,12 @@ import { loadCatalog } from "./catalog";
 import { webConversation } from "./names";
 import { isKnownWebOrigin, tenantById } from "./registry";
 import { workersAiTranscriber, type Transcriber } from "./transcribe";
+import { speakerFor, type Speaker } from "./speech";
 import type { Env, Tenant } from "./types";
 import { allowed, cors } from "./web";
 
 /** Un enregistrement de 30 secondes pèse quelques centaines de Ko ; au-delà, on refuse. */
 export const MAX_AUDIO_BYTES = 2_000_000;
-/** Voix française de Workers AI (MyShell MeloTTS), qui renvoie un MP3 en base64. */
-export const TTS_MODEL = "@cf/myshell-ai/melotts";
 /** Marque le message pour le modèle : voir la règle du canal web dans prompt.ts. */
 export const VOICE_PREFIX = "[Appel vocal] ";
 export const NOT_HEARD_REPLY = "Je n'ai pas bien entendu. Pouvez-vous répéter, ou écrire votre message ?";
@@ -47,15 +46,7 @@ export function speakable(text: string): string {
   return out;
 }
 
-/** Synthèse vocale : texte → MP3 en base64, ou null si elle échoue. */
-export type Speaker = (text: string) => Promise<string | null>;
-
-export function workersAiSpeaker(ai: Ai): Speaker {
-  return async (text) => {
-    const result = (await (ai as any).run(TTS_MODEL, { prompt: text, lang: "fr" })) as { audio?: string };
-    return result?.audio ?? null;
-  };
-}
+export { TTS_MODEL, workersAiSpeaker, type Speaker } from "./speech";
 
 export interface VoiceDeps {
   transcribe: Transcriber;
@@ -67,7 +58,7 @@ export interface VoiceDeps {
 function defaultDeps(env: Env): VoiceDeps {
   return {
     transcribe: workersAiTranscriber(env.AI),
-    speak: workersAiSpeaker(env.AI),
+    speak: speakerFor(env),
     hint: async (tenant) => {
       try {
         return (await loadCatalog(tenant)).products.map((p) => p.name).join(", ");

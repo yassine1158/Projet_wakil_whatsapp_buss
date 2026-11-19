@@ -81,6 +81,8 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `public/app/index.html` | L'application |
 | `src/web.ts` | Chat du site web : `/chat` et `/chat/config`, contrôle du site d'origine et du débit |
 | `src/voice.ts` | Appel vocal du chat : `/voice` (Whisper → même conversation → voix MeloTTS) |
+| `src/call/` | Appel en direct : `/call` (WebSocket), salle `CallDO`, repérage des fins de phrase, déroulé de l'appel |
+| `src/speech.ts` | La voix de Wakil : ElevenLabs si la clé est là, sinon Workers AI |
 | `public/wakil-chat.js` | Le chat à intégrer dans un site (une seule balise `<script>`) |
 | `public/index.html` | Le site de Wakil (servi à l'adresse du Worker) |
 | `src/leads.ts` | Formulaire « Essayer Wakil » du site : `/leads` |
@@ -113,7 +115,34 @@ Le chat du site a un bouton **🎤** : le visiteur parle, Wakil l'écoute et lui
 - Coût : la transcription et la voix utilisent Workers AI (quota gratuit quotidien, puis facturé à l'usage) ; la réponse elle-même coûte comme un message écrit.
 - `data-voice="off"` sur la balise `<script>` masque le bouton.
 
-Limites : ce n'est pas une conversation en continu (le visiteur parle, puis Wakil répond) ; la voix de synthèse reste un peu robotique ; la transcription peut se tromper sur les noms propres et les accents. Le navigateur demande l'autorisation du micro, et la page doit être en HTTPS.
+Limites : le visiteur parle, puis Wakil répond (pour une conversation en continu, voir « Appel en direct » ci-dessous) ; la transcription peut se tromper sur les noms propres et les accents. Le navigateur demande l'autorisation du micro, et la page doit être en HTTPS.
+
+## Appel en direct dans le chat du site
+
+Le bouton **Appeler** en haut du chat ouvre un appel : le visiteur parle comme au téléphone, sans toucher de bouton. Wakil repère quand il a fini sa phrase, répond à voix haute, puis l'écoute de nouveau. Le texte de l'appel s'affiche dans le chat, et c'est la même conversation que le chat écrit (catalogue, commandes, conseiller).
+
+```
+micro (16 kHz) ──► WebSocket /call?tenant=…&session=… ──► CallDO (un par appel)
+                   fin de phrase repérée (silence de 0,7 s)
+                   Whisper (Workers AI) : voix → texte
+                   ConversationDO.chat : la même conversation que le chat écrit
+                   voix française, phrase par phrase (MP3)
+◄── heard / replies / audio / state      le chat affiche et joue la réponse
+```
+
+- **Interrompre** : si le visiteur parle fort pendant que Wakil parle, Wakil se tait et l'écoute.
+- **Raccrocher** : bouton rouge, ou automatiquement après 1 minute de silence, 40 phrases ou 10 minutes d'appel.
+- **Délais** : chaque échange envoie ses délais (transcription, réponse, premier son) ; ils apparaissent dans les journaux Cloudflare (« Appel : délais »).
+- **Protections** : sites autorisés, 20 ouvertures d'appel par minute et par adresse, 60 messages par jour et par visiteur (comme le chat).
+- `data-voice="off"` masque aussi ce bouton.
+
+**La voix.** Cloudflare a annoncé le retrait de MeloTTS, la seule voix française gratuite de Workers AI (date annoncée : 20/11/2026). Pour une voix française fiable et naturelle, ajoutez une clé ElevenLabs :
+
+1. Créez un compte sur elevenlabs.io, puis une clé d'API (Profile → API Keys).
+2. Ajoutez-la dans GitHub : Settings → Secrets and variables → Actions → **New repository secret**, nom `ELEVENLABS_API_KEY`.
+3. Relancez le workflow « Mettre en ligne ».
+
+Sans clé, Wakil garde la voix gratuite de Workers AI tant qu'elle existe. Avec la clé, si ElevenLabs ne répond pas, la voix gratuite prend le relais pour la phrase. Facultatif, dans `vars` de `wrangler.jsonc` : `ELEVENLABS_VOICE_ID` (une autre voix de votre compte) et `ELEVENLABS_MODEL` (par défaut `eleven_flash_v2_5`, le plus rapide). Cette voix sert aussi au bouton 🎤.
 
 ## Mise en ligne depuis GitHub (recommandé)
 

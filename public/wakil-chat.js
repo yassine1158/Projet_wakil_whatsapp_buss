@@ -7,7 +7,7 @@
  * position (left | right), offset (distance au bas de l'écran en px, par défaut 24),
  * title (titre de la fenêtre), teaser (bulle d'invitation), greeting (message d'accueil),
  * suggestions (questions proposées au départ, séparées par « | »),
- * voice (« off » pour masquer le bouton micro de l'appel vocal).
+ * voice (« off » pour masquer le micro et le bouton « Appeler »).
  * La page peut piloter le chat : WakilChat.open(), WakilChat.send("Bonjour").
  */
 (() => {
@@ -45,6 +45,7 @@
   let log = store.get("log", []);
   let config = { businessName: "", assistantName: "Wakil" };
   let busy = false;
+  let call = null; // appel en direct en cours (voir plus bas)
 
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   // Mise en forme façon WhatsApp : *gras*, _italique_, liens, retours à la ligne.
@@ -127,6 +128,22 @@
   .mic:disabled { opacity: .5; cursor: default; animation: none; }
   @keyframes wk-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,48,37,.45); } 50% { box-shadow: 0 0 0 7px rgba(217,48,37,0); } }
   .status { padding: 0 12px; min-height: 0; font-size: 12.5px; color: var(--muted); }
+  header .dial { width: auto; height: 36px; padding: 0 12px; gap: 6px; display: inline-flex; align-items: center; border-radius: 999px;
+                 border: 1.5px solid color-mix(in srgb, var(--on-accent) 45%, transparent); font: inherit; font-size: 14px; font-weight: 600; }
+  header .dial svg { width: 16px; height: 16px; }
+  header .dial[hidden] { display: none; }
+  form[hidden], .callbar[hidden] { display: none; }
+  .callbar { border-top: 1px solid var(--line); padding: 12px; display: flex; align-items: center; gap: 12px; }
+  .callbar .dot { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); flex: none; transition: transform .08s linear; }
+  .callbar[data-state="thinking"] .dot { animation: wk-blink 1s infinite; }
+  .callbar .ci { flex: 1; min-width: 0; display: grid; }
+  .callbar .ci b { font-size: 14px; font-weight: 600; }
+  .callbar time { font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .hang { display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 16px; border: 0; border-radius: 999px;
+          background: #d93025; color: #fff; font: inherit; font-weight: 600; cursor: pointer; flex: none; }
+  .hang svg { width: 18px; height: 18px; }
+  @keyframes wk-blink { 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .callbar .dot { transition: none; animation: none !important; } }
   .status:empty { display: none; }
   .foot { padding: 0 12px 10px; font-size: 11.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
   .foot button { border: 0; background: none; padding: 0; color: var(--muted); text-decoration: underline; cursor: pointer; font: inherit; }
@@ -144,11 +161,23 @@
   <section class="panel" id="wk-panel" role="dialog" aria-label="Chat" hidden>
     <header>
       <div class="t"><b class="title">Assistant</b><small>Assistant virtuel · répond en quelques secondes</small></div>
+      <button class="dial" type="button" aria-label="Appeler l'assistant" title="Parler à l'assistant comme au téléphone" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg>
+        <span>Appeler</span>
+      </button>
       <button class="close" type="button" aria-label="Fermer le chat">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
     </header>
     <div class="log" role="log" aria-live="polite"></div>
+    <div class="callbar" hidden>
+      <span class="dot" aria-hidden="true"></span>
+      <div class="ci"><b class="cs" role="status" aria-live="polite">Connexion…</b><time>00:00</time></div>
+      <button class="hang" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        <span>Raccrocher</span>
+      </button>
+    </div>
     <form>
       <label class="sr" for="wk-input">Votre message</label>
       <textarea id="wk-input" rows="1" maxlength="1000" placeholder="Écrivez votre message…"></textarea>
@@ -231,6 +260,7 @@
   }
 
   function setOpen(open) {
+    if (!open && call) endCall(call, "hangup");
     panel.hidden = !open;
     launcher.setAttribute("aria-expanded", String(open));
     launcher.setAttribute("aria-label", open ? "Fermer le chat" : "Ouvrir le chat");
@@ -419,6 +449,221 @@
     startRecording();
   });
 
+  /* ---------- Appel en direct : on parle à l'assistant comme au téléphone, sans toucher de bouton ---------- */
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const canCall = script.dataset.voice !== "off" && !!(AC && window.WebSocket && navigator.mediaDevices?.getUserMedia);
+  const dial = $(".dial"), callbar = $(".callbar"), callStateEl = $(".callbar .cs"), callTime = $(".callbar time"),
+        callDot = $(".callbar .dot");
+  dial.hidden = !canCall;
+  const CALL_RATE = 16000;            // le serveur attend du PCM 16 bits mono à 16 kHz
+  const CHUNK = CALL_RATE / 10;       // envoyé par paquets de 100 ms
+  const BARGE_LEVEL = 0.08;           // voix assez forte pour couper la parole à l'assistant
+  const CALL_STATES = {
+    connecting: "Connexion…",
+    listening: "Je vous écoute…",
+    thinking: "Un instant…",
+    speaking: "L'assistant parle (parlez pour l'interrompre)",
+  };
+  const CALL_ENDS = {
+    silence: "Appel terminé : je ne vous entendais plus. Vous pouvez rappeler ou écrire.",
+    turns: "Appel terminé. Vous pouvez continuer par écrit.",
+    time: "Appel terminé : 10 minutes au maximum. Vous pouvez rappeler ou écrire.",
+    error: "L'appel a été coupé. Réessayez, ou écrivez votre message.",
+    denied: "Autorisez le micro pour appeler l'assistant, ou écrivez votre message.",
+  };
+  const WORKLET = 'class T extends AudioWorkletProcessor{process(i){const c=i[0]&&i[0][0];if(c)this.port.postMessage(c.slice(0));return true}}registerProcessor("wakil-tap",T);';
+  const level = (f) => { let s = 0; for (let i = 0; i < f.length; i++) s += f[i] * f[i]; return Math.sqrt(s / (f.length || 1)); };
+  const b64ToBuffer = (b64) => { const bin = atob(b64), out = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i); return out.buffer; };
+
+  function showCallState(c) {
+    const state = c.playing ? "speaking" : c.state;
+    callbar.dataset.state = state;
+    callStateEl.textContent = CALL_STATES[state] || "";
+  }
+
+  function setCallUI(on) {
+    callbar.hidden = !on;
+    form.hidden = on;
+    dial.hidden = on || !canCall;
+    if (on) setStatus("");
+  }
+
+  async function startCall() {
+    if (call || recorder || busy) return;
+    player.pause();
+    const ctx = new AC();
+    const c = { ctx, ws: null, stream: null, nodes: [], sources: [], nextAt: 0, playing: false, muted: false, state: "connecting",
+                acc: 0, accN: 0, pos: 0, out: [], backlog: [], loud: 0, timer: null, chain: Promise.resolve() };
+    call = c;
+    setCallUI(true);
+    showCallState(c);
+    ctx.resume().catch(() => {});
+    try {
+      c.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+    } catch {
+      return endCall(c, "denied");
+    }
+    if (call !== c) return c.stream.getTracks().forEach((t) => t.stop());
+    try {
+      const source = ctx.createMediaStreamSource(c.stream);
+      const mute = ctx.createGain();
+      mute.gain.value = 0;
+      let tap;
+      if (ctx.audioWorklet && window.AudioWorkletNode) {
+        const url = URL.createObjectURL(new Blob([WORKLET], { type: "application/javascript" }));
+        await ctx.audioWorklet.addModule(url);
+        URL.revokeObjectURL(url);
+        tap = new AudioWorkletNode(ctx, "wakil-tap");
+        tap.port.onmessage = (e) => onMic(c, e.data);
+      } else {
+        tap = ctx.createScriptProcessor(2048, 1, 1);
+        tap.onaudioprocess = (e) => onMic(c, e.inputBuffer.getChannelData(0).slice(0));
+      }
+      source.connect(tap);
+      tap.connect(mute).connect(ctx.destination);
+      c.nodes.push(source, tap, mute);
+    } catch {
+      return endCall(c, "error");
+    }
+    const ws = new WebSocket(`${API.replace(/^http/, "ws")}/call?tenant=${encodeURIComponent(tenant)}&session=${encodeURIComponent(sessionId)}`);
+    ws.binaryType = "arraybuffer";
+    c.ws = ws;
+    ws.onmessage = (e) => { if (typeof e.data === "string") onCallMessage(c, e.data); };
+    ws.onclose = () => endCall(c, "error");
+  }
+
+  // Micro : rééchantillonné à 16 kHz (moyenne par paquet), envoyé tant que l'assistant ne parle pas.
+  function onMic(c, frame) {
+    if (call !== c) return;
+    const ratio = c.ctx.sampleRate / CALL_RATE;
+    for (let i = 0; i < frame.length; i++) {
+      c.acc += frame[i];
+      c.accN++;
+      if (++c.pos >= ratio) {
+        c.pos -= ratio;
+        c.out.push(c.acc / c.accN);
+        c.acc = 0;
+        c.accN = 0;
+      }
+    }
+    while (c.out.length >= CHUNK) {
+      const samples = c.out.splice(0, CHUNK), pcm = new Int16Array(CHUNK);
+      for (let i = 0; i < CHUNK; i++) pcm[i] = Math.max(-1, Math.min(1, samples[i])) * 0x7fff;
+      if (c.playing) {
+        c.backlog.push(pcm);
+        if (c.backlog.length > 5) c.backlog.shift();
+      } else if (c.ws?.readyState === 1) c.ws.send(pcm.buffer);
+    }
+    const lvl = level(frame);
+    callDot.style.transform = `scale(${1 + Math.min(lvl * 8, 0.9)})`;
+    // Le client parle fort pendant que l'assistant parle : on lui laisse la parole.
+    const seconds = frame.length / c.ctx.sampleRate;
+    if (c.playing) {
+      c.loud = lvl > BARGE_LEVEL ? c.loud + seconds : Math.max(0, c.loud - seconds);
+      if (c.loud > 0.3) interrupt(c);
+    }
+  }
+
+  function stopPlayback(c) {
+    for (const s of c.sources) { try { s.onended = null; s.stop(); } catch {} }
+    c.sources = [];
+    c.playing = false;
+    c.nextAt = 0;
+  }
+
+  function interrupt(c) {
+    stopPlayback(c);
+    c.loud = 0;
+    c.muted = true; // les morceaux déjà en route sont ignorés jusqu'au prochain état envoyé par le serveur
+    if (c.ws?.readyState === 1) {
+      c.ws.send(JSON.stringify({ type: "interrupt" }));
+      for (const pcm of c.backlog) c.ws.send(pcm.buffer);
+    }
+    c.backlog = [];
+    showCallState(c);
+  }
+
+  function play(c, b64) {
+    c.chain = c.chain.then(async () => {
+      if (call !== c || c.muted) return;
+      let buffer;
+      try { buffer = await c.ctx.decodeAudioData(b64ToBuffer(b64)); } catch { return; }
+      if (call !== c || c.muted) return;
+      const src = c.ctx.createBufferSource();
+      src.buffer = buffer;
+      src.connect(c.ctx.destination);
+      const at = Math.max(c.ctx.currentTime + 0.05, c.nextAt);
+      src.start(at);
+      c.nextAt = at + buffer.duration;
+      c.sources.push(src);
+      c.playing = true;
+      showCallState(c);
+      src.onended = () => {
+        c.sources = c.sources.filter((s) => s !== src);
+        if (!c.sources.length) {
+          c.playing = false;
+          c.backlog = []; // le micro pendant que l'assistant parlait : son écho, pas le client
+          showCallState(c);
+        }
+      };
+    });
+  }
+
+  function onCallMessage(c, raw) {
+    if (call !== c) return;
+    let m;
+    try { m = JSON.parse(raw); } catch { return; }
+    if (m.type === "ready") {
+      const started = Date.now();
+      c.timer = setInterval(() => {
+        const s = Math.floor((Date.now() - started) / 1000);
+        callTime.textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+      }, 500);
+    } else if (m.type === "state") {
+      c.state = m.state;
+      c.muted = false;
+      showCallState(c);
+    } else if (m.type === "heard") {
+      logEl.querySelector(".chips")?.remove();
+      push({ from: "me", text: "🎤 " + m.text });
+    } else if (m.type === "replies") {
+      for (const r of m.replies || []) {
+        if (r.type === "image") push({ type: "image", url: r.url, caption: r.caption });
+        else if (r.type === "link") push({ type: "link", url: r.url, label: r.label });
+        else push({ from: "bot", text: r.text });
+      }
+    } else if (m.type === "audio") {
+      play(c, m.data);
+    } else if (m.type === "timing") {
+      console.debug?.("Wakil appel (ms)", m);
+    } else if (m.type === "end") {
+      // Laisse finir la dernière phrase avant de raccrocher.
+      c.chain.then(() => setTimeout(() => endCall(c, m.reason), Math.max(0, (c.nextAt - c.ctx.currentTime) * 1000)));
+      c.ws.onclose = null;
+    }
+  }
+
+  function endCall(c, reason) {
+    if (!c || call !== c) return;
+    call = null;
+    clearInterval(c.timer);
+    if (c.ws) {
+      c.ws.onclose = null;
+      try { if (c.ws.readyState === 1) c.ws.send(JSON.stringify({ type: "bye" })); c.ws.close(); } catch {}
+    }
+    stopPlayback(c);
+    c.stream?.getTracks().forEach((t) => t.stop());
+    for (const n of c.nodes) { try { n.disconnect(); } catch {} }
+    c.ctx.close().catch(() => {});
+    callTime.textContent = "00:00";
+    callDot.style.transform = "";
+    setCallUI(false);
+    if (CALL_ENDS[reason]) push({ from: "error", text: CALL_ENDS[reason] });
+  }
+
+  dial.addEventListener("click", startCall);
+  $(".hang").addEventListener("click", () => { endCall(call, "hangup"); dial.focus(); });
+
   launcher.addEventListener("click", () => setOpen(panel.hidden));
   $(".close").addEventListener("click", () => { setOpen(false); launcher.focus(); });
   // Sur le document : Échap ferme le chat même quand le focus est ailleurs dans la page.
@@ -428,6 +673,7 @@
     setOpen(true);
   });
   $(".reset").addEventListener("click", () => {
+    if (call) endCall(call, "hangup");
     log = [];
     store.del("log");
     sessionId = newId();
