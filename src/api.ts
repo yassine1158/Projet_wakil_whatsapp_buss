@@ -1,7 +1,7 @@
 import { createToken, hashPassword, samePassword, verifyPassword, verifyToken, type Role } from "./auth";
 import { loadCatalog } from "./catalog";
 import { completeWhatsappSignup, parseTenantInput, TENANT_ID_RE } from "./companies";
-import { checkClaude } from "./diagnostic";
+import { checkClaude, checkWhatsApp } from "./diagnostic";
 import { LEAD_STATUSES, ORDER_STATUSES, type LeadStatus, type OrderStatus } from "./inbox-types";
 import { INBOX_NAME, webConversation } from "./names";
 import { configTenantIds, invalidateTenants, listTenants, tenantById } from "./registry";
@@ -145,6 +145,11 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
 
     case "GET diagnostic":
       return isAdmin ? json(await checkClaude(env)) : adminOnly();
+
+    case "GET diagnostic-whatsapp":
+      if (!isAdmin) return adminOnly();
+      if (!tenant) return json({ error: "unknown_tenant" }, 404);
+      return json(await checkWhatsApp(env, tenant, (await inbox.tenantSecrets(tenant.id))?.whatsappToken ?? null));
 
     case "GET settings": {
       if (!tenant) return json({ error: "unknown_tenant" }, 404);
