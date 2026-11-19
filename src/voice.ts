@@ -1,4 +1,6 @@
 import { loadCatalog } from "./catalog";
+import { base64ToBytes } from "./encoding";
+import type { VoiceMaker } from "./engine";
 import { webConversation } from "./names";
 import { isKnownWebOrigin, tenantById } from "./registry";
 import { workersAiTranscriber, type Transcriber } from "./transcribe";
@@ -47,6 +49,18 @@ export function speakable(text: string): string {
 }
 
 export { TTS_MODEL, workersAiSpeaker, type Speaker } from "./speech";
+
+/**
+ * Réponse vocale envoyée sur WhatsApp : le texte rendu facile à dire, lu par la voix de Wakil
+ * (ElevenLabs si la clé est là, sinon Workers AI), en MP3.
+ */
+export function whatsappVoice(speak: Speaker): VoiceMaker {
+  return async (text) => {
+    const said = speakable(text);
+    const audio = said ? await speak(said) : null;
+    return audio ? { bytes: base64ToBytes(audio), mimeType: "audio/mpeg" } : null;
+  };
+}
 
 export interface VoiceDeps {
   transcribe: Transcriber;

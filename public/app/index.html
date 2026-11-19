@@ -128,6 +128,20 @@
 
   /* Cartes et listes */
   .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; }
+  .notice { display: flex; gap: 14px; align-items: flex-start; background: var(--gold-soft); border-color: transparent; }
+  .notice > .i { flex: none; color: var(--gold-ink); margin-top: 2px; }
+  .notice div { display: grid; gap: 4px; }
+  .notice.expired { background: var(--danger-soft); }
+  .notice.expired > .i { color: var(--danger); }
+  .steps ol { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 6px; }
+  .steps a { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; text-decoration: none; color: inherit; background: var(--surface-2); }
+  .steps a:hover { outline: 2px solid var(--gold); }
+  .steps a > .i { flex: none; color: var(--gold-ink); }
+  .steps span { display: grid; }
+  .steps small { color: var(--muted); }
+  .steps li.done a { opacity: .65; }
+  .steps li.done a > .i { color: var(--ok); }
+  .steps li.done b { text-decoration: line-through; }
   .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
   .stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 4px; text-decoration: none; color: var(--ink); }
   .stat b { font: 800 38px/1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
@@ -345,6 +359,7 @@
           <label for="password">Mot de passe<input id="password" type="password" autocomplete="current-password" required></label>
           <p class="error" role="alert">${esc(message)}</p>
           <button class="btn primary" type="submit">Se connecter</button>
+          <p class="muted" style="margin:0;text-align:center">Nouveau ? <a href="/inscription">Essayer Wakil gratuitement 14 jours</a></p>
         </form>
       </div>`;
     const form = document.getElementById("login-form");
@@ -381,11 +396,13 @@
     { id: "conversations", label: "Conversations", short: "Messages", icon: "i-chat" },
     { id: "commandes", label: "Commandes", icon: "i-box" },
     { id: "tester", label: "Tester", icon: "i-spark" },
+    { id: "fiche", label: "Mon entreprise", icon: "i-building", patron: true },
     { id: "reglages", label: "Réglages", icon: "i-gear" },
     { id: "demandes", label: "Demandes", icon: "i-users", admin: true },
     { id: "entreprises", label: "Entreprises", icon: "i-building", admin: true },
+    { id: "brain", label: "Wakil Brain", short: "Brain", icon: "i-spark", admin: true },
   ];
-  const navItems = () => NAV.filter((n) => !n.admin || isAdmin());
+  const navItems = () => NAV.filter((n) => (!n.admin || isAdmin()) && (!n.patron || !isAdmin()));
   const badgeFor = (id) => {
     const o = state.overview; if (!o) return 0;
     return { commandes: o.newOrders, conversations: o.waitingForTeam, demandes: o.newLeads }[id] || 0;
@@ -461,19 +478,76 @@
   const main = () => document.getElementById("main");
   const tenantInfo = () => state.tenants.find((t) => t.id === state.tenant) || {};
 
+  /* ---------- Abonnement ---------- */
+  const PLAN_LABEL = { essentiel: "Essentiel", pro: "Pro", business: "Business" };
+  const longDay = (ms) => new Date(ms).toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+  /** Même calcul que le serveur (src/subscription.ts), à partir de l'abonnement enregistré. */
+  function subView(s) {
+    if (!s) return { status: "none" };
+    const now = Date.now(), paid = s.paidUntil || 0, trial = s.trialEndsAt || 0;
+    const status = paid > now ? "active" : trial > now ? "trial" : "expired";
+    const endsAt = status === "active" ? paid : status === "trial" ? trial : Math.max(paid, trial);
+    return { status, plan: s.plan, endsAt, daysLeft: status === "expired" ? 0 : Math.ceil((endsAt - now) / 86400000) };
+  }
+  const days = (n) => `${n} jour${n > 1 ? "s" : ""}`;
+  function subPill(v) {
+    if (v.status === "trial") return `<span class="pill nouvelle">Essai · ${days(v.daysLeft)}</span>`;
+    if (v.status === "active") return `<span class="pill livree">${PLAN_LABEL[v.plan] || ""} · ${days(v.daysLeft)}</span>`;
+    if (v.status === "expired") return `<span class="pill annulee">Terminé</span>`;
+    return "";
+  }
+  function subscriptionCard(t) {
+    const v = subView(t.subscription), plan = PLAN_LABEL[v.plan] || "";
+    const text = {
+      trial: `Essai gratuit, offre ${plan} : encore <b>${days(v.daysLeft)}</b>, jusqu'au ${longDay(v.endsAt)}.`,
+      active: `Offre ${plan} payée jusqu'au <b>${longDay(v.endsAt)}</b>.`,
+      expired: `<span class="ko">Terminé depuis le ${longDay(v.endsAt)}</span> : Wakil ne répond plus aux clients de cette entreprise.`,
+    }[v.status];
+    return `<section class="card" style="display:grid;gap:12px"><h2>Abonnement</h2>
+      <p style="margin:0">${text}</p>
+      <div class="actions">
+        <label for="sub-plan" class="sr">Offre</label>
+        <select id="sub-plan" style="width:auto">${Object.entries(PLAN_LABEL).map(([k, l]) => `<option value="${k}" ${k === v.plan ? "selected" : ""}>${l}</option>`).join("")}</select>
+        <button class="btn small" type="button" data-sub='{}'>Changer l'offre</button>
+        <button class="btn small" type="button" data-sub='{"trialDays":7}'>+7 jours d'essai</button>
+        <button class="btn small primary" type="button" data-sub='{"paidMonths":1}'>Paiement reçu : +1 mois</button>
+      </div>
+      <p class="hint" style="margin:0">En attendant le paiement en ligne, enregistrez ici chaque paiement reçu (Wave, Orange Money, MTN…).</p>
+    </section>`;
+  }
+
   async function viewAccueil() {
     const t = tenantInfo();
     main().innerHTML = `<div class="view"><div class="loading">Chargement…</div></div>`;
-    const [o, orders, convs] = await Promise.all([api(withTenant("overview")), api(withTenant("orders")), api(withTenant("conversations"))]);
+    const sub = t.subscription || { status: "none" };
+    const [o, orders, convs, s] = await Promise.all([api(withTenant("overview")), api(withTenant("orders")), api(withTenant("conversations")),
+      sub.status === "none" ? null : api(withTenant("settings")).catch(() => null)]);
     state.overview = o; paintNav();
     const hour = new Date().getHours();
     const todo = [
       ...convs.filter((c) => c.status === "equipe" && !c.test).map((c) => ({ at: c.lastAt, html: convRow(c, "Attend une réponse de l'équipe") })),
       ...orders.filter((x) => x.status === "nouvelle").map((x) => ({ at: x.createdAt, html: orderRow(x) })),
     ].sort((a, b) => b.at - a.at).slice(0, 8);
+    const banner = sub.status === "trial"
+      ? `<div class="card notice">${icon("i-spark")}<div><b>Essai gratuit : encore ${days(sub.daysLeft)}</b><span class="muted">Wakil répond à vos clients jusqu'au ${longDay(sub.endsAt)}. L'équipe Wakil vous contacte avant la fin pour continuer.</span></div></div>`
+      : sub.status === "expired"
+        ? `<div class="card notice expired">${icon("i-spark")}<div><b>Votre essai est terminé</b><span class="muted">Wakil ne répond plus à vos clients : leurs messages vous sont transférés sur WhatsApp. Contactez l'équipe Wakil pour activer votre abonnement.</span></div></div>`
+        : "";
+    const fiche = isAdmin() ? `#entreprises/${encodeURIComponent(state.tenant)}` : "#fiche";
+    const steps = s ? [
+      { done: s.products.length > 0, label: "Ajouter vos produits", hint: "Tapez-les ou importez un fichier Excel.", href: fiche },
+      { done: s.infoFilled, label: "Indiquer vos horaires et votre adresse", hint: "Wakil les donne à vos clients.", href: fiche },
+      { done: s.whatsappConfigured, label: "Relier votre WhatsApp", hint: "Wakil répond sur votre numéro.", href: fiche },
+      { done: convs.some((c) => c.test), label: "Essayer Wakil comme un client", hint: "Posez-lui une question dans « Tester ».", href: "#tester" },
+      { done: s.webOrigins.length > 0, label: "Mettre le chat sur votre site (facultatif)", hint: "Une seule ligne à coller.", href: "#reglages" },
+    ] : [];
+    const left = steps.filter((x) => !x.done).length;
+    const checklist = left ? `<section class="card steps" aria-labelledby="steps-t"><h2 id="steps-t">Démarrer avec Wakil · ${steps.length - left}/${steps.length}</h2>
+      <ol>${steps.map((x) => `<li class="${x.done ? "done" : ""}"><a href="${x.href}">${icon(x.done ? "i-check" : "i-plus")}<span><b>${esc(x.label)}</b><small>${esc(x.hint)}</small></span></a></li>`).join("")}</ol></section>` : "";
     main().innerHTML = `
       <div class="view">
         <div class="head"><div><h1>${hour < 18 ? "Bonjour" : "Bonsoir"}</h1><p class="muted">${esc(t.businessName)}${t.demo ? " · entreprise de démonstration" : ""} · ${new Date().toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</p></div></div>
+        ${banner}${checklist}
         <div class="stats">
           <a class="stat ${o.newOrders ? "hot" : ""}" href="#commandes"><b>${o.newOrders}</b><span>Commandes à traiter</span></a>
           <a class="stat ${o.waitingForTeam ? "hot" : ""}" href="#conversations"><b>${o.waitingForTeam}</b><span>Clients qui attendent l'équipe</span></a>
@@ -489,7 +563,7 @@
 
   function initials(c) {
     const n = c.name || (c.channel === "web" ? "Site" : c.phone || "?");
-    return esc(n.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase());
+    return esc((n.match(/[\p{L}\p{N}]+/gu) || ["?"]).map((w) => w[0]).join("").slice(0, 2).toUpperCase());
   }
   const convName = (c) => c.name || (c.phone ? "+" + c.phone : "Visiteur du site");
   const chan = (c) => c.channel === "web" ? `<span class="chan">${icon("i-web")}Site web</span>` : `<span class="chan whatsapp">${icon("i-wa")}WhatsApp</span>`;
@@ -682,6 +756,47 @@
     }));
   }
 
+  const BRAIN_LABELS = { reponse: "Répondre", humain: "Passer à un conseiller", commande: "Enregistrer la commande", photo: "Envoyer une photo" };
+  const pct = (a, b) => (b ? Math.round((100 * a) / b) + " %" : "–");
+  async function viewBrain() {
+    main().innerHTML = `<div class="view"><div class="head"><div><h1>Wakil Brain</h1></div></div><div class="loading">Chargement…</div></div>`;
+    const { stats, model } = await api("brain");
+    const rows = Object.keys(BRAIN_LABELS).map((k) => {
+      const t = stats.byTeacher[k] || { total: 0, agreed: 0 };
+      return `<tr><td>${esc(BRAIN_LABELS[k])}</td><td>${t.total}</td><td>${pct(t.agreed, t.total)}</td></tr>`;
+    }).join("");
+    main().innerHTML = `
+      <div class="view">
+        <div class="head"><div><h1>Wakil Brain</h1><p class="muted">Votre propre modèle, construit et entraîné de zéro. Il tourne en <b>mode ombre</b> : pour chaque message réel, il devine ce qu'il faut faire, et on compare avec ce que Claude a fait. Il ne répond jamais aux clients.</p></div></div>
+        <div class="stats">
+          <div class="stat"><b>${stats.total}</b><span>messages observés</span></div>
+          <div class="stat ${stats.total ? "hot" : ""}"><b>${pct(stats.agreed, stats.total)}</b><span>d'accord avec Claude</span></div>
+          <div class="stat"><b>${esc(String(model.real_examples ?? 0))}</b><span>exemples réels appris</span></div>
+        </div>
+        <section class="card">
+          <h2>Par action de Claude</h2>
+          <div class="table-wrap"><table class="ptable"><thead><tr><th>Ce que Claude a fait</th><th>Fois</th><th>Wakil Brain d'accord</th></tr></thead><tbody>${rows}</tbody></table></div>
+          <p class="muted">Modèle entraîné le ${esc(model.trained_at || "?")} sur ${esc(String(model.synthetic_examples ?? 0))} exemples écrits à la main et ${esc(String(model.real_examples ?? 0))} exemples réels.</p>
+          <div class="actions"><button class="btn primary" type="button" id="brain-export">Télécharger les exemples pour l'entraîner</button></div>
+          <p class="muted">Puis, dans WAKIL-AI : <code>python train_intent.py --teacher brain-samples.json --out …/src/brain-model.json</code></p>
+        </section>
+        <section class="card">
+          <h2>Derniers messages</h2>
+          ${stats.recent.length ? `<div class="table-wrap"><table class="ptable"><thead><tr><th>Message</th><th>Wakil Brain</th><th>Claude</th></tr></thead><tbody>${stats.recent.map((r) => `
+            <tr><td>${esc(r.text)}</td><td>${esc(BRAIN_LABELS[r.predicted] || r.predicted)} <span class="muted">${Math.round(r.confidence * 100)} %</span></td><td>${r.predicted === r.teacher ? "✅ " : "❌ "}${esc(BRAIN_LABELS[r.teacher] || r.teacher)}</td></tr>`).join("")}</tbody></table></div>`
+          : `<p class="muted">Pas encore de message réel. Les conversations d'essai (onglet Tester) ne comptent pas.</p>`}
+        </section>
+      </div>`;
+    document.getElementById("brain-export").addEventListener("click", async () => {
+      try {
+        const data = await api("brain/export");
+        const url = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: "application/json" }));
+        const a = Object.assign(document.createElement("a"), { href: url, download: "brain-samples.json" });
+        a.click(); URL.revokeObjectURL(url);
+      } catch { toast("Le téléchargement n'a pas abouti."); }
+    });
+  }
+
   const TRIES = ["Bonjour, qu'est-ce que vous proposez ?", "C'est combien ?", "Je voudrais passer une commande", "Je veux parler à quelqu'un"];
   function viewTester() {
     let session = sessionStorage.getItem("wakil-app:test-" + state.tenant);
@@ -742,6 +857,7 @@
               ? `<span class="ok">Numéro relié${s.whatsappPhone ? ` : ${esc(s.whatsappPhone)}` : ""}.</span> Wakil répond à vos clients sur ce numéro.`
               : `<span class="ko">Numéro pas encore relié.</span> ${s.isAdmin ? `Reliez-le depuis <a href="#entreprises/${encodeURIComponent(state.tenant)}">la fiche de l'entreprise</a>.` : "L'équipe Wakil s'en occupe avec vous."}`}</p>
             ${s.isAdmin ? `<p class="muted" style="margin:0">Adresse du webhook, à coller dans Meta → WhatsApp → Configuration :</p>${copyBox("webhook", s.webhookUrl)}` : ""}
+            ${s.isAdmin && s.whatsappConfigured ? `<button class="btn small gold" type="button" id="check-wa">Vérifier la connexion à WhatsApp</button><div id="check-wa-result" role="status" aria-live="polite"></div>` : ""}
             <p class="muted" style="margin:0">Commandes et alertes envoyées à : <b>${s.ownerPhone ? "+" + esc(s.ownerPhone) : "personne pour l'instant"}</b></p>
           </section>
           <section class="card"><h2>Chat sur votre site</h2>
@@ -763,6 +879,15 @@
           </section>
         </div>
       </div>`;
+    document.getElementById("check-wa")?.addEventListener("click", async (e) => {
+      const out = document.getElementById("check-wa-result");
+      e.target.disabled = true; out.innerHTML = '<p class="muted" style="margin:0">Vérification…</p>';
+      try {
+        const d = await api(withTenant("diagnostic-whatsapp"));
+        out.innerHTML = `<p class="${d.ok ? "ok" : "ko"}" style="margin:0">${d.ok ? "✓ " : ""}${esc(d.message)}</p>${d.detail ? `<p class="muted" style="margin:6px 0 0;font-size:13px;overflow-wrap:anywhere">Détail : ${esc(d.detail)}</p>` : ""}`;
+      } catch { out.innerHTML = '<p class="ko" style="margin:0">La vérification n\'a pas abouti. Réessayez.</p>'; }
+      e.target.disabled = false;
+    });
     document.getElementById("check-claude")?.addEventListener("click", async (e) => {
       const out = document.getElementById("check-result");
       e.target.disabled = true; out.innerHTML = '<p class="muted" style="margin:0">Vérification…</p>';
@@ -792,12 +917,13 @@
           <a class="btn primary" href="#entreprises/new">${icon("i-plus")}Nouvelle entreprise</a></div>
         <div class="list">${list.map(({ tenant: t, hasPassword }) => `
           <a class="row company" href="#entreprises/${encodeURIComponent(t.id)}">
-            <div class="av">${esc(t.businessName.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase())}</div>
+            <div class="av">${esc(((t.businessName.match(/\p{L}+/gu) || ["?"]).map((w) => w[0]).join("")).slice(0, 2).toUpperCase())}</div>
             <div style="min-width:0"><div class="who"><b>${esc(t.businessName)}</b>${t.demo ? '<span class="pill annulee">Démo</span>' : ""}</div>
               <div class="last chips" style="margin-top:6px;gap:6px">
-                ${tag(t.whatsapp, `WhatsApp ${esc(t.whatsapp?.displayPhone || "relié")}`, "WhatsApp à relier")}
+                ${t.hostedNumber && t.hostedNumber.state !== "connected" ? `<span class="pill nouvelle">${t.hostedNumber.state === "submitted" ? "Numéro à valider" : "Code envoyé"}</span>` : tag(t.whatsapp, `WhatsApp ${esc(t.whatsapp?.displayPhone || "relié")}`, "WhatsApp à relier")}
                 ${(t.webOrigins || []).length ? tag(true, "Chat sur le site", "") : ""}
                 ${t.demo ? "" : tag(hasPassword, "Accès patron", "Pas d'accès patron")}
+                ${t.subscription ? subPill(subView(t.subscription)) : ""}
               </div></div>
             <span class="muted" style="font-size:13px">${esc(t.id)}</span></a>`).join("")}
         </div>
@@ -808,7 +934,7 @@
     "Africa/Libreville", "Africa/Kinshasa", "Africa/Casablanca", "Africa/Algiers", "Africa/Tunis", "Africa/Cairo", "Africa/Nairobi", "Africa/Johannesburg", "Europe/Paris", "Europe/London", "Asia/Dubai"];
   const FIELD_LABEL = { id: "Identifiant", businessName: "Nom de l'entreprise", timezone: "Fuseau horaire", defaultCountryCode: "Indicatif du pays", ownerPhone: "WhatsApp du patron",
     webOrigins: "Sites autorisés", "catalog.productsUrl": "Adresse du catalogue", "catalog.siteUrl": "Adresse des informations", products: "Catalogue", instructions: "Consignes", paymentInstructions: "Paiement",
-    password: "Mot de passe", phoneNumberId: "Phone number ID" };
+    password: "Mot de passe", phoneNumberId: "Phone number ID", code: "Le code" };
   const ERROR_TEXT = { required: "est obligatoire", too_long: "est trop long", invalid: "n'est pas valable", invalid_url: "doit être une adresse https:// valable",
     invalid_phone: "n'est pas un numéro valable", already_exists: "est déjà pris par une autre entreprise", too_many_products: "dépasse 500 produits", weak_password: "doit faire au moins 8 caractères" };
   function fieldError(data) {
@@ -819,7 +945,34 @@
   }
   const slug = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40).replace(/-+$/, "");
 
-  async function viewEntreprise(id) {
+  // Numéro demandé à l'inscription : l'équipe valide (ajout + code), puis le patron saisit le code.
+  function hostedBlock(t, self) {
+    const h = t.hostedNumber;
+    if (!h || h.state === "connected") return "";
+    const number = `<b>+${esc(h.phone)}</b>`;
+    const problem = h.error ? `<p class="error" style="margin:0">Dernier refus de Meta : ${esc(h.error)}</p>` : "";
+    if (h.state === "code_sent") return `
+      <div class="hosted" style="display:grid;gap:10px">
+        <p style="margin:0"><span class="pill nouvelle">Code envoyé</span> Meta a envoyé un code ${h.codeMethod === "VOICE" ? "par appel" : "par SMS"} au ${number}.</p>
+        <form id="hn-verify" class="actions" style="align-items:end">
+          <label for="hn-code" style="flex:1;min-width:160px">Code à 6 chiffres<input id="hn-code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required></label>
+          <button class="btn small primary" type="submit">Activer Wakil sur ce numéro</button>
+        </form>
+        ${problem}
+        ${self ? "" : `<div class="actions"><button class="btn small" type="button" data-hosted="SMS">Renvoyer par SMS</button><button class="btn small" type="button" data-hosted="VOICE">Envoyer par appel</button></div>`}
+      </div>`;
+    if (self) return `<p style="margin:0"><span class="pill nouvelle">En validation</span> L'équipe Wakil ajoute votre numéro ${number} à WhatsApp. Un code va arriver sur ce numéro : saisissez-le ici.</p>${problem}`;
+    return `
+      <div class="hosted" style="display:grid;gap:10px">
+        <p style="margin:0"><span class="pill nouvelle">${h.state === "verified" ? "Vérifié, à activer" : "À valider"}</span> Numéro demandé à l'inscription : ${number}.</p>
+        <p class="hint" style="margin:0">Valider ajoute ce numéro au compte WhatsApp de Wakil, au nom « ${esc(t.businessName)} », et Meta envoie un code au patron. Il le saisit sur sa page d'inscription (ou ici, avec vous). Le numéro ne doit pas avoir de compte WhatsApp.</p>
+        ${problem}
+        <div class="actions"><button class="btn gold" type="button" data-hosted="SMS">${icon("i-wa")}${h.state === "verified" ? "Activer le numéro" : "Valider et envoyer le code par SMS"}</button>
+          ${h.state === "verified" ? "" : `<button class="btn small" type="button" data-hosted="VOICE">Par appel</button>`}</div>
+      </div>`;
+  }
+
+  async function viewEntreprise(id, { self = false } = {}) {
     const creating = id === "new";
     main().innerHTML = `<div class="view"><div class="loading">Chargement…</div></div>`;
     const c = creating ? { tenant: { webOrigins: [], catalog: { products: [] }, timezone: "Africa/Abidjan", defaultCountryCode: "225", assistantName: "Wakil", handoffHours: 12 } } : await api(`companies/${encodeURIComponent(id)}`);
@@ -835,10 +988,10 @@
     main().innerHTML = `
       <div class="view">
         <div class="conv-head">
-          <a class="back" href="#entreprises" aria-label="Retour aux entreprises">${icon("i-back")}</a>
+          ${self ? "" : `<a class="back" href="#entreprises" aria-label="Retour aux entreprises">${icon("i-back")}</a>`}
           <div style="min-width:0;flex:1 1 220px"><h1 style="font-size:24px">${creating ? "Nouvelle entreprise" : esc(t.businessName)}</h1>
             ${creating ? "" : `<p class="muted" style="margin:4px 0 0">Identifiant de connexion : <b>${esc(t.id)}</b>${c.inConfig && !c.editedInApp ? " · fiche du fichier de configuration" : ""}</p>`}</div>
-          ${creating ? "" : `<button class="btn small" type="button" id="open-tenant">${icon("i-home")}Ouvrir son espace</button>`}
+          ${creating || self ? "" : `<button class="btn small" type="button" id="open-tenant">${icon("i-home")}Ouvrir son espace</button>`}
         </div>
 
         <form class="fiche" id="fiche" novalidate>
@@ -856,6 +1009,7 @@
             <div class="grid2">
               ${field("ownerPhone", "Son numéro WhatsApp", t.ownerPhone ? "+" + t.ownerPhone : "", 'inputmode="tel" autocomplete="tel"', "Il y reçoit les nouvelles commandes et les clients qui demandent l'équipe.")}
               <label for="f-handoffHours">Quand l'équipe prend la main, Wakil se tait pendant<select id="f-handoffHours" name="handoffHours">${[1, 2, 4, 8, 12, 24, 48, 72].map((h) => `<option value="${h}" ${h === (t.handoffHours || 12) ? "selected" : ""}>${h} h</option>`).join("")}</select></label>
+              <label for="f-voiceReplies">Réponses vocales sur WhatsApp<select id="f-voiceReplies" name="voiceReplies">${[["after-voice", "Quand le client envoie un vocal"], ["always", "À chaque message"], ["never", "Jamais"]].map(([v, l]) => `<option value="${v}" ${v === (t.voiceReplies || "after-voice") ? "selected" : ""}>${l}</option>`).join("")}</select></label>
             </div>
           </section>
 
@@ -904,7 +1058,8 @@
         </form>
 
         ${creating ? "" : `
-        <section class="card fiche-extra" style="display:grid;gap:12px"><h2>Accès du patron</h2>
+        ${self || !t.subscription ? "" : subscriptionCard(t)}
+        ${self ? "" : `<section class="card fiche-extra" style="display:grid;gap:12px"><h2>Accès du patron</h2>
           <p style="margin:0">${c.hasPassword ? '<span class="ok">Le patron a un accès.</span> Un nouveau mot de passe remplace l\'ancien.' : "Le patron n'a pas encore d'accès à l'application."}</p>
           <form id="pw-form" class="composer" style="flex-wrap:wrap">
             <label for="f-password" style="flex:1;min-width:200px">Nouveau mot de passe<input id="f-password" type="text" autocomplete="off" spellcheck="false" minlength="8" maxlength="200"></label>
@@ -912,28 +1067,30 @@
             <button class="btn small primary" type="submit">Enregistrer</button>
           </form>
           <div id="pw-out"></div>
-        </section>
+        </section>`}
 
         <section class="card" style="display:grid;gap:12px" id="wa-card"><h2>WhatsApp</h2>
+          ${hostedBlock(t, self)}
           ${t.whatsapp ? `
             <p style="margin:0"><span class="ok">Relié.</span> ${t.whatsapp.displayPhone ? `Numéro <b>${esc(t.whatsapp.displayPhone)}</b> · ` : ""}Phone number ID <b>${esc(t.whatsapp.phoneNumberId)}</b></p>
-            <p class="muted" style="margin:0">${c.hasWhatsappToken ? "Ce numéro utilise son propre accès Meta." : "Ce numéro utilise l'accès Meta de Wakil (secret WHATSAPP_TOKEN)."}</p>
+            <p class="muted" style="margin:0">${t.whatsapp.coexistence ? "Le numéro reste aussi dans l'application WhatsApp Business : quand vous répondez depuis votre téléphone, Wakil se tait pour ce client." : c.hasWhatsappToken ? "Ce numéro utilise son propre accès Meta." : "Ce numéro utilise l'accès Meta de Wakil (secret WHATSAPP_TOKEN)."}</p>
             <div class="actions"><button class="btn small danger" type="button" id="wa-off">Délier ce numéro</button></div>`
           : `<p style="margin:0" class="muted">Pas encore de numéro : Wakil ne répond que sur le site.</p>`}
           ${state.metaSignup ? `<div class="actions"><button class="btn gold" type="button" id="wa-signup">${icon("i-wa")}${t.whatsapp ? "Relier un autre numéro" : "Connecter WhatsApp"}</button></div>
-            <p class="hint" style="margin:0">Le patron se connecte à Facebook et choisit son numéro : Meta s'occupe du reste. Faites-le avec lui, sur son téléphone ou le vôtre.</p>` : ""}
-          <details ${!t.whatsapp && !state.metaSignup ? "open" : ""}><summary>Relier à la main</summary>
+            <p class="hint" style="margin:0">${self ? "Connectez-vous à Facebook et choisissez votre numéro : Meta s'occupe du reste. Le numéro de votre application WhatsApp Business convient : vous la gardez." : "Le patron se connecte à Facebook et choisit son numéro, même celui de son application WhatsApp Business, qu'il garde. Faites-le avec lui, sur son téléphone ou le vôtre."}</p>` : ""}
+          ${self ? (state.metaSignup || t.whatsapp || t.hostedNumber ? "" : `<p class="muted" style="margin:0">La connexion en un clic arrive bientôt. En attendant, l'équipe Wakil relie votre numéro avec vous.</p>`) : `
+          <details ${!t.whatsapp && !state.metaSignup && !t.hostedNumber ? "open" : ""}><summary>Relier à la main</summary>
             <form id="wa-form" class="grid2">
-              ${field("wa-pnid", "Phone number ID", "", 'inputmode="numeric" required', "Meta → WhatsApp → Configuration de l'API.")}
-              ${field("wa-display", "Numéro affiché", "", 'placeholder="+225 07 00 00 00 00"')}
-              <label for="f-wa-token">Jeton d'accès (facultatif)<input id="f-wa-token" type="password" autocomplete="off"><span class="hint">Seulement si le numéro est dans un autre compte Meta que celui de Wakil.</span></label>
+              ${field("wa-pnid", "Phone number ID", "", 'inputmode="numeric" autocomplete="off" required', "Meta → WhatsApp → Configuration de l'API.")}
+              ${field("wa-display", "Numéro affiché", "", 'placeholder="+225 07 00 00 00 00" autocomplete="off"')}
+              <label for="f-wa-token">Jeton d'accès (facultatif)<input id="f-wa-token" type="password" autocomplete="new-password"><span class="hint">Seulement si le numéro est dans un autre compte Meta que celui de Wakil.</span></label>
               <div style="align-self:end"><button class="btn small primary" type="submit">Relier</button></div>
             </form>
-          </details>
+          </details>`}
           <p class="error" role="alert" id="wa-error"></p>
         </section>
 
-        ${!c.editedInApp && c.inConfig ? "" : `
+        ${self || (!c.editedInApp && c.inConfig) ? "" : `
         <section class="card danger-zone" style="display:grid;gap:12px"><h2>${c.inConfig ? "Revenir à la fiche d'origine" : "Supprimer l'entreprise"}</h2>
           <p class="muted" style="margin:0">${c.inConfig ? "Annule les changements faits ici et reprend la fiche du fichier de configuration. Le mot de passe du patron et le jeton WhatsApp sont effacés." : "L'assistant arrête de répondre pour cette entreprise et le patron ne peut plus se connecter. Les conversations et commandes passées restent dans l'historique."}</p>
           <div class="actions"><button class="btn small danger" type="button" id="delete">${c.inConfig ? "Revenir à l'origine" : "Supprimer"}</button></div>
@@ -997,7 +1154,7 @@
       const body = {
         id: creating ? v("id").toLowerCase() : t.id,
         businessName: v("businessName"), assistantName: v("assistantName"), timezone: v("timezone"), defaultCountryCode: v("defaultCountryCode"),
-        ownerPhone: v("ownerPhone"), handoffHours: Number(v("handoffHours")),
+        ownerPhone: v("ownerPhone"), handoffHours: Number(v("handoffHours")), voiceReplies: v("voiceReplies"),
         info: { phone: v("info.phone"), email: v("info.email"), address: v("info.address"), hours: v("info.hours"), about: v("info.about") },
         catalog: mode === "table" ? { products: products.filter((p) => String(p.name || "").trim()) } : { productsUrl: v("catalog.productsUrl"), siteUrl: v("catalog.siteUrl"),
             ...(v("catalog.productsUrl") === t.catalog.productsUrl && t.catalog.assetBaseUrl ? { assetBaseUrl: t.catalog.assetBaseUrl } : {}) },
@@ -1010,7 +1167,7 @@
         state.tenants = await api("tenants");
         toast(creating ? "Entreprise créée. Donnez maintenant un accès au patron." : "Fiche enregistrée. Wakil l'utilise dès maintenant.");
         if (creating) location.hash = `#entreprises/${encodeURIComponent(saved.tenant.id)}`;
-        else { renderShell(); await viewEntreprise(t.id); }
+        else { renderShell(); await viewEntreprise(t.id, { self }); }
       } catch (err) {
         if (err.message === "unauthorized") return;
         btn.disabled = false;
@@ -1026,18 +1183,18 @@
     bindCopy();
     if (creating) return;
 
-    document.getElementById("open-tenant").addEventListener("click", () => {
+    document.getElementById("open-tenant")?.addEventListener("click", () => {
       state.tenant = t.id; store.set("tenant", t.id); renderShell(); location.hash = "#accueil";
     });
 
     // Mot de passe du patron
     const pwForm = document.getElementById("pw-form");
-    document.getElementById("pw-gen").addEventListener("click", () => {
+    document.getElementById("pw-gen")?.addEventListener("click", () => {
       const words = ["Baobab", "Lagune", "Savane", "Pirogue", "Karite", "Manguier", "Cauri", "Soleil", "Marche", "Ebene"];
       const rnd = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n;
       pwForm.querySelector("input").value = `${words[rnd(10)]}-${words[rnd(10)].toLowerCase()}-${String(rnd(9000) + 1000)}`;
     });
-    pwForm.addEventListener("submit", async (e) => {
+    pwForm?.addEventListener("submit", async (e) => {
       e.preventDefault();
       const password = pwForm.querySelector("input").value;
       try {
@@ -1060,10 +1217,14 @@
         number_in_use: "Ce numéro est déjà relié à une autre entreprise.",
         meta_not_configured: "Il manque les secrets META_APP_ID et WHATSAPP_APP_SECRET.",
         meta_error: `Meta a refusé : ${err.data?.message || "erreur inconnue"}.`,
+        wrong_code: `Code refusé : ${err.data?.message || "vérifiez le dernier code reçu"}.`,
+        waba_not_configured: "Il manque le secret WHATSAPP_WABA_ID (le compte WhatsApp de Wakil) ou WHATSAPP_TOKEN.",
+        no_code_requested: "Aucun code n'a encore été envoyé pour ce numéro.",
+        already_connected: "Ce numéro est déjà actif.",
       }[err.code] || (err.data?.field ? fieldError(err.data) : "L'opération n'a pas abouti. Réessayez.");
     };
-    const reload = async (message) => { toast(message); state.tenants = await api("tenants"); renderShell(); await viewEntreprise(t.id); };
-    document.getElementById("wa-form").addEventListener("submit", async (e) => {
+    const reload = async (message) => { toast(message); state.tenants = await api("tenants"); renderShell(); await viewEntreprise(t.id, { self }); };
+    document.getElementById("wa-form")?.addEventListener("submit", async (e) => {
       e.preventDefault(); waError.textContent = "";
       try {
         await api(`companies/${encodeURIComponent(t.id)}/whatsapp`, {
@@ -1072,6 +1233,27 @@
         await reload("Numéro relié : Wakil répond maintenant sur WhatsApp.");
       } catch (err) { waFail(err); }
     });
+    main().querySelectorAll("[data-hosted]").forEach((b) => b.addEventListener("click", async () => {
+      waError.textContent = ""; b.disabled = true;
+      try {
+        const res = await api(`companies/${encodeURIComponent(t.id)}/whatsapp/hosted`, { method: b.dataset.hosted });
+        await reload(res.tenant?.hostedNumber?.state === "connected" ? "Numéro activé : Wakil répond maintenant sur WhatsApp." : "Code envoyé au patron.");
+      } catch (err) { b.disabled = false; waFail(err); }
+    }));
+    document.getElementById("hn-verify")?.addEventListener("submit", async (e) => {
+      e.preventDefault(); waError.textContent = "";
+      const btn = e.target.querySelector("button"); btn.disabled = true;
+      try {
+        await api(`companies/${encodeURIComponent(t.id)}/whatsapp/verify`, { code: document.getElementById("hn-code").value });
+        await reload("Numéro activé : Wakil répond maintenant sur WhatsApp.");
+      } catch (err) { btn.disabled = false; waFail(err); }
+    });
+    main().querySelectorAll("[data-sub]").forEach((b) => b.addEventListener("click", async () => {
+      try {
+        await api(`companies/${encodeURIComponent(t.id)}/subscription`, { ...JSON.parse(b.dataset.sub), plan: document.getElementById("sub-plan").value });
+        await reload("Abonnement mis à jour.");
+      } catch (err) { if (err.message !== "unauthorized") toast("La mise à jour n'a pas abouti."); }
+    }));
     document.getElementById("wa-off")?.addEventListener("click", async () => {
       if (!confirm("Délier ce numéro ? Wakil ne répondra plus sur WhatsApp pour cette entreprise.")) return;
       try { await api(`companies/${encodeURIComponent(t.id)}/whatsapp/disconnect`, {}); await reload("Numéro délié."); } catch (err) { waFail(err); }
@@ -1079,9 +1261,9 @@
     document.getElementById("wa-signup")?.addEventListener("click", async (e) => {
       waError.textContent = ""; e.target.disabled = true;
       try {
-        const { code, phoneNumberId, wabaId } = await embeddedSignup(state.metaSignup);
+        const { code, phoneNumberId, wabaId, coexistence } = await embeddedSignup(state.metaSignup);
         e.target.textContent = "Activation du numéro…";
-        await api(`companies/${encodeURIComponent(t.id)}/whatsapp/signup`, { code, phoneNumberId, wabaId });
+        await api(`companies/${encodeURIComponent(t.id)}/whatsapp/signup`, { code, phoneNumberId, wabaId, coexistence });
         await reload("WhatsApp connecté : Wakil répond maintenant sur ce numéro.");
       } catch (err) {
         e.target.disabled = false;
@@ -1160,20 +1342,28 @@
       try {
         const d = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
         if (d?.type !== "WA_EMBEDDED_SIGNUP") return;
-        if (/^FINISH/.test(d.event)) session = d.data;
+        if (/^FINISH/.test(d.event)) session = { ...d.data, event: d.event };
         else if (d.event === "CANCEL") cancelled = true;
       } catch {}
     };
     addEventListener("message", onMessage);
     try {
       const code = await new Promise((resolve) => FB.login((r) => resolve(r.authResponse?.code || null), {
-        config_id: configId, response_type: "code", override_default_response_type: true, extras: { setup: {}, sessionInfoVersion: "3" },
+        // Version 5 : un numéro de l'application WhatsApp Business peut être gardé dans l'application (coexistence).
+        config_id: configId, response_type: "code", override_default_response_type: true, extras: { version: "v5" },
       }));
       // Les identifiants arrivent par un message séparé, parfois juste après la réponse.
       for (let i = 0; i < 30 && !session && !cancelled && code; i++) await new Promise((r) => setTimeout(r, 100));
       if (!code || cancelled) throw Object.assign(new Error("cancelled"), { code: "cancelled" });
-      if (!session?.phone_number_id || !session?.waba_id) throw Object.assign(new Error("incomplete"), { code: "incomplete" });
-      return { code, phoneNumberId: String(session.phone_number_id), wabaId: String(session.waba_id) };
+      // v5 donne messaging_account_ids à la place de waba_id ; sans phone_number_id, le serveur le lit sur le compte.
+      const wabaId = session?.waba_id || session?.messaging_account_ids?.[0];
+      if (!wabaId) throw Object.assign(new Error("incomplete"), { code: "incomplete" });
+      return {
+        code,
+        phoneNumberId: session.phone_number_id ? String(session.phone_number_id) : "",
+        wabaId: String(wabaId),
+        coexistence: session.is_on_biz_app === true || session.event === "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
+      };
     } finally {
       removeEventListener("message", onMessage);
     }
@@ -1198,7 +1388,7 @@
       if (view === "conversations" && arg) await viewConversation(decodeURIComponent(arg));
       else if (view === "entreprises" && arg && isAdmin()) await viewEntreprise(decodeURIComponent(arg));
       else await ({ accueil: viewAccueil, conversations: viewConversations, commandes: viewCommandes, tester: viewTester, reglages: viewReglages,
-                    ...(isAdmin() ? { demandes: viewDemandes, entreprises: viewEntreprises } : {}) }[view] || viewAccueil)();
+                    ...(isAdmin() ? { demandes: viewDemandes, entreprises: viewEntreprises, brain: viewBrain } : { fiche: () => viewEntreprise(state.tenant, { self: true }) }) }[view] || viewAccueil)();
       main().querySelector("h1")?.setAttribute("tabindex", "-1");
     } catch (err) {
       if (err.message !== "unauthorized") main().innerHTML = `<div class="view"><div class="card empty"><b>Impossible de charger cette page.</b><span>Vérifiez votre connexion, puis réessayez.</span><button class="btn" type="button" onclick="location.reload()">Réessayer</button></div></div>`;

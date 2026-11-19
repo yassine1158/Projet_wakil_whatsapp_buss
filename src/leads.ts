@@ -78,12 +78,15 @@ export async function handleLead(request: Request, env: Env, url: URL): Promise<
   if ("error" in lead) return json(lead, 400);
 
   await env.INBOX.get(env.INBOX.idFromName(INBOX_NAME)).addLead(lead);
-
-  const { ownerPhone, senderPhoneNumberId } = wakil.leads;
-  if (!isPlaceholder(ownerPhone) && !isPlaceholder(senderPhoneNumberId)) {
-    await new WhatsAppClient(env.WHATSAPP_TOKEN, senderPhoneNumberId, env.GRAPH_API_VERSION)
-      .sendText(ownerPhone, formatLead(lead))
-      .catch((e) => console.error("Notification de la demande échouée", e));
-  }
+  await notifyWakilTeam(env, formatLead(lead));
   return json({ ok: true }, 200);
+}
+
+/** Prévient l'équipe Wakil sur WhatsApp, si son numéro est configuré (config/wakil.json). */
+export async function notifyWakilTeam(env: Env, text: string): Promise<void> {
+  const { ownerPhone, senderPhoneNumberId } = wakil.leads;
+  if (isPlaceholder(ownerPhone) || isPlaceholder(senderPhoneNumberId)) return;
+  await new WhatsAppClient(env.WHATSAPP_TOKEN, senderPhoneNumberId, env.GRAPH_API_VERSION)
+    .sendText(ownerPhone, text)
+    .catch((e) => console.error("Notification de l'équipe Wakil échouée", e));
 }

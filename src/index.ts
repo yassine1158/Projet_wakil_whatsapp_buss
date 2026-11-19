@@ -6,7 +6,7 @@ import { handleLead } from "./leads";
 import { handleChat } from "./web";
 import { handleVoice } from "./voice";
 import { handleCall } from "./call/route";
-import { parseWebhook, verifySignature, WhatsAppClient } from "./whatsapp";
+import { parseEchoes, parseWebhook, verifySignature, WhatsAppClient } from "./whatsapp";
 
 export { ConversationDO } from "./conversation-do";
 export { InboxDO } from "./inbox-do";
@@ -45,6 +45,12 @@ export default {
           continue;
         }
         await conversation(env, phoneNumberId, message.from).enqueue(tenant.id, phoneNumberId, message);
+      }
+      // Numéro en coexistence : le patron a répondu depuis son application WhatsApp Business.
+      for (const echo of parseEchoes(payload)) {
+        const tenant = await tenantByPhoneNumberId(env, echo.phoneNumberId);
+        if (!tenant || !echo.to) continue;
+        await conversation(env, echo.phoneNumberId, echo.to).ownerEcho(tenant.id, echo.phoneNumberId, echo.to, { id: echo.id, text: echo.text, at: echo.timestamp });
       }
       // Répondre vite : Meta renvoie la notification si le 200 tarde.
       return new Response("OK");

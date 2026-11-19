@@ -5,10 +5,10 @@
  * Options (attributs data-) : tenant (obligatoire), accent (couleur, ex. #e30613),
  * on-accent (couleur du texte posé sur l'accent, blanc par défaut),
  * position (left | right), offset (distance au bas de l'écran en px, par défaut 24),
- * title (titre de la fenêtre), teaser (bulle d'invitation), greeting (message d'accueil),
+ * title (titre de la fenêtre), teaser (bulle d'invitation, « off » pour ne pas la montrer), greeting (message d'accueil),
  * suggestions (questions proposées au départ, séparées par « | »),
  * voice (« off » pour masquer le micro et le bouton « Appeler »).
- * La page peut piloter le chat : WakilChat.open(), WakilChat.send("Bonjour").
+ * La page peut piloter le chat : WakilChat.open(), WakilChat.send("Bonjour"), WakilChat.call().
  */
 (() => {
   const script = document.currentScript;
@@ -454,7 +454,7 @@
   const canCall = script.dataset.voice !== "off" && !!(AC && window.WebSocket && navigator.mediaDevices?.getUserMedia);
   const dial = $(".dial"), callbar = $(".callbar"), callStateEl = $(".callbar .cs"), callTime = $(".callbar time"),
         callDot = $(".callbar .dot");
-  dial.hidden = !canCall;
+  dial.hidden = true; // affiché quand le serveur confirme qu'une voix est prête (config.call)
   const CALL_RATE = 16000;            // le serveur attend du PCM 16 bits mono à 16 kHz
   const CHUNK = CALL_RATE / 10;       // envoyé par paquets de 100 ms
   const BARGE_LEVEL = 0.08;           // voix assez forte pour couper la parole à l'assistant
@@ -484,7 +484,7 @@
   function setCallUI(on) {
     callbar.hidden = !on;
     form.hidden = on;
-    dial.hidden = on || !canCall;
+    dial.hidden = on || !canCall || !config.call;
     if (on) setStatus("");
   }
 
@@ -701,12 +701,15 @@
     open: () => setOpen(true),
     close: () => setOpen(false),
     send: (text) => { setOpen(true); sendMessage(String(text || "").trim().slice(0, 1000)); },
+    // Ouvre le chat et lance l'appel en direct quand la voix est prête ; sinon, ouvre simplement le chat.
+    call: () => { setOpen(true); if (canCall && config.call && !call) startCall(); },
   };
 
   fetch(`${API}/chat/config?tenant=${encodeURIComponent(tenant)}`)
     .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
     .then((c) => {
       config = { ...config, ...c };
+      dial.hidden = !canCall || !config.call || !!call;
       $(".title").textContent = script.dataset.title || `Assistant ${config.businessName}`.trim();
       panel.setAttribute("aria-label", $(".title").textContent);
       if (!panel.hidden) render();
@@ -714,7 +717,7 @@
     .catch(() => {});
 
   if (session.get("open") === "1") setOpen(true);
-  else if (!session.get("teased") && !log.length) {
+  else if (script.dataset.teaser !== "off" && !session.get("teased") && !log.length) {
     // Propose le chat une fois par visite, après quelques secondes.
     setTimeout(() => {
       if (!panel.hidden) return;

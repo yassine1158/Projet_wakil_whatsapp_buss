@@ -25,7 +25,9 @@ describe("catalogue SANA (data/content.js du site)", () => {
     const byName = Object.fromEntries(catalog.products.map((p) => [p.name, p]));
     expect(byName["Œufs à couver"]).toMatchObject({ id: "oeufs-a-couver", available: true, unit: "œuf" });
     expect(byName["Poussins de chair"]).toMatchObject({ id: "poussins", available: true, unit: "poussin" });
-    expect(byName["Poussins de chair"].description).toContain("28 octobre 2026");
+    expect(byName["Poussins de chair"].description).toContain("14 novembre");
+    expect(byName["Poussins de chair"].price).toBe("640 FCFA le poussin");
+    expect(byName["Œufs à couver"].price).toBe("400 FCFA l'œuf");
     expect(byName["Aliments pour tous les animaux"]).toMatchObject({ available: false });
     expect(byName["Aliments pour tous les animaux"].description).toContain("Volailles");
     // offre masquée sur le site : absente pour Wakil
@@ -34,7 +36,7 @@ describe("catalogue SANA (data/content.js du site)", () => {
 
   it("reprend les coordonnées, les horaires et la FAQ du site", async () => {
     const { info } = await loadCatalog(tenant, fakeFetch);
-    expect(info).toMatchObject({ phone: "+2250715500000", address: "Yamoussoukro, Côte d'Ivoire" });
+    expect(info).toMatchObject({ phone: "+225 07 89 69 58 12", address: "Yamoussoukro, Côte d'Ivoire" });
     expect(info.hours).toMatch(/7 h/);
     expect(info.faq.length).toBeGreaterThan(0);
     expect(formatBusinessInfo(info)).toContain("Société Afriqaine de Nutrition Animale");
@@ -47,6 +49,8 @@ describe("catalogue SANA (data/content.js du site)", () => {
     expect(prompt).toContain("ACTUELLEMENT INDISPONIBLE");
     expect(prompt).toContain("confidentielles");
     expect(prompt).toContain("aucun diagnostic");
+    expect(prompt).toContain("samedi 14 novembre 2026");
+    expect(prompt).not.toContain("28 octobre");
     expect(tenant.webOrigins).toContain("https://sana-sa.ci");
     // le chat du site affiche déjà l'accueil : pas de deuxième présentation
     expect(prompt).not.toContain("présente-toi brièvement");

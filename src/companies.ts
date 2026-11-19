@@ -1,6 +1,6 @@
 import { slugify } from "./catalog";
 import { normalizePhone } from "./engine";
-import type { RawProduct, Tenant } from "./types";
+import { VOICE_REPLIES, type RawProduct, type Tenant } from "./types";
 
 export const TENANT_ID_RE = /^[a-z0-9](?:[a-z0-9-]{0,38}[a-z0-9])?$/;
 const MAX_PRODUCTS = 500;
@@ -129,6 +129,7 @@ export function parseTenantInput(body: Record<string, unknown>, existing?: Tenan
   const paymentInstructions = text(body.paymentInstructions, 1000);
   if (paymentInstructions === null) return { error: "too_long", field: "paymentInstructions" };
   const handoffHours = Math.min(72, Math.max(1, Math.round(Number(body.handoffHours) || 12)));
+  const voiceReplies = VOICE_REPLIES.find((v) => v === body.voiceReplies);
 
   return {
     id,
@@ -141,11 +142,14 @@ export function parseTenantInput(body: Record<string, unknown>, existing?: Tenan
     webOrigins,
     ...(existing?.demo ? { demo: true } : {}),
     ...(existing?.whatsapp ? { whatsapp: existing.whatsapp } : {}),
+    ...(existing?.hostedNumber ? { hostedNumber: existing.hostedNumber } : {}),
+    ...(existing?.subscription ? { subscription: existing.subscription } : {}),
     catalog,
     ...(Object.keys(info).length ? { info } : {}),
     ...(paymentInstructions ? { paymentInstructions } : {}),
     ...(instructions ? { instructions } : {}),
     handoffHours,
+    ...(voiceReplies && voiceReplies !== "after-voice" ? { voiceReplies } : {}),
   };
 }
 
@@ -153,8 +157,12 @@ type FetchLike = typeof fetch;
 
 export interface SignupResult {
   token: string;
-  pin: string;
+  /** null pour un numéro en coexistence : il n'est pas réenregistré. */
+  pin: string | null;
+  phoneNumberId: string;
   displayPhone?: string;
+  /** La synchronisation des contacts ou de l'historique a échoué (coexistence). */
+  syncError?: string;
 }
 
 /**
@@ -163,7 +171,17 @@ export interface SignupResult {
  * sur l'API Cloud avec un code PIN tiré au hasard.
  */
 export async function completeWhatsappSignup(
-  params: { appId: string; appSecret: string; apiVersion: string; code: string; phoneNumberId: string; wabaId: string },
+  params: {
+    appId: string;
+    appSecret: string;
+    apiVersion: string;
+    code: string;
+    /** Absent quand Meta ne l'a pas donné : il est alors lu sur le compte WhatsApp. */
+    phoneNumberId?: string;
+    wabaId: string;
+    /** Numéro gardé dans l'application WhatsApp Business : il est déjà enregistré. */
+    coexistence?: boolean;
+  },
   fetchFn: FetchLike = (input, init) => fetch(input, init),
 ): Promise<SignupResult> {
   const base = `https://graph.facebook.com/${params.apiVersion}`;
@@ -180,12 +198,39 @@ export async function completeWhatsappSignup(
 
   const auth = { authorization: `Bearer ${token}`, "content-type": "application/json" };
   await call(`${base}/${params.wabaId}/subscribed_apps`, { method: "POST", headers: auth });
-  const pin = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, "0");
-  await call(`${base}/${params.phoneNumberId}/register`, {
-    method: "POST",
-    headers: auth,
-    body: JSON.stringify({ messaging_product: "whatsapp", pin }),
-  });
-  const info = await call(`${base}/${params.phoneNumberId}?fields=display_phone_number`, { headers: auth }).catch(() => ({}));
-  return { token, pin, displayPhone: (info as { display_phone_number?: string }).display_phone_number };
+  let phoneNumberId = params.phoneNumberId;
+  if (!phoneNumberId) {
+    const { data } = (await call(`${base}/${params.wabaId}/phone_numbers?fields=id`, { headers: auth })) as { data?: { id?: string }[] };
+    phoneNumberId = data?.[0]?.id;
+    if (!phoneNumberId) throw new Error("Aucun numéro sur ce compte WhatsApp");
+  }
+
+  let pin: string | null = null;
+  let syncError: string | undefined;
+  if (params.coexistence) {
+    // Déjà enregistré par l'application WhatsApp Business : Meta demande de ne pas le réenregistrer,
+    // et de lancer, une seule fois et dans les 24 h, la synchronisation des contacts puis de l'historique.
+    for (const sync_type of ["smb_app_state_sync", "history"]) {
+      await call(`${base}/${phoneNumberId}/smb_app_data`, {
+        method: "POST",
+        headers: auth,
+        body: JSON.stringify({ messaging_product: "whatsapp", sync_type }),
+      }).catch((err: Error) => (syncError ??= err.message));
+    }
+  } else {
+    pin = String(crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000).padStart(6, "0");
+    await call(`${base}/${phoneNumberId}/register`, {
+      method: "POST",
+      headers: auth,
+      body: JSON.stringify({ messaging_product: "whatsapp", pin }),
+    });
+  }
+  const info = await call(`${base}/${phoneNumberId}?fields=display_phone_number`, { headers: auth }).catch(() => ({}));
+  return {
+    token,
+    pin,
+    phoneNumberId,
+    displayPhone: (info as { display_phone_number?: string }).display_phone_number,
+    ...(syncError ? { syncError } : {}),
+  };
 }

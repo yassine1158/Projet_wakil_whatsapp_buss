@@ -7,7 +7,9 @@ import {
   enqueueMessage,
   normalizePhone,
   processPending,
+  recordOwnerReply,
   TECHNICAL_ISSUE_REPLY,
+  TRIAL_ENDED_NOTICE,
   WEB_HANDOFF_REPLY,
   type ConversationStorage,
   type EngineDeps,
@@ -47,6 +49,9 @@ class FakeWhatsApp implements WhatsAppSender {
   }
   async sendTemplate(to: string, name: string, _lang: string, params: string[]) {
     this.sent.push({ to, kind: `template:${name}`, body: params.join() });
+  }
+  async sendAudio(to: string, audio: Uint8Array, mimeType: string) {
+    this.sent.push({ to, kind: "audio", body: `${mimeType} ${audio.length}` });
   }
   async markReadWithTyping(id: string) {
     this.read.push(id);
@@ -284,6 +289,36 @@ describe("processPending", () => {
     expect(owner.kind).toBe("template:nouvelle_demande");
     expect(owner.body).not.toContain("\n");
   });
+
+  it("montre dans l'application pourquoi un vocal n'a pas été compris", async () => {
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { kind: "audio", text: undefined, mediaId: "a1", rawType: "audio" }), NOW, 4000);
+    const { client, requests } = fakeClaude([
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Pouvez-vous répéter ?" } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    const failing = async () => {
+      throw new Error("Whisper : 3010 Invalid input");
+    };
+    await processPending(deps(client, { transcribe: failing }));
+
+    // Le client reçoit une demande polie de répéter ; la cause technique reste pour l'équipe.
+    const toClaude = JSON.stringify(requests[0].messages[0].content);
+    expect(toClaude).toContain("[Message vocal impossible à comprendre");
+    expect(toClaude).not.toContain("3010");
+    const log = (await storage.get<{ from: string; text: string }[]>("log"))!;
+    expect(log[0].from).toBe("client");
+    expect(log[0].text).toContain("[Message vocal impossible à comprendre");
+    expect(log[0].text).toContain("Whisper : 3010 Invalid input");
+  });
+
+  it("signale aussi un vocal dont la transcription est vide", async () => {
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { kind: "audio", text: undefined, mediaId: "a1", rawType: "audio" }), NOW, 4000);
+    const { client } = fakeClaude([
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Pouvez-vous répéter ?" } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    await processPending(deps(client, { transcribe: async () => "" }));
+    const log = (await storage.get<{ from: string; text: string }[]>("log"))!;
+    expect(log[0].text).toContain("Transcription vide");
+  });
 });
 
 describe("chat du site web", () => {
@@ -481,5 +516,184 @@ describe("normalizePhone", () => {
     expect(normalizePhone("2250707070707", "225")).toBe("2250707070707");
     expect(normalizePhone("123", "225")).toBeUndefined();
     expect(normalizePhone(undefined)).toBeUndefined();
+  });
+});
+
+describe("Wakil Brain en mode ombre", () => {
+  const humanTurn = () =>
+    fakeClaude([
+      {
+        stop_reason: "tool_use",
+        content: [
+          { type: "tool_use", id: "t1", name: "request_human", input: { reason: "réclamation", summary: "s" } } as Anthropic.Beta.BetaContentBlock,
+        ],
+      },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Un conseiller va vous rappeler." } as Anthropic.Beta.BetaContentBlock] },
+    ]).client;
+
+  it("enregistre la prédiction et ce que Claude a fait, sans toucher la réponse", async () => {
+    const samples: unknown[] = [];
+    const seen: string[] = [];
+    const inbox = { conversation: async () => {}, order: async () => {}, brainSample: async (s: unknown) => void samples.push(s) };
+    await storage.put("history", [
+      { role: "user", content: [{ type: "text", text: "Bonjour" }] },
+      { role: "assistant", content: [{ type: "text", text: "Bonjour, comment puis-je vous aider ?" }] },
+    ]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "Le sable est arrivé mouillé, appelez-moi au 07 08 09 10 11" }), NOW, 4000);
+    const brain = (context: string, text: string) => {
+      seen.push(`${context} | ${text}`);
+      return { label: "reponse", confidence: 0.7, probs: [0.7, 0.1, 0.1, 0.1] };
+    };
+    await processPending(deps(humanTurn(), { inbox, brain }));
+
+    expect(whatsapp.sent.filter((s) => s.to === CLIENT)).toEqual([{ to: CLIENT, kind: "text", body: "Un conseiller va vous rappeler." }]);
+    expect(seen).toEqual(["Bonjour, comment puis-je vous aider ? | Le sable est arrivé mouillé, appelez-moi au [numéro]"]);
+    expect(samples).toEqual([
+      {
+        at: NOW,
+        context: "Bonjour, comment puis-je vous aider ?",
+        text: "Le sable est arrivé mouillé, appelez-moi au [numéro]",
+        predicted: "reponse",
+        confidence: 0.7,
+        teacher: "humain",
+      },
+    ]);
+  });
+
+  it("une panne de Wakil Brain ne gêne pas le client", async () => {
+    const inbox = { conversation: async () => {}, order: async () => {}, brainSample: async () => {} };
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "Je veux un conseiller" }), NOW, 4000);
+    const brain = () => {
+      throw new Error("modèle cassé");
+    };
+    await processPending(deps(humanTurn(), { inbox, brain }));
+    expect(whatsapp.sent.filter((s) => s.to === CLIENT).map((s) => s.body)).toEqual(["Un conseiller va vous rappeler."]);
+  });
+
+  it("n'apprend rien des conversations d'essai", async () => {
+    const samples: unknown[] = [];
+    const inbox = { conversation: async () => {}, order: async () => {}, brainSample: async (s: unknown) => void samples.push(s) };
+    await addIncoming(storage, { channel: "web", tenantId: "sicar", phoneNumberId: "PNID", customerId: "test-abcdefghijklmnop", test: true }, msg("m1", { from: "test-abcdefghijklmnop" }));
+    const { client } = fakeClaude([{ stop_reason: "end_turn", content: [{ type: "text", text: "Bonjour !" } as Anthropic.Beta.BetaContentBlock] }]);
+    const sink = { sendText: async () => {}, sendImage: async () => {} };
+    await processPending(deps(client, { inbox, sink, brain: () => ({ label: "reponse", confidence: 1, probs: [1, 0, 0, 0] }) }));
+    expect(samples).toEqual([]);
+  });
+});
+
+describe("réponses vocales sur WhatsApp", () => {
+  const answer = () =>
+    fakeClaude([{ stop_reason: "end_turn", content: [{ type: "text", text: "Oui, le *gravier 15/25* est disponible." } as Anthropic.Beta.BetaContentBlock] }]).client;
+  const vocal = msg("v1", { kind: "audio", text: undefined, mediaId: "a1", rawType: "audio" });
+
+  function speaker(fails = false) {
+    const said: string[] = [];
+    const speak = async (text: string) => {
+      if (fails) throw new Error("tts");
+      said.push(text);
+      return { bytes: new Uint8Array(1200), mimeType: "audio/mpeg" };
+    };
+    return { said, speak };
+  }
+
+  it("répond aussi en vocal à un client qui envoie un vocal, après le texte", async () => {
+    const { said, speak } = speaker();
+    await enqueueMessage(storage, "sicar", "PNID", vocal, NOW, 4000);
+    await processPending(deps(answer(), { speak }));
+    expect(said).toEqual(["Oui, le *gravier 15/25* est disponible."]);
+    expect(whatsapp.sent.map((s) => [s.to, s.kind, s.body])).toEqual([
+      [CLIENT, "text", "Oui, le *gravier 15/25* est disponible."],
+      [CLIENT, "audio", "audio/mpeg 1200"],
+    ]);
+    expect((await storage.get<{ text: string }[]>("log"))!.at(-1)!.text).toBe("[Réponse vocale]");
+  });
+
+  it("n'envoie que du texte à un client qui écrit, sauf si l'entreprise veut toujours la voix", async () => {
+    const { said, speak } = speaker();
+    await enqueueMessage(storage, "sicar", "PNID", msg("t1"), NOW, 4000);
+    await processPending(deps(answer(), { speak }));
+    expect(whatsapp.sent.map((s) => s.kind)).toEqual(["text"]);
+
+    await enqueueMessage(storage, "sicar", "PNID", msg("t2"), NOW, 4000);
+    await processPending(deps(answer(), { speak, tenant: { ...tenant, voiceReplies: "always" } }));
+    expect(whatsapp.sent.map((s) => s.kind)).toEqual(["text", "text", "audio"]);
+    expect(said).toHaveLength(1);
+  });
+
+  it("se tait en vocal quand l'entreprise l'a désactivé, et garde le texte si la voix échoue", async () => {
+    await enqueueMessage(storage, "sicar", "PNID", vocal, NOW, 4000);
+    await processPending(deps(answer(), { speak: speaker().speak, tenant: { ...tenant, voiceReplies: "never" } }));
+    await enqueueMessage(storage, "sicar", "PNID", msg("v2", { ...vocal, id: "v2" }), NOW, 4000);
+    await processPending(deps(answer(), { speak: speaker(true).speak }));
+    expect(whatsapp.sent.map((s) => s.kind)).toEqual(["text", "text"]);
+  });
+});
+
+describe("fin de l'essai gratuit", () => {
+  const ended = { ...tenant, subscription: { plan: "pro" as const, trialEndsAt: NOW - 1 } };
+
+  it("Wakil se tait et fait suivre le message au patron, sur WhatsApp comme sur le site", async () => {
+    const { client, requests } = fakeClaude([]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "Vous avez du gravier ?" }), NOW, 4000);
+    await processPending(deps(client, { tenant: ended }));
+    expect(requests).toHaveLength(0);
+    expect(whatsapp.sent).toHaveLength(1);
+    expect(whatsapp.sent[0].to).toBe("22599");
+    expect(whatsapp.sent[0].body).toContain(TRIAL_ENDED_NOTICE);
+    expect(whatsapp.sent[0].body).toContain("Vous avez du gravier ?");
+
+    const replies: string[] = [];
+    storage = new MemoryStorage();
+    await addIncoming(storage, { channel: "web", tenantId: "sicar", phoneNumberId: "", customerId: "session-abcdefgh12345678" },
+      { id: "w1", from: "session-abcdefgh12345678", timestamp: NOW, kind: "text", text: "Bonjour", rawType: "text" });
+    await processPending(deps(client, { tenant: ended, sink: { sendText: async (t) => void replies.push(t), sendImage: async () => {} } }));
+    expect(replies).toEqual([WEB_HANDOFF_REPLY]);
+    expect(requests).toHaveLength(0);
+  });
+
+  it("répond normalement pendant l'essai, et toujours dans le mode essai de l'application", async () => {
+    const answer = () => fakeClaude([{ stop_reason: "end_turn", content: [{ type: "text", text: "Oui." } as Anthropic.Beta.BetaContentBlock] }]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1"), NOW, 4000);
+    await processPending(deps(answer().client, { tenant: { ...tenant, subscription: { plan: "pro", trialEndsAt: NOW + 1000 } } }));
+    expect(whatsapp.sent.map((x) => x.body)).toEqual(["Oui."]);
+
+    storage = new MemoryStorage();
+    const replies: string[] = [];
+    await addIncoming(storage, { channel: "web", tenantId: "sicar", phoneNumberId: "", customerId: "test-session-abcdefgh1234", test: true },
+      { id: "t1", from: "test-session-abcdefgh1234", timestamp: NOW, kind: "text", text: "Bonjour", rawType: "text" });
+    await processPending(deps(answer().client, { tenant: ended, sink: { sendText: async (t) => void replies.push(t), sendImage: async () => {} } }));
+    expect(replies).toEqual(["Oui."]);
+  });
+});
+
+describe("numéro gardé dans l'application WhatsApp Business (coexistence)", () => {
+  const coexist = { ...tenant, ownerPhone: "2250711223344", whatsapp: { phoneNumberId: "PNID", displayPhone: "+225 07 11 22 33 44", coexistence: true } };
+  const meta = { channel: "whatsapp" as const, tenantId: "sicar", phoneNumberId: "PNID", customerId: CLIENT, customerPhone: CLIENT };
+
+  it("quand le patron répond depuis son téléphone, Wakil se tait pour ce client, une seule fois par message", async () => {
+    await storage.put("history", [{ role: "user", content: [{ type: "text", text: "Bonjour" }] }]);
+    expect(await recordOwnerReply(storage, meta, { id: "wamid.1", text: "Je m'en occupe", at: NOW }, NOW + 3_600_000)).toMatchObject({ customerId: CLIENT });
+    expect(await recordOwnerReply(storage, meta, { id: "wamid.1", text: "Je m'en occupe", at: NOW }, NOW + 3_600_000)).toBeNull();
+    expect(await storage.get("handoffUntil")).toBe(NOW + 3_600_000);
+    expect(await storage.get("log")).toEqual([{ from: "equipe", text: "Je m'en occupe", at: NOW }]);
+    expect((await storage.get<any[]>("history"))!.at(-1)).toEqual({ role: "assistant", content: [{ type: "text", text: "[Message de l'équipe] Je m'en occupe" }] });
+
+    // le client écrit ensuite : pas de réponse de Wakil, et pas de copie au patron, qui voit déjà le message
+    const { client, requests } = fakeClaude([]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m9", { text: "D'accord merci" }), NOW + 1000, 4000);
+    await processPending(deps(client, { tenant: coexist, now: () => NOW + 5000 }));
+    expect(requests).toHaveLength(0);
+    expect(whatsapp.sent).toEqual([]);
+  });
+
+  it("n'envoie pas de notification du numéro vers lui-même, la commande reste dans l'application", async () => {
+    const { client } = fakeClaude([
+      { stop_reason: "tool_use", content: [{ type: "tool_use", id: "t1", name: "record_order", input: { customer_name: "Awa", items: [{ product_id: "gravier-15-25", quantity: 5 }], fulfilment: "enlevement" } } as Anthropic.Beta.BetaContentBlock] },
+      { stop_reason: "end_turn", content: [{ type: "text", text: "C'est noté." } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { text: "5 tonnes, je passe les prendre" }), NOW, 4000);
+    await processPending(deps(client, { tenant: coexist }));
+    expect(whatsapp.sent.map((x) => [x.to, x.body])).toEqual([[CLIENT, "C'est noté."]]);
+    expect(await storage.get<unknown[]>("orders")).toHaveLength(1);
   });
 });

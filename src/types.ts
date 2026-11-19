@@ -26,6 +26,8 @@ export interface Env {
   WHATSAPP_TOKEN: string;
   WHATSAPP_APP_SECRET: string;
   WHATSAPP_VERIFY_TOKEN: string;
+  /** Compte WhatsApp de Wakil où sont ajoutés les numéros demandés à l'inscription. */
+  WHATSAPP_WABA_ID?: string;
   GRAPH_API_VERSION?: string;
   CLAUDE_MODEL?: string;
   CLAUDE_EFFORT?: string;
@@ -54,7 +56,10 @@ export interface Tenant {
   /** Entreprise fictive de démonstration, affichée sur le site de Wakil lui-même. */
   demo?: boolean;
   /** Numéro WhatsApp de l'entreprise, relié à l'API WhatsApp Cloud. */
-  whatsapp?: { phoneNumberId: string; displayPhone?: string; wabaId?: string };
+  /** coexistence : numéro qui reste aussi dans l'application WhatsApp Business du patron. */
+  whatsapp?: { phoneNumberId: string; displayPhone?: string; wabaId?: string; coexistence?: boolean };
+  /** Numéro demandé à l'inscription, que Wakil ajoute à son compte WhatsApp après validation par l'équipe. */
+  hostedNumber?: HostedNumber;
   /**
    * Catalogue : soit une adresse (products.json et site.json d'un site, format SICAR),
    * soit des produits saisis dans l'application.
@@ -72,7 +77,25 @@ export interface Tenant {
   /** Connaissances métier propres à l'entreprise, ajoutées au prompt. */
   instructions?: string;
   handoffHours?: number;
+  /** Réponses vocales sur WhatsApp : au client qui envoie un vocal (par défaut), à tous, ou jamais. */
+  voiceReplies?: VoiceReplies;
+  /** Seulement pour une entreprise inscrite seule ; sans abonnement, Wakil répond sans limite. */
+  subscription?: Subscription;
 }
+
+export const PLANS = ["essentiel", "pro", "business"] as const;
+export type Plan = (typeof PLANS)[number];
+
+export interface Subscription {
+  plan: Plan;
+  /** Fin de l'essai gratuit (ms). */
+  trialEndsAt?: number;
+  /** Abonnement payé jusqu'à cette date (ms). */
+  paidUntil?: number;
+}
+
+export const VOICE_REPLIES = ["after-voice", "always", "never"] as const;
+export type VoiceReplies = (typeof VOICE_REPLIES)[number];
 
 /** Produit tel qu'il est saisi ou importé (Excel, CSV, products.json). */
 export interface RawProduct {
@@ -173,4 +196,22 @@ export interface Order {
   deliveryLocation?: string;
   desiredDate?: string;
   notes?: string;
+}
+
+/**
+ * Numéro WhatsApp hébergé par Wakil : le client le donne à l'inscription, l'équipe valide
+ * (Wakil l'ajoute à son compte WhatsApp et Meta envoie un code), le client saisit le code.
+ */
+export interface HostedNumber {
+  /** Format international sans "+" (ex. 2250700000000). */
+  phone: string;
+  countryCode: string;
+  state: "submitted" | "code_sent" | "verified" | "connected";
+  phoneNumberId?: string;
+  codeMethod?: "SMS" | "VOICE";
+  requestedAt: number;
+  codeSentAt?: number;
+  connectedAt?: number;
+  /** Dernier refus de Meta, montré à l'équipe et au client. */
+  error?: string;
 }

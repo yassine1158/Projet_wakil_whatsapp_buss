@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { DurableObject } from "cloudflare:workers";
 import type { Effort } from "./agent";
+import { defaultBrain, predict } from "./brain";
 import { DEFAULT_FREE_MODEL, withFreeFallback, workersAiClient } from "./free-model";
 import { loadCatalog } from "./catalog";
 import {
@@ -9,6 +10,7 @@ import {
   enqueueMessage,
   pauseAssistant,
   processPending,
+  recordOwnerReply,
   resumeAssistant,
   type EngineDeps,
   type InboxReporter,
@@ -17,6 +19,8 @@ import { conversationKey, INBOX_NAME } from "./names";
 import { tenantById, whatsappFor } from "./registry";
 import { workersAiTranscriber } from "./transcribe";
 import type { ConversationMeta, Env, IncomingMessage, LogEntry, Tenant } from "./types";
+import { speakerFor } from "./speech";
+import { whatsappVoice } from "./voice";
 import { WhatsAppError } from "./whatsapp";
 
 export type WebReply =
@@ -134,6 +138,15 @@ export class ConversationDO extends DurableObject<Env> {
     return { ok: true };
   }
 
+  /** Réponse envoyée par le patron depuis son application WhatsApp Business (numéro en coexistence). */
+  async ownerEcho(tenantId: string, phoneNumberId: string, customer: string, echo: { id: string; text: string; at: number }): Promise<void> {
+    const tenant = await tenantById(this.env, tenantId);
+    if (!tenant) return;
+    const meta: ConversationMeta = { channel: "whatsapp", tenantId, phoneNumberId, customerId: customer, customerPhone: customer };
+    const saved = await recordOwnerReply(this.ctx.storage, meta, echo, Date.now() + (tenant.handoffHours ?? 12) * 3_600_000);
+    if (saved) await this.reporter(tenant).conversation({ meta: saved, lastText: echo.text, lastFrom: "equipe", at: echo.at, status: "equipe" });
+  }
+
   async pause(hours: number): Promise<void> {
     await pauseAssistant(this.ctx.storage, Date.now() + hours * 3_600_000);
     await this.reportStatus("equipe");
@@ -197,6 +210,9 @@ export class ConversationDO extends DurableObject<Env> {
           status: "nouvelle",
         });
       },
+      brainSample: async (sample) => {
+        await this.inbox().addBrainSample({ ...sample, tenant: tenant.id });
+      },
     };
   }
 
@@ -216,9 +232,11 @@ export class ConversationDO extends DurableObject<Env> {
         effort: (this.env.CLAUDE_EFFORT ?? "low") as Effort,
       },
       transcribe: workersAiTranscriber(this.env.AI),
+      speak: whatsappVoice(speakerFor(this.env)),
       loadCatalog: () => loadCatalog(tenant),
       now: Date.now,
       inbox: this.reporter(tenant),
+      brain: (context, text) => predict(defaultBrain(), context, text),
     };
   }
 }
