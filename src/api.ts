@@ -5,7 +5,9 @@ import { checkClaude } from "./diagnostic";
 import { LEAD_STATUSES, ORDER_STATUSES, type LeadStatus, type OrderStatus } from "./inbox-types";
 import { INBOX_NAME, webConversation } from "./names";
 import { configTenantIds, invalidateTenants, listTenants, tenantById } from "./registry";
-import type { Env, Tenant } from "./types";
+import { handleSignup } from "./signup";
+import { changeSubscription, subscriptionView } from "./subscription";
+import { PLANS, type Env, type Plan, type Tenant } from "./types";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -16,7 +18,8 @@ const json = (body: unknown, status = 200) =>
 const SESSION_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
 /**
- * API de l'application (/app). Tout passe par un jeton de session, sauf /api/login.
+ * API de l'application (/app). Tout passe par un jeton de session, sauf /api/login et
+ * /api/signup (inscription d'une nouvelle entreprise, avec un essai gratuit).
  * L'administrateur voit toutes les entreprises ; un patron ne voit que la sienne.
  */
 export async function handleApi(request: Request, env: Env, url: URL): Promise<Response> {
@@ -26,6 +29,8 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
   const method = request.method;
   const inbox = env.INBOX.get(env.INBOX.idFromName(INBOX_NAME));
   const body = method === "POST" ? ((await request.json().catch(() => ({}))) as Record<string, unknown>) : {};
+
+  if (route[0] === "signup" && method === "POST") return handleSignup(request, env, url, body, Date.now());
 
   if (route[0] === "login" && method === "POST") {
     if (env.CHAT_LIMITER) {
@@ -62,14 +67,20 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
       return json({
         role: role.kind,
         tenantId: role.kind === "tenant" ? role.tenantId : null,
-        metaSignup: isAdmin && env.META_APP_ID && env.META_CONFIG_ID ? { appId: env.META_APP_ID, configId: env.META_CONFIG_ID } : null,
+        metaSignup: env.META_APP_ID && env.META_CONFIG_ID ? { appId: env.META_APP_ID, configId: env.META_CONFIG_ID } : null,
       });
 
     case "GET tenants":
       return json(
         (await listTenants(env))
           .filter((t) => mine(t.id))
-          .map((t) => ({ id: t.id, businessName: t.businessName, assistantName: t.assistantName, demo: !!t.demo })),
+          .map((t) => ({
+            id: t.id,
+            businessName: t.businessName,
+            assistantName: t.assistantName,
+            demo: !!t.demo,
+            subscription: subscriptionView(t, Date.now()),
+          })),
       );
 
     case "GET overview": {
@@ -150,8 +161,11 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
       if (!tenant) return json({ error: "unknown_tenant" }, 404);
       let products: { name: string; available: boolean; price: string; unit: string }[] = [];
       let catalogError = false;
+      let infoFilled = false;
       try {
-        products = (await loadCatalog(tenant)).products.map(({ name, available, price, unit }) => ({ name, available, price, unit }));
+        const catalog = await loadCatalog(tenant);
+        products = catalog.products.map(({ name, available, price, unit }) => ({ name, available, price, unit }));
+        infoFilled = !!(catalog.info.hours || catalog.info.address || catalog.info.about);
       } catch {
         catalogError = true;
       }
@@ -168,19 +182,31 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
         catalogUrl: tenant.catalog.productsUrl ?? null,
         products,
         catalogError,
+        infoFilled,
         model: env.CLAUDE_MODEL ?? "claude-opus-5-5",
       });
     }
 
     case "GET companies":
     case "POST companies":
-      if (!isAdmin) return adminOnly();
+      if (role.kind === "tenant" && !ownCompanyRoute(method, route.slice(1), body, role.tenantId)) return adminOnly();
       return handleCompanies(method, route.slice(1), body, env, url);
   }
   return json({ error: "not_found" }, 404);
 }
 
-/** Entreprises (administrateur seulement) : liste, fiche, mot de passe du patron, WhatsApp. */
+/**
+ * Ce qu'un patron peut faire sur sa propre entreprise : lire et modifier sa fiche,
+ * connecter son WhatsApp par l'inscription de Meta, ou le délier. Le reste (liste,
+ * création, mot de passe, suppression, liaison à la main, abonnement) reste à l'administrateur.
+ */
+function ownCompanyRoute(method: string, [id, action, step]: string[], body: Record<string, unknown>, own: string): boolean {
+  if (method === "GET") return id === own && !action;
+  if (!id) return body.id === own;
+  return id === own && action === "whatsapp" && (step === "signup" || step === "disconnect");
+}
+
+/** Entreprises : liste, fiche, mot de passe du patron, WhatsApp, abonnement. */
 async function handleCompanies(
   method: string,
   [id, action, step]: string[],
@@ -230,6 +256,16 @@ async function handleCompanies(
     if (password.length < 8 || password.length > 200) return json({ error: "weak_password", field: "password" }, 400);
     await inbox.setTenantPassword(id, await hashPassword(password));
     return json({ ok: true, login: id });
+  }
+
+  if (action === "subscription") {
+    if (!tenant.subscription) return json({ error: "no_subscription" }, 400);
+    const plan = PLANS.find((p) => p === body.plan) as Plan | undefined;
+    const count = (v: unknown, max: number) => Math.min(max, Math.max(0, Math.round(Number(v) || 0)));
+    return saved({
+      ...tenant,
+      subscription: changeSubscription(tenant.subscription, { plan, trialDays: count(body.trialDays, 60), paidMonths: count(body.paidMonths, 12) }, Date.now()),
+    });
   }
 
   if (action === "delete") {

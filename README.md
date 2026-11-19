@@ -25,6 +25,8 @@ Pour l'activer : `ADMIN_PASSWORD` dans les secrets (choisissez un mot de passe l
 
 ## Ajouter une entreprise cliente
 
+**Inscription libre** : une entreprise peut aussi s'inscrire seule sur `/inscription`. Elle reçoit un **essai gratuit de 14 jours** (offre Pro), un catalogue vide et un accès patron immédiat ; l'application lui montre une liste « Démarrer avec Wakil » (produits, horaires, WhatsApp, essai, chat du site) et le patron complète lui-même sa fiche dans **Mon entreprise**. À la fin de l'essai, Wakil ne répond plus aux clients : leurs messages sont transférés au patron sur WhatsApp. L'administrateur prolonge l'essai ou enregistre un paiement reçu depuis la fiche (carte **Abonnement**). Les entreprises créées par l'équipe n'ont pas d'abonnement et ne sont jamais coupées.
+
 Dans l'application, **Entreprises → Nouvelle entreprise** :
 
 1. **La fiche** : nom, identifiant de connexion (proposé à partir du nom), numéro WhatsApp du patron (il y reçoit les commandes), horaires, adresse, moyens de paiement, consignes pour l'assistant.

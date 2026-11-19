@@ -2,6 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { runAgent, type AgentConfig, type ClaudeClient } from "./agent";
 import { sanitizeHistory, trimHistory } from "./history";
 import { buildSystemPrompt, buildTurnContext } from "./prompt";
+import { isServing } from "./subscription";
 import type { ToolContext } from "./tools";
 import type { Transcriber } from "./transcribe";
 import type { Catalog, ConversationMeta, IncomingMessage, LogEntry, Order, Tenant } from "./types";
@@ -45,6 +46,8 @@ const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp
 export const TECHNICAL_ISSUE_REPLY =
   "Désolé, j'ai un petit souci technique. Un conseiller de l'équipe va vous recontacter très vite.";
 export const WEB_HANDOFF_REPLY = "Votre message a bien été transmis à un conseiller, qui va vous recontacter.";
+export const TRIAL_ENDED_NOTICE =
+  "⏳ Votre essai Wakil est terminé : vos clients ne reçoivent plus de réponse automatique, leurs messages vous sont transférés ici. Pour réactiver Wakil, répondez à l'équipe Wakil ou ouvrez votre espace.";
 
 /**
  * Ajoute un message à la file d'attente de la conversation.
@@ -193,6 +196,16 @@ export async function processPending(deps: EngineDeps): Promise<void> {
       .conversation({ meta, lastText: last.text, lastFrom: last.from, at: now, status: paused ? "equipe" : "wakil" })
       .catch((e) => log("Mise à jour de la boîte de réception échouée", e));
   };
+
+  // Essai ou abonnement terminé : comme pour un conseiller, l'assistant se tait et fait suivre au patron.
+  // Le mode essai de l'application reste ouvert, pour que le patron voie ce qu'il réactive.
+  if (!meta.test && !isServing(tenant, now)) {
+    await notifyOwner(`${TRIAL_ENDED_NOTICE}\n\n💬 Message de ${who(meta)} :\n${blocksToText(blocks)}${contactLine(meta)}`);
+    if (isWeb) await reply(WEB_HANDOFF_REPLY);
+    await saveHistory(storage, [...history, { role: "user", content: blocks }]);
+    await finish();
+    return;
+  }
 
   // Conversation confiée à un conseiller : l'assistant se tait et fait suivre au patron.
   const handoffUntil = (await storage.get<number>("handoffUntil")) ?? 0;

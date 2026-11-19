@@ -65,6 +65,14 @@ export class InboxDO extends DurableObject<Env> {
     );
   }
 
+  /** Crée l'entreprise seulement si l'identifiant est libre (deux inscriptions au même nom). */
+  async insertTenant(tenant: Tenant, now: number): Promise<boolean> {
+    return this.sql.exec(
+      "INSERT INTO tenants (id, data, created_at, updated_at) VALUES (?, ?, ?, ?) ON CONFLICT (id) DO NOTHING",
+      tenant.id, JSON.stringify(tenant), now, now,
+    ).rowsWritten > 0;
+  }
+
   async deleteTenant(id: string): Promise<boolean> {
     return this.sql.exec("DELETE FROM tenants WHERE id = ?", id).rowsWritten > 0;
   }

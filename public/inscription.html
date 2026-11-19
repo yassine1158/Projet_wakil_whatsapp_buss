@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Essayer Wakil gratuitement · 14 jours</title>
+<meta name="description" content="Créez votre espace Wakil en deux minutes : votre commercial IA répond à vos clients sur WhatsApp et sur votre site. 14 jours gratuits.">
+<meta name="theme-color" content="#1b2066">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F4B23A'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%231B2066' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+  :root { --deep: #1b2066; --deep-2: #232a7a; --cream: #f4f3ee; --ink: #15193a; --ink-2: #4a4f73; --gold: #f4b23a; --mist: #c3c6e8; --line: rgba(21, 25, 58, .14); --danger: #b3261e; --ok: #1e7a4c; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--deep); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .page { min-height: 100vh; display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .page { grid-template-columns: 1fr 1fr; } }
+  .pitch { color: var(--cream); padding: 28px 20px 8px; display: flex; flex-direction: column; gap: 22px; }
+  @media (min-width: 900px) { .pitch { padding: 56px 56px; justify-content: center; } }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 800 26px/1 "Bricolage Grotesque", sans-serif; letter-spacing: -.5px; }
+  .brand svg { width: 34px; height: 34px; }
+  h1 { font: 800 clamp(30px, 5vw, 48px)/1.02 "Bricolage Grotesque", sans-serif; letter-spacing: -1.5px; margin: 0; }
+  h1 em { font-style: normal; color: var(--gold); }
+  .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .points li { display: flex; gap: 12px; align-items: flex-start; color: #d9dbf0; }
+  .points b { color: var(--cream); }
+  .points svg { flex: none; width: 22px; height: 22px; color: var(--gold); margin-top: 1px; }
+  .panel { background: var(--cream); padding: 28px 20px 40px; border-radius: 24px 24px 0 0; }
+  @media (min-width: 900px) { .panel { border-radius: 0; display: grid; align-content: center; padding: 56px; } }
+  form, .done { max-width: 460px; width: 100%; margin: 0 auto; display: grid; gap: 16px; }
+  h2 { font: 800 26px/1.1 "Bricolage Grotesque", sans-serif; margin: 0; letter-spacing: -.5px; }
+  .muted { color: var(--ink-2); margin: 0; }
+  label { display: grid; gap: 6px; font-weight: 700; font-size: 15px; }
+  input, select { font: inherit; font-weight: 400; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); width: 100%; }
+  input:focus, select:focus { outline: none; border-color: var(--deep); box-shadow: 0 0 0 3px rgba(244, 178, 58, .45); }
+  [aria-invalid="true"] { border-color: var(--danger); }
+  .phone { display: grid; grid-template-columns: 110px 1fr; gap: 8px; }
+  .hint { font-weight: 400; font-size: 13.5px; color: var(--ink-2); }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 14.5px; color: var(--ink-2); }
+  .check input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--deep); }
+  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  button { font: inherit; font-weight: 700; font-size: 17px; padding: 14px 18px; border-radius: 14px; border: 0; background: var(--gold); color: var(--deep); cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  .error { color: var(--danger); margin: 0; min-height: 1.5em; font-size: 15px; }
+  .small { font-size: 14.5px; text-align: center; }
+  .done { text-align: center; justify-items: center; }
+  .done .id { font: 800 24px/1.2 "Bricolage Grotesque", sans-serif; background: #fff; border: 1.5px dashed var(--deep); border-radius: 14px; padding: 12px 18px; }
+  .done .go { display: inline-block; text-decoration: none; background: var(--deep); color: var(--cream); font-weight: 700; padding: 14px 22px; border-radius: 14px; }
+  .ok { color: var(--ok); font-weight: 700; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<div class="page">
+  <section class="pitch">
+    <a class="brand" href="/"><svg aria-hidden="true"><use href="#logo"/></svg>wakil</a>
+    <h1>Votre commercial IA, <em>prêt en 10 minutes.</em></h1>
+    <ul class="points">
+      <li><svg aria-hidden="true"><use href="#check"/></svg><span><b>14 jours gratuits</b>, sans carte bancaire.</span></li>
+      <li><svg aria-hidden="true"><use href="#check"/></svg><span><b>Il répond à vos clients jour et nuit</b> sur WhatsApp et sur votre site, comprend leurs vocaux et prend les commandes.</span></li>
+      <li><svg aria-hidden="true"><use href="#check"/></svg><span><b>Vous gardez la main</b> : chaque commande arrive sur votre WhatsApp, et vous reprenez une conversation quand vous voulez.</span></li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <form id="signup" novalidate>
+      <div><h2>Créer mon espace</h2><p class="muted">Deux minutes, puis vous ajoutez vos produits.</p></div>
+      <label for="businessName">Nom de votre entreprise<input id="businessName" name="businessName" type="text" autocomplete="organization" maxlength="80" required></label>
+      <label for="sector">Votre activité<select id="sector" name="sector">
+        <option value="">Choisir…</option>
+        <option>Matériaux de construction</option>
+        <option>Élevage et alimentation animale</option>
+        <option>Boutique ou commerce</option>
+        <option>Restauration</option>
+        <option>Services</option>
+        <option>Autre</option>
+      </select></label>
+      <label for="phone">Votre numéro WhatsApp
+        <span class="phone">
+          <select id="countryCode" name="countryCode" aria-label="Indicatif du pays">
+            <option value="225">🇨🇮 +225</option><option value="221">🇸🇳 +221</option><option value="223">🇲🇱 +223</option>
+            <option value="226">🇧🇫 +226</option><option value="224">🇬🇳 +224</option><option value="228">🇹🇬 +228</option>
+            <option value="229">🇧🇯 +229</option><option value="237">🇨🇲 +237</option><option value="216">🇹🇳 +216</option>
+            <option value="212">🇲🇦 +212</option><option value="33">🇫🇷 +33</option>
+          </select>
+          <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="07 00 00 00 00" required>
+        </span>
+        <span class="hint">Vous y recevrez les commandes de vos clients.</span></label>
+      <label for="password">Mot de passe<input id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="200" required>
+        <span class="hint">Au moins 8 caractères.</span></label>
+      <label class="trap" aria-hidden="true">Site web<input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+      <label class="check"><input id="accept" name="accept" type="checkbox" required><span>J'ai lu la <a href="/confidentialite" target="_blank">politique de confidentialité</a> et j'accepte que Wakil traite ces informations pour créer mon espace.</span></label>
+      <p class="error" id="error" role="alert"></p>
+      <button type="submit">Commencer l'essai gratuit</button>
+      <p class="muted small">Déjà un espace ? <a href="/app/">Se connecter</a></p>
+    </form>
+
+    <div class="done" id="done" hidden>
+      <p class="ok">Votre espace est prêt 🎉</p>
+      <h2>Notez votre identifiant</h2>
+      <p class="muted">Avec votre mot de passe, il vous servira à vous connecter.</p>
+      <div class="id" id="login-id"></div>
+      <a class="go" href="/app/#accueil">Ouvrir mon espace</a>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById("signup"), error = document.getElementById("error");
+  const save = (k, v) => { try { localStorage.setItem("wakil-app:" + k, v); } catch {} };
+  const MESSAGES = {
+    businessName: "Indiquez le nom de votre entreprise.",
+    invalid_phone: "Ce numéro n'est pas valable : vérifiez l'indicatif et le numéro.",
+    weak_password: "Choisissez un mot de passe d'au moins 8 caractères.",
+    accept: "Cochez la case pour continuer.",
+    phone_in_use: "Ce numéro a déjà un espace Wakil. Connectez-vous, ou écrivez-nous si vous avez oublié votre mot de passe.",
+    rate_limited: "Trop d'essais. Patientez une minute, puis réessayez.",
+  };
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    error.textContent = "";
+    form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+    const btn = form.querySelector("button"); btn.disabled = true;
+    const v = (n) => form.elements.namedItem(n).value.trim();
+    try {
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ businessName: v("businessName"), sector: v("sector"), countryCode: v("countryCode"), phone: v("phone"),
+          password: form.elements.namedItem("password").value, accept: form.elements.namedItem("accept").checked, website: v("website") }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.token) {
+        const field = data.field;
+        error.textContent = MESSAGES[data.error] || MESSAGES[field] || "L'inscription n'a pas abouti. Vérifiez votre connexion et réessayez.";
+        const input = field && form.elements.namedItem(field);
+        if (input) { input.setAttribute("aria-invalid", "true"); input.focus(); }
+        btn.disabled = false;
+        return;
+      }
+      save("token", data.token); save("login", data.login); save("tenant", data.login);
+      document.getElementById("login-id").textContent = data.login;
+      form.hidden = true; document.getElementById("done").hidden = false;
+      document.querySelector(".done .go").focus();
+    } catch {
+      error.textContent = "L'inscription n'a pas abouti. Vérifiez votre connexion et réessayez.";
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -141,6 +141,7 @@ export function parseTenantInput(body: Record<string, unknown>, existing?: Tenan
     webOrigins,
     ...(existing?.demo ? { demo: true } : {}),
     ...(existing?.whatsapp ? { whatsapp: existing.whatsapp } : {}),
+    ...(existing?.subscription ? { subscription: existing.subscription } : {}),
     catalog,
     ...(Object.keys(info).length ? { info } : {}),
     ...(paymentInstructions ? { paymentInstructions } : {}),
