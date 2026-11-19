@@ -124,7 +124,7 @@ Le bouton **Appeler** en haut du chat ouvre un appel : le visiteur parle comme a
 ```
 micro (16 kHz) ──► WebSocket /call?tenant=…&session=… ──► CallDO (un par appel)
                    fin de phrase repérée (silence de 0,7 s)
-                   Whisper (Workers AI) : voix → texte
+                   Deepgram Nova-3 (Workers AI) : voix → texte, Whisper en secours
                    ConversationDO.chat : la même conversation que le chat écrit
                    voix française, phrase par phrase (MP3)
 ◄── heard / replies / audio / state      le chat affiche et joue la réponse
@@ -132,7 +132,7 @@ micro (16 kHz) ──► WebSocket /call?tenant=…&session=… ──► CallDO
 
 - **Interrompre** : si le visiteur parle fort pendant que Wakil parle, Wakil se tait et l'écoute.
 - **Raccrocher** : bouton rouge, ou automatiquement après 1 minute de silence, 40 phrases ou 10 minutes d'appel.
-- **Délais** : chaque échange envoie ses délais (transcription, réponse, premier son) ; ils apparaissent dans les journaux Cloudflare (« Appel : délais »).
+- **Délais** : chaque échange envoie ses délais (transcription, réponse, premier son) ; ils apparaissent dans les journaux Cloudflare (« Appel : délais »). Mesuré sur Cloudflare le 19/11/2026 : Nova-3 transcrit une phrase en 0,3 à 0,4 s (Whisper prenait de 4 à 16 s), Claude répond en 1,5 à 2,5 s, et la voix démarre 3,5 à 5 s après la fin de la phrase avec la voix gratuite.
 - **Protections** : sites autorisés, 20 ouvertures d'appel par minute et par adresse, 60 messages par jour et par visiteur (comme le chat).
 - `data-voice="off"` masque aussi ce bouton.
 
