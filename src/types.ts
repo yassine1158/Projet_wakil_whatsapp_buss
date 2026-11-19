@@ -1,3 +1,4 @@
+import type { CallDO } from "./call/call-do";
 import type { ConversationDO } from "./conversation-do";
 import type { InboxDO } from "./inbox-do";
 
@@ -5,12 +6,18 @@ import type { InboxDO } from "./inbox-do";
 export interface Env {
   CONVERSATIONS: DurableObjectNamespace<ConversationDO>;
   INBOX: DurableObjectNamespace<InboxDO>;
+  /** Appels en direct depuis le chat du site : un Durable Object par appel. */
+  CALLS: DurableObjectNamespace<CallDO>;
   /** Mot de passe de l'administrateur de l'application (/app) ; signe aussi les sessions. */
   ADMIN_PASSWORD?: string;
   /** Inscription intégrée de Meta (« Connecter WhatsApp ») : identifiants publics de l'application Meta. */
   META_APP_ID?: string;
   META_CONFIG_ID?: string;
   AI: Ai;
+  /** Facultatif : voix française d'ElevenLabs (sinon voix gratuite de Workers AI). */
+  ELEVENLABS_API_KEY?: string;
+  ELEVENLABS_VOICE_ID?: string;
+  ELEVENLABS_MODEL?: string;
   /** Limite le nombre de messages du chat web par adresse IP (facultatif). */
   CHAT_LIMITER?: RateLimit;
   ANTHROPIC_API_KEY: string;

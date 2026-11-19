@@ -4,10 +4,13 @@ import { tenantByPhoneNumberId } from "./registry";
 import type { Env, IncomingMessage, Tenant } from "./types";
 import { handleLead } from "./leads";
 import { handleChat } from "./web";
+import { handleVoice } from "./voice";
+import { handleCall } from "./call/route";
 import { parseWebhook, verifySignature, WhatsAppClient } from "./whatsapp";
 
 export { ConversationDO } from "./conversation-do";
 export { InboxDO } from "./inbox-do";
+export { CallDO } from "./call/call-do";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -49,6 +52,14 @@ export default {
 
     if (url.pathname === "/chat" || url.pathname === "/chat/config") {
       return handleChat(request, env, url);
+    }
+
+    if (url.pathname === "/voice") {
+      return handleVoice(request, env, url);
+    }
+
+    if (url.pathname === "/call") {
+      return handleCall(request, env, url);
     }
 
     if (url.pathname.startsWith("/api/")) {
