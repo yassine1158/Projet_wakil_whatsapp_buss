@@ -454,7 +454,7 @@
   const canCall = script.dataset.voice !== "off" && !!(AC && window.WebSocket && navigator.mediaDevices?.getUserMedia);
   const dial = $(".dial"), callbar = $(".callbar"), callStateEl = $(".callbar .cs"), callTime = $(".callbar time"),
         callDot = $(".callbar .dot");
-  dial.hidden = !canCall;
+  dial.hidden = true; // affiché quand le serveur confirme qu'une voix est prête (config.call)
   const CALL_RATE = 16000;            // le serveur attend du PCM 16 bits mono à 16 kHz
   const CHUNK = CALL_RATE / 10;       // envoyé par paquets de 100 ms
   const BARGE_LEVEL = 0.08;           // voix assez forte pour couper la parole à l'assistant
@@ -484,7 +484,7 @@
   function setCallUI(on) {
     callbar.hidden = !on;
     form.hidden = on;
-    dial.hidden = on || !canCall;
+    dial.hidden = on || !canCall || !config.call;
     if (on) setStatus("");
   }
 
@@ -707,6 +707,7 @@
     .then((r) => (r.ok ? r.json() : Promise.reject(r.status)))
     .then((c) => {
       config = { ...config, ...c };
+      dial.hidden = !canCall || !config.call || !!call;
       $(".title").textContent = script.dataset.title || `Assistant ${config.businessName}`.trim();
       panel.setAttribute("aria-label", $(".title").textContent);
       if (!panel.hidden) render();
