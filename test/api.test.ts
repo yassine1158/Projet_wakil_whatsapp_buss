@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleApi } from "../src/api";
 import type { StoredTenant, TenantSecrets } from "../src/inbox-types";
 import { invalidateTenants } from "../src/registry";
@@ -174,7 +174,18 @@ describe("inscription en ligne et essai gratuit", () => {
     const res = await handleApi(req, env, new URL(req.url));
     return { status: res.status, data: (await res.json()) as any };
   };
-  const awa = { businessName: "Boutique Awa", phone: "07 07 07 07 07", countryCode: "225", password: "Pagne-Wax-2026", sector: "Commerce", accept: true };
+  const awa = {
+    businessName: "Boutique Awa",
+    phone: "07 07 07 07 07",
+    wakilPhone: "07 08 08 08 08",
+    numberFree: true,
+    countryCode: "225",
+    password: "Pagne-Wax-2026",
+    sector: "Commerce",
+    catalogText: "Pagne wax 6 yards : 12 000 F",
+    infoText: "Ouvert de 8 h à 19 h, Adjamé",
+    accept: true,
+  };
 
   it("crée l'entreprise en essai de 14 jours et connecte le patron tout de suite", async () => {
     const before = Date.now();
@@ -183,6 +194,9 @@ describe("inscription en ligne et essai gratuit", () => {
     expect(data.login).toBe("boutique-awa");
     const t = inbox.tenants.get("boutique-awa")!.tenant;
     expect(t).toMatchObject({ businessName: "Boutique Awa", ownerPhone: "2250707070707", timezone: "Africa/Abidjan", defaultCountryCode: "225", catalog: { products: [] } });
+    expect(t.hostedNumber).toEqual({ phone: "2250708080808", countryCode: "225", state: "submitted", requestedAt: expect.any(Number) });
+    expect(t.instructions).toContain("Pagne wax 6 yards : 12 000 F");
+    expect(t.instructions).toContain("Ouvert de 8 h à 19 h, Adjamé");
     expect(t.subscription!.plan).toBe("pro");
     expect(t.subscription!.trialEndsAt! - before).toBeGreaterThanOrEqual(14 * DAY - 1000);
     expect(inbox.leads).toEqual([expect.objectContaining({ company: "Boutique Awa", phone: "2250707070707", sector: "Commerce" })]);
@@ -195,9 +209,9 @@ describe("inscription en ligne et essai gratuit", () => {
   it("un essai par numéro, un identifiant unique par nom", async () => {
     await signup(awa);
     expect(await signup({ ...awa, businessName: "Autre nom" })).toMatchObject({ status: 409, data: { error: "phone_in_use", field: "phone" } });
-    expect((await signup({ ...awa, phone: "+221 77 000 00 01", countryCode: "221" })).data.login).toBe("boutique-awa-2");
+    expect((await signup({ ...awa, phone: "+221 77 000 00 01", wakilPhone: "77 000 00 02", countryCode: "221" })).data.login).toBe("boutique-awa-2");
     expect(inbox.tenants.get("boutique-awa-2")!.tenant.timezone).toBe("Africa/Dakar");
-    expect((await signup({ ...awa, businessName: "Admin", phone: "0505050505" })).data.login).toBe("entreprise");
+    expect((await signup({ ...awa, businessName: "Admin", phone: "0505050505", wakilPhone: "0505050506" })).data.login).toBe("entreprise");
   });
 
   it("refuse une inscription incomplète, venue d'ailleurs ou d'un robot", async () => {
@@ -205,6 +219,9 @@ describe("inscription en ligne et essai gratuit", () => {
     expect((await signup({ ...awa, accept: false })).data).toEqual({ error: "required", field: "accept" });
     expect((await signup({ ...awa, phone: "12" })).data).toEqual({ error: "invalid_phone", field: "phone" });
     expect((await signup({ ...awa, businessName: " " })).data).toEqual({ error: "required", field: "businessName" });
+    expect((await signup({ ...awa, wakilPhone: "" })).data).toEqual({ error: "invalid_phone", field: "wakilPhone" });
+    expect((await signup({ ...awa, wakilPhone: awa.phone })).data).toEqual({ error: "same_phone", field: "wakilPhone" });
+    expect((await signup({ ...awa, numberFree: false })).data).toEqual({ error: "required", field: "numberFree" });
     expect((await signup(awa, "https://pirate.example")).status).toBe(403);
     expect((await signup(awa, null)).status).toBe(403);
     expect(await signup({ ...awa, website: "http://spam" })).toEqual({ status: 200, data: { ok: true } });
@@ -262,11 +279,120 @@ describe("deux inscriptions au même nom en même temps", () => {
     const req = new Request("https://wakil.example/api/signup", {
       method: "POST",
       headers: { "content-type": "application/json", origin: "https://wakil.example" },
-      body: JSON.stringify({ businessName: "Boutique Awa", phone: "0707070707", password: "Pagne-Wax-2026", accept: true }),
+      body: JSON.stringify({ businessName: "Boutique Awa", phone: "0707070707", wakilPhone: "0708080808", numberFree: true, password: "Pagne-Wax-2026", accept: true }),
     });
     const data = (await (await handleApi(req, env, new URL(req.url))).json()) as any;
     expect(data.login).toBe("boutique-awa-2");
     expect(inbox.tenants.get("boutique-awa")!.tenant.businessName).toBe("Arrivée juste avant");
     expect(inbox.tenants.get("boutique-awa")!.secrets.passwordHash).toBeNull();
+  });
+});
+
+describe("numéro WhatsApp hébergé par Wakil", () => {
+  const signupBody = {
+    businessName: "Ferme Koné",
+    phone: "07 07 07 07 07",
+    wakilPhone: "07 08 08 08 08",
+    numberFree: true,
+    countryCode: "225",
+    password: "Poussin-Chair-2026",
+    accept: true,
+  };
+  let graph: { url: string; method: string; body: any }[];
+  let replies: Record<string, () => Response>;
+
+  beforeEach(() => {
+    env.WHATSAPP_WABA_ID = "999000";
+    env.WHATSAPP_TOKEN = "PLATFORM";
+    graph = [];
+    replies = {};
+    vi.stubGlobal("fetch", async (input: string, init: RequestInit = {}) => {
+      const url = new URL(input);
+      graph.push({ url: url.pathname + url.search, method: init.method ?? "GET", body: init.body ? JSON.parse(init.body as string) : undefined });
+      const key = Object.keys(replies).find((k) => url.pathname.endsWith(k));
+      return key ? replies[key]() : Response.json({ success: true });
+    });
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function signedUp() {
+    const req = new Request("https://wakil.example/api/signup", {
+      method: "POST",
+      headers: { "content-type": "application/json", origin: "https://wakil.example" },
+      body: JSON.stringify(signupBody),
+    });
+    const data = (await (await handleApi(req, env, new URL(req.url))).json()) as any;
+    return { id: data.login as string, patron: data.token as string, admin: await login("admin", "admin-secret") };
+  }
+  const meta = (path: string) => graph.filter((g) => g.url.includes(path));
+
+  it("l'équipe valide, le patron saisit le code, et Wakil répond sur le numéro", async () => {
+    replies["/999000/phone_numbers"] = () => Response.json({ id: "55501" });
+    replies["/55501"] = () => Response.json({ display_phone_number: "+225 07 08 08 08 08" });
+    const { id, patron, admin } = await signedUp();
+
+    // Le patron ne peut pas valider lui-même.
+    expect((await call(`companies/${id}/whatsapp/hosted`, {}, patron)).status).toBe(403);
+
+    const validated = await call(`companies/${id}/whatsapp/hosted`, { method: "SMS" }, admin);
+    expect(validated.status).toBe(200);
+    expect(validated.data.tenant.hostedNumber).toMatchObject({ state: "code_sent", phoneNumberId: "55501", codeMethod: "SMS" });
+    expect(meta("/phone_numbers")[0]).toMatchObject({ method: "POST", body: { cc: "225", phone_number: "0708080808", verified_name: "Ferme Koné" } });
+    expect(meta("/request_code")[0].url).toBe("/v23.0/55501/request_code?code_method=SMS&language=fr");
+
+    expect((await call(`companies/${id}/whatsapp/verify`, { code: "12" }, patron)).data).toEqual({ error: "invalid", field: "code" });
+    const live = await call(`companies/${id}/whatsapp/verify`, { code: "123-456" }, patron);
+    expect(live.status).toBe(200);
+    expect(meta("/verify_code")[0].url).toBe("/v23.0/55501/verify_code?code=123456");
+    expect(meta("/register")[0].body).toEqual({ messaging_product: "whatsapp", pin: expect.stringMatching(/^\d{6}$/) });
+    expect(live.data.tenant.whatsapp).toEqual({ phoneNumberId: "55501", wabaId: "999000", displayPhone: "+225 07 08 08 08 08" });
+    expect(live.data.tenant.hostedNumber).toMatchObject({ state: "connected", connectedAt: expect.any(Number) });
+    expect(inbox.tenants.get(id)!.secrets).toMatchObject({ whatsappToken: null, whatsappPin: expect.stringMatching(/^\d{6}$/) });
+    expect((await call(`companies/${id}/whatsapp/verify`, { code: "123456" }, patron)).status).toBe(409);
+  });
+
+  it("garde la cause d'un refus de Meta, et reprend sans recréer le numéro", async () => {
+    replies["/999000/phone_numbers"] = () => Response.json({ id: "55501" });
+    replies["/request_code"] = () => Response.json({ error: { message: "Too many attempts", code: 136025 } }, { status: 400 });
+    const { id, admin } = await signedUp();
+    const refused = await call(`companies/${id}/whatsapp/hosted`, {}, admin);
+    expect(refused).toMatchObject({ status: 502, data: { error: "meta_error", message: "Too many attempts" } });
+    expect(inbox.tenants.get(id)!.tenant.hostedNumber).toMatchObject({ state: "submitted", phoneNumberId: "55501", error: "Too many attempts" });
+
+    replies["/request_code"] = () => Response.json({ success: true });
+    const retry = await call(`companies/${id}/whatsapp/hosted`, { method: "VOICE" }, admin);
+    expect(retry.data.tenant.hostedNumber).toMatchObject({ state: "code_sent", codeMethod: "VOICE" });
+    expect(retry.data.tenant.hostedNumber.error).toBeUndefined();
+    expect(meta("/phone_numbers")).toHaveLength(1);
+  });
+
+  it("un mauvais code est signalé au patron, qui peut réessayer", async () => {
+    replies["/999000/phone_numbers"] = () => Response.json({ id: "55501" });
+    replies["/verify_code"] = () => Response.json({ error: { message: "Code de vérification incorrect", code: 136023 } }, { status: 400 });
+    const { id, patron, admin } = await signedUp();
+    await call(`companies/${id}/whatsapp/hosted`, {}, admin);
+    const wrong = await call(`companies/${id}/whatsapp/verify`, { code: "000000" }, patron);
+    expect(wrong).toMatchObject({ status: 400, data: { error: "wrong_code", message: "Code de vérification incorrect" } });
+    expect(inbox.tenants.get(id)!.tenant.hostedNumber).toMatchObject({ state: "code_sent", error: "Code de vérification incorrect" });
+    expect(inbox.tenants.get(id)!.tenant.whatsapp).toBeUndefined();
+  });
+
+  it("un numéro déjà vérifié est activé tout de suite, sans code", async () => {
+    replies["/999000/phone_numbers"] = () => Response.json({ id: "55501" });
+    replies["/request_code"] = () => Response.json({ error: { message: "Already verified", code: 136024 } }, { status: 400 });
+    const { id, admin } = await signedUp();
+    const live = await call(`companies/${id}/whatsapp/hosted`, {}, admin);
+    expect(live.data.tenant.hostedNumber.state).toBe("connected");
+    expect(live.data.tenant.whatsapp.phoneNumberId).toBe("55501");
+  });
+
+  it("demande le compte WhatsApp de Wakil, et la fiche modifiée garde la demande", async () => {
+    const { id, patron, admin } = await signedUp();
+    delete env.WHATSAPP_WABA_ID;
+    expect((await call(`companies/${id}/whatsapp/hosted`, {}, admin)).data).toEqual({ error: "waba_not_configured" });
+    const fiche = (await call(`companies/${id}`, undefined, patron)).data.tenant;
+    const edited = await call("companies", { ...fiche, assistantName: "Awa" }, patron);
+    expect(edited.data.tenant.hostedNumber).toMatchObject({ phone: "2250708080808", state: "submitted" });
+    expect((await call("companies/sicar/whatsapp/hosted", {}, admin)).data).toEqual({ error: "no_request" });
   });
 });
