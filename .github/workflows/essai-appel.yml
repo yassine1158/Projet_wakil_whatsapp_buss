@@ -1,0 +1,62 @@
+# Essai de l'appel en direct (PR #14) sur un Worker à part, « wakil-essai » :
+# la version en ligne de SICAR et SANA (Worker « wakil-whatsapp ») n'est pas touchée.
+# Pour l'arrêter : supprimer le Worker « wakil-essai » dans Cloudflare et la branche essai-appel.
+name: Essai de l'appel en direct
+
+on:
+  push:
+    branches: [essai-appel]
+  workflow_dispatch:
+
+concurrency:
+  group: essai-appel
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  essai:
+    name: Mettre en ligne l'essai
+    runs-on: ubuntu-latest
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Tests
+        run: npm test
+
+      - name: Mettre en ligne (Worker d'essai)
+        id: deploy
+        run: |
+          npx wrangler deploy --name wakil-essai 2>&1 | tee "$RUNNER_TEMP/deploy.log"
+          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' "$RUNNER_TEMP/deploy.log" | head -1)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      # Seulement ce qu'il faut pour parler : pas les clés WhatsApp.
+      - name: Envoyer les clés à l'essai
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+        run: |
+          file="$RUNNER_TEMP/secrets.json"
+          node -e '
+            const names = ["ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL", "ELEVENLABS_API_KEY"];
+            const set = Object.fromEntries(names.filter((n) => process.env[n]).map((n) => [n, process.env[n]]));
+            require("fs").writeFileSync(process.argv[1], JSON.stringify(set));
+            console.log("Clés envoyées : " + (Object.keys(set).join(", ") || "aucune"));
+          ' "$file"
+          if [ "$(cat "$file")" != "{}" ]; then npx wrangler secret bulk "$file" --name wakil-essai; fi
+          rm -f "$file"
+
+      - name: Résumé
+        run: |
+          echo "Essai de l'appel : ${{ steps.deploy.outputs.url }}/"
+          echo "## Essai de l'appel en direct : ${{ steps.deploy.outputs.url }}/" >> "$GITHUB_STEP_SUMMARY"
