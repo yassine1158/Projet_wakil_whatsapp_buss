@@ -87,11 +87,24 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/engine.ts` | File d'attente, vocaux/photos, réponse, notifications au patron |
 | `src/agent.ts` | Appel à Claude et boucle d'outils |
 | `src/free-model.ts` | Relais gratuit (Workers AI) quand Claude ne répond pas |
+| `src/brain.ts`, `src/brain-model.json` | Wakil Brain : modèle maison, en mode ombre (voir plus bas) |
 | `src/tools.ts` | Outils : `send_product_photo`, `record_order`, `request_human` |
 | `src/prompt.ts` | Le « caractère » du commercial et ses règles |
 | `src/catalog.ts` | Lecture et mise en forme du catalogue |
 | `src/whatsapp.ts` | Client de l'API WhatsApp Cloud |
 | `config/tenants.json` | Entreprises de départ (SICAR, démonstration) ; les autres se créent dans l'application |
+
+## Wakil Brain : notre propre modèle, en mode ombre
+
+Le cerveau de Wakil est aujourd'hui Claude (avec un relais gratuit). **Wakil Brain** est un premier modèle à nous, construit et entraîné de zéro dans le projet [WAKIL-AI](https://github.com/yassine1158/WAKIL-AI) (`train_intent.py`). À partir du dernier message de l'assistant et du message du client, il devine ce qu'il faut faire : **répondre**, **passer à un conseiller**, **enregistrer la commande** ou **envoyer une photo**.
+
+Il tourne en **mode ombre** : après chaque réponse réelle (pas les essais), sa prédiction est comparée à ce que Claude a vraiment fait et enregistrée. **Il ne change jamais la réponse envoyée au client**, et une panne de Wakil Brain est ignorée.
+
+- **Application → Wakil Brain** (administrateur) : nombre de messages observés, accord avec Claude par action, derniers messages.
+- **Télécharger les exemples** : chaque message réel avec ce que Claude a fait. Claude est le professeur, Wakil Brain l'élève. Les numéros de téléphone et les e-mails sont retirés avant l'enregistrement.
+- **Réentraîner** : dans WAKIL-AI, `python train_intent.py --teacher brain-samples.json --out <ce projet>/src/brain-model.json`, puis tests et mise en ligne comme d'habitude.
+
+Premier modèle : 65 700 paramètres, entraîné sur 640 exemples écrits à la main (SICAR, SANA). Sur 12 phrases nouvelles, il en a reconnu 11. Son vrai niveau se lira dans l'onglet Wakil Brain, sur les messages réels. Quand il sera d'accord avec Claude sur presque tout pour une action, on pourra lui confier cette action.
 
 ## Mise en ligne depuis GitHub (recommandé)
 
