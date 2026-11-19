@@ -178,9 +178,16 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   const blocks: BlockParam[] = [];
   const received: LogEntry[] = [];
   for (const m of pending) {
-    const converted = await toContentBlocks(m, whatsapp, deps.transcribe, hint, log);
+    // Ce qui a échoué (vocal, photo) est noté dans le fil de l'application, pas envoyé au modèle.
+    const problems: string[] = [];
+    const note = (message: string, err?: unknown) => {
+      log(message, err);
+      problems.push(err === undefined ? message : `${message} : ${errorText(err)}`);
+    };
+    const converted = await toContentBlocks(m, whatsapp, deps.transcribe, hint, note);
     blocks.push(...converted);
-    received.push({ from: "client", text: blocksToText(converted) || `[${m.rawType}]`, at: m.timestamp || now });
+    const text = blocksToText(converted) || `[${m.rawType}]`;
+    received.push({ from: "client", text: problems.length ? `${text}\n⚠️ ${problems.join(" · ")}` : text, at: m.timestamp || now });
   }
 
   // À chaque sortie : fil de conversation à jour et résumé envoyé à l'application.
@@ -329,6 +336,7 @@ async function toContentBlocks(
         const media = await whatsapp.downloadMedia(m.mediaId ?? "");
         const text = await transcribe(media.bytes, media.mimeType, hint);
         if (text) return [{ type: "text", text: `[Message vocal, transcription automatique] ${text}` }];
+        log(`Transcription vide (${media.mimeType}, ${media.bytes.length} octets)`);
       } catch (err) {
         log("Transcription échouée", err);
       }
@@ -375,6 +383,10 @@ async function toContentBlocks(
         },
       ];
   }
+}
+
+function errorText(err: unknown): string {
+  return (err instanceof Error ? err.message : String(err)).slice(0, 300);
 }
 
 function blocksToText(blocks: BlockParam[]): string {

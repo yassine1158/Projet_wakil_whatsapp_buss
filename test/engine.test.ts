@@ -284,6 +284,36 @@ describe("processPending", () => {
     expect(owner.kind).toBe("template:nouvelle_demande");
     expect(owner.body).not.toContain("\n");
   });
+
+  it("montre dans l'application pourquoi un vocal n'a pas été compris", async () => {
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { kind: "audio", text: undefined, mediaId: "a1", rawType: "audio" }), NOW, 4000);
+    const { client, requests } = fakeClaude([
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Pouvez-vous répéter ?" } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    const failing = async () => {
+      throw new Error("Whisper : 3010 Invalid input");
+    };
+    await processPending(deps(client, { transcribe: failing }));
+
+    // Le client reçoit une demande polie de répéter ; la cause technique reste pour l'équipe.
+    const toClaude = JSON.stringify(requests[0].messages[0].content);
+    expect(toClaude).toContain("[Message vocal impossible à comprendre");
+    expect(toClaude).not.toContain("3010");
+    const log = (await storage.get<{ from: string; text: string }[]>("log"))!;
+    expect(log[0].from).toBe("client");
+    expect(log[0].text).toContain("[Message vocal impossible à comprendre");
+    expect(log[0].text).toContain("Whisper : 3010 Invalid input");
+  });
+
+  it("signale aussi un vocal dont la transcription est vide", async () => {
+    await enqueueMessage(storage, "sicar", "PNID", msg("m1", { kind: "audio", text: undefined, mediaId: "a1", rawType: "audio" }), NOW, 4000);
+    const { client } = fakeClaude([
+      { stop_reason: "end_turn", content: [{ type: "text", text: "Pouvez-vous répéter ?" } as Anthropic.Beta.BetaContentBlock] },
+    ]);
+    await processPending(deps(client, { transcribe: async () => "" }));
+    const log = (await storage.get<{ from: string; text: string }[]>("log"))!;
+    expect(log[0].text).toContain("Transcription vide");
+  });
 });
 
 describe("chat du site web", () => {
