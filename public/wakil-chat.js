@@ -5,10 +5,10 @@
  * Options (attributs data-) : tenant (obligatoire), accent (couleur, ex. #e30613),
  * on-accent (couleur du texte posé sur l'accent, blanc par défaut),
  * position (left | right), offset (distance au bas de l'écran en px, par défaut 24),
- * title (titre de la fenêtre), teaser (bulle d'invitation), greeting (message d'accueil),
+ * title (titre de la fenêtre), teaser (bulle d'invitation, « off » pour ne pas la montrer), greeting (message d'accueil),
  * suggestions (questions proposées au départ, séparées par « | »),
  * voice (« off » pour masquer le micro et le bouton « Appeler »).
- * La page peut piloter le chat : WakilChat.open(), WakilChat.send("Bonjour").
+ * La page peut piloter le chat : WakilChat.open(), WakilChat.send("Bonjour"), WakilChat.call().
  */
 (() => {
   const script = document.currentScript;
@@ -701,6 +701,8 @@
     open: () => setOpen(true),
     close: () => setOpen(false),
     send: (text) => { setOpen(true); sendMessage(String(text || "").trim().slice(0, 1000)); },
+    // Ouvre le chat et lance l'appel en direct quand la voix est prête ; sinon, ouvre simplement le chat.
+    call: () => { setOpen(true); if (canCall && config.call && !call) startCall(); },
   };
 
   fetch(`${API}/chat/config?tenant=${encodeURIComponent(tenant)}`)
@@ -715,7 +717,7 @@
     .catch(() => {});
 
   if (session.get("open") === "1") setOpen(true);
-  else if (!session.get("teased") && !log.length) {
+  else if (script.dataset.teaser !== "off" && !session.get("teased") && !log.length) {
     // Propose le chat une fois par visite, après quelques secondes.
     setTimeout(() => {
       if (!panel.hidden) return;

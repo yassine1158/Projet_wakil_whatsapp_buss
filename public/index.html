@@ -4,420 +4,428 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wakil · Votre commercial IA sur WhatsApp</title>
-<meta name="description" content="Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Pour les commerces et PME d'Afrique.">
-<meta name="theme-color" content="#1b2066">
+<meta name="description" content="Wakil répond à vos clients sur WhatsApp et sur votre site, de jour comme de nuit : il comprend leurs vocaux, conseille le bon produit et prend les commandes. Pour les commerces et PME d'Afrique.">
+<meta name="theme-color" content="#141852">
 <meta property="og:title" content="Wakil · Votre commercial IA sur WhatsApp">
-<meta property="og:description" content="Il répond, il conseille, il vend. Même à 3 h du matin.">
+<meta property="og:description" content="Il est 21 h 47. Un client vous écrit. Wakil lui répond.">
+<meta property="og:image" content="/img/wakil-lancement.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F4B23A'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%231B2066' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Kufi+Arabic:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Kufi+Arabic:wght@700&display=swap">
 <style>
+  /* La nuit (le moment où Wakil travaille seul) pour le haut de page ; le jour, clair et calme, pour le reste. */
   :root {
-    --deep: #1b2066; --deep-2: #232a7a; --deep-3: #2f3796;
-    --cream: #f4f3ee; --paper: #ffffff; --ink: #15193a; --ink-2: #4a4f73;
-    --gold: #f4b23a; --gold-ink: #8a5800; --mist: #c3c6e8; --light: #f4f3ee;
-    --line: rgba(21, 25, 58, .12); --line-d: rgba(244, 239, 230, .14);
-    --display: "Bricolage Grotesque", system-ui, sans-serif;
+    --night: #141852; --night-2: #1c2163; --navy: #1b2066;
+    --gold: #f4b23a; --gold-soft: #f8cd78;
+    --paper: #ffffff; --mist: #eef0f8;
+    --ink: #161a3d; --ink-2: #4d5275; --line: rgba(22, 26, 61, .12); --line-night: rgba(238, 240, 248, .14);
+    --moon: #e9ebf7; --moon-2: #b9bde0;
+    --wa-wall: #efe7dd; --wa-out: #d9fdd3; --wa-in: #ffffff; --wa-head: #075e54;
+    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
     --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --radius: 22px; --wrap: 1180px;
+    --wrap: 1160px;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  body { margin: 0; font-family: var(--body); color: var(--ink); background: var(--cream); line-height: 1.55; -webkit-font-smoothing: antialiased; }
-  img, svg { display: block; }
+  body { margin: 0; font-family: var(--body); font-size: 17px; line-height: 1.6; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
+  img, svg { display: block; max-width: 100%; }
   a { color: inherit; }
-  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
-  .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
-  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; line-height: 1.02; }
-  h2 { font-size: clamp(34px, 5vw, 56px); font-weight: 800; }
-  h3 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+  h2 { font-size: clamp(32px, 4.6vw, 52px); line-height: 1.04; font-weight: 800; }
+  h3 { font-size: 20px; line-height: 1.25; font-weight: 700; }
   p { margin: 0; }
-  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-ink); }
-  .dark .eyebrow { color: var(--gold); }
-  .lead { font-size: clamp(18px, 2vw, 21px); color: var(--ink-2); max-width: 640px; }
-  .dark .lead { color: #d9dbf0; }
-  section { padding: clamp(72px, 10vw, 120px) 0; }
-  .dark { background: var(--deep); color: var(--light); }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 26px; border-radius: 999px;
-         font: 700 16px/1 var(--body); text-decoration: none; border: 2px solid transparent; cursor: pointer; transition: transform .2s ease, background .2s ease; }
-  .btn:hover { transform: translateY(-2px); }
-  .btn-gold { background: var(--gold); color: var(--deep); }
-  .btn-gold:hover { background: #f7c770; }
-  .btn-ghost { border-color: var(--line-d); color: var(--light); }
-  .btn-ghost:hover { border-color: var(--light); }
-  .btn-deep { background: var(--deep); color: var(--light); }
-  .btn-deep:hover { background: var(--deep-3); }
-  .btn svg { width: 18px; height: 18px; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
+  .lead { font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); max-width: 60ch; }
+  .night .lead { color: var(--moon-2); }
+  section { padding-block: clamp(72px, 10vw, 128px); }
+  .night { background: var(--night); color: var(--moon); }
+  .mist { background: var(--mist); }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* Boutons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 0 26px; border-radius: 999px;
+         font: 700 16px/1 var(--body); text-decoration: none; border: 2px solid transparent; cursor: pointer; transition: background .15s, border-color .15s, transform .15s; }
+  .btn svg { width: 19px; height: 19px; flex: none; }
+  .btn:active { transform: scale(.98); }
+  .btn-gold { background: var(--gold); color: var(--navy); }
+  .btn-gold:hover { background: var(--gold-soft); }
+  .btn-line { border-color: var(--line-night); color: var(--moon); background: transparent; }
+  .btn-line:hover { border-color: var(--moon); }
+  .btn-navy { background: var(--navy); color: #fff; }
+  .btn-navy:hover { background: #262c86; }
+  .btn-quiet { border-color: var(--line); color: var(--ink); background: transparent; }
+  .btn-quiet:hover { border-color: var(--ink); }
 
   /* En-tête */
-  .top { position: sticky; top: 0; z-index: 50; background: rgba(27, 32, 102, .94); backdrop-filter: blur(10px); color: var(--light); border-bottom: 1px solid var(--line-d); }
-  .top .wrap { display: flex; align-items: center; gap: 24px; min-height: 72px; }
-  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-right: auto; }
-  .brand svg { width: 40px; height: 40px; }
-  .brand b { font: 800 30px/1 var(--display); letter-spacing: -1px; }
-  .nav { display: flex; gap: 26px; font-weight: 500; }
-  .nav a { text-decoration: none; color: var(--mist); padding: 8px 0; }
-  .nav a:hover { color: var(--light); }
-  .top .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
-  @media (max-width: 860px) { .nav { display: none; } }
+  .top { position: sticky; top: 0; z-index: 50; background: rgba(20, 24, 82, .92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line-night); }
+  .top .wrap { display: flex; align-items: center; gap: 24px; min-height: 68px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font: 800 25px/1 var(--display); letter-spacing: -.03em; }
+  .brand svg { width: 34px; height: 34px; }
+  .nav { display: none; gap: 26px; margin-left: auto; }
+  .nav a { color: var(--moon-2); text-decoration: none; font-weight: 500; font-size: 15.5px; }
+  .nav a:hover { color: #fff; }
+  .top .btn { min-height: 44px; padding: 0 18px; font-size: 15px; margin-left: auto; }
+  .login { display: none; color: var(--moon-2); font-weight: 500; font-size: 15.5px; text-decoration: none; }
+  .login:hover { color: #fff; }
+  @media (min-width: 960px) { .nav { display: flex; } .login { display: inline; } .top .btn { margin-left: 0; } }
 
-  /* Accueil */
-  .hero { background: var(--deep); color: var(--light); padding: clamp(56px, 8vw, 96px) 0 clamp(72px, 9vw, 110px); overflow: hidden; position: relative; }
-  .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; border: 2px solid rgba(242, 169, 59, .16); pointer-events: none; }
-  .hero::before { width: 620px; height: 620px; top: -260px; right: -220px; }
-  .hero::after { width: 420px; height: 420px; top: -160px; right: -120px; }
-  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 56px; align-items: center; position: relative; }
-  .hero h1 { font-size: clamp(46px, 7.4vw, 92px); font-weight: 800; letter-spacing: -.035em; line-height: .96; margin: 18px 0 24px; }
-  .hero h1 span { color: var(--gold); }
-  .hero .lead { margin-bottom: 34px; }
-  .cta { display: flex; flex-wrap: wrap; gap: 14px; }
-  .meaning { margin-top: 40px; display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 16px; background: rgba(244, 239, 230, .06); max-width: 560px; }
-  .meaning .ar { font: 700 34px/1.2 "Noto Kufi Arabic", sans-serif; color: var(--gold); }
-  .meaning p { font-size: 16px; color: var(--mist); }
-  .meaning b { color: var(--light); }
-  @media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } .phone { margin: 0 auto; } }
+  /* Haut de page : l'heure qu'il est vraiment chez le visiteur */
+  .hero { padding-block: clamp(48px, 7vw, 96px) clamp(64px, 8vw, 112px); position: relative; overflow: hidden; }
+  .hero::before { content: ""; position: absolute; inset: 0; pointer-events: none;
+                  background: radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.55), transparent 60%), radial-gradient(1px 1px at 28% 72%, rgba(255,255,255,.4), transparent 60%),
+                              radial-gradient(1.5px 1.5px at 46% 12%, rgba(255,255,255,.5), transparent 60%), radial-gradient(1px 1px at 63% 84%, rgba(255,255,255,.35), transparent 60%),
+                              radial-gradient(1.5px 1.5px at 82% 26%, rgba(255,255,255,.45), transparent 60%), radial-gradient(1px 1px at 92% 62%, rgba(255,255,255,.35), transparent 60%),
+                              radial-gradient(1px 1px at 6% 88%, rgba(255,255,255,.35), transparent 60%), radial-gradient(1px 1px at 55% 40%, rgba(255,255,255,.25), transparent 60%); }
+  .hero .wrap { position: relative; display: grid; gap: 48px; align-items: center; }
+  @media (min-width: 960px) { .hero .wrap { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 56px; } }
+  .clock { font: 800 clamp(64px, 11.5vw, 156px)/.9 var(--display); letter-spacing: -.045em; color: var(--gold); font-variant-numeric: tabular-nums; }
+  .clock .colon { color: var(--moon-2); font-weight: 500; }
+  .hero h1 { margin-top: 14px; font-size: clamp(34px, 5.2vw, 64px); line-height: 1.02; font-weight: 800; color: #fff; }
+  .hero h1 .after { display: block; color: var(--moon-2); font-weight: 500; }
+  .hero .lead { margin-top: 22px; }
+  .hero .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .reassure { margin-top: 18px; color: var(--moon-2); font-size: 15px; }
 
-  /* Téléphone de démonstration */
-  .phone { width: min(100%, 370px); border-radius: 46px; background: #0b0e2e; padding: 12px; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .6); }
-  .screen { border-radius: 36px; overflow: hidden; background: #efe8dd; color: #1b1f1d; font-size: 14px; line-height: 1.42; }
-  .screen .bar { background: var(--deep-2); color: var(--light); padding: 20px 18px 14px; display: flex; align-items: center; gap: 12px; }
-  .screen .av { width: 40px; height: 40px; border-radius: 50%; background: var(--deep-3); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
-  .screen .bar small { display: block; color: #b9bde6; font-size: 12px; }
-  .chat { padding: 16px 12px 20px; display: flex; flex-direction: column; gap: 9px; }
-  .bub { max-width: 84%; padding: 9px 12px; border-radius: 14px; }
-  .bub.in { align-self: flex-start; background: #fff; border-bottom-left-radius: 4px; }
-  .bub b { white-space: nowrap; }
-  .bub.out { align-self: flex-end; background: #cdebc0; border-bottom-right-radius: 4px; }
-  .voice { display: flex; align-items: center; gap: 8px; }
-  .voice svg { width: 20px; height: 20px; flex: none; }
-  .wave { display: flex; align-items: center; gap: 3px; height: 24px; }
-  .wave i { width: 3px; border-radius: 2px; background: #2c5a4c; }
-  .voice small { color: #3e5a50; font-size: 12px; }
-  .trans { font-size: 12.5px; font-style: italic; color: #3e5a50; margin-top: 6px; }
-  .pay { margin-top: 9px; background: var(--deep); color: var(--light); border-radius: 10px; padding: 9px; text-align: center; font-weight: 700; font-size: 13px; }
+  /* Le téléphone : une vraie conversation WhatsApp, à l'heure du visiteur */
+  .phone { justify-self: center; width: min(360px, 100%); border-radius: 44px; padding: 12px; background: #0b0e33;
+           box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 40px 80px -30px rgba(0,0,0,.7), 0 0 120px -20px rgba(244,178,58,.25); }
+  .screen { border-radius: 34px; overflow: hidden; background: var(--wa-wall); display: flex; flex-direction: column; min-height: 540px; color: #111b21; }
+  .wa-head { background: var(--wa-head); color: #fff; display: flex; align-items: center; gap: 12px; padding: 16px 16px 14px; }
+  .wa-head .av { width: 40px; height: 40px; border-radius: 50%; background: #dfe5e7; color: var(--wa-head); display: grid; place-items: center; font: 700 15px/1 var(--body); flex: none; }
+  .wa-head b { display: block; font-size: 16px; }
+  .wa-head small { display: block; font-size: 13px; opacity: .85; }
+  .wa-body { flex: 1; padding: 14px 12px 18px; display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; line-height: 1.4; }
+  .day { align-self: center; background: #fff; color: #54656f; font-size: 12px; padding: 4px 10px; border-radius: 8px; box-shadow: 0 1px .5px rgba(0,0,0,.13); }
+  .m { max-width: 84%; padding: 7px 9px 6px; border-radius: 10px; box-shadow: 0 1px .5px rgba(0,0,0,.13); position: relative; }
+  .m.in { align-self: flex-start; background: var(--wa-in); border-top-left-radius: 2px; }
+  .m.out { align-self: flex-end; background: var(--wa-out); border-top-right-radius: 2px; }
+  .m time { display: block; text-align: right; font-size: 11px; color: #667781; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .m b { font-weight: 700; }
+  .voice { display: flex; align-items: center; gap: 8px; min-width: 210px; }
+  .voice svg { width: 22px; height: 22px; color: #54656f; flex: none; }
+  .wave { display: flex; align-items: center; gap: 2px; height: 26px; flex: 1; }
+  .wave i { width: 3px; border-radius: 2px; background: #8696a0; }
+  .heard { font-size: 13px; color: #54656f; font-style: italic; margin-top: 4px; }
+  .ref { display: inline-block; margin-top: 6px; padding: 3px 8px; border-radius: 6px; background: #f0f2f5; font-weight: 700; letter-spacing: .02em; }
+  .typing { align-self: flex-start; background: var(--wa-in); border-radius: 10px; border-top-left-radius: 2px; padding: 11px 13px; display: flex; gap: 4px; box-shadow: 0 1px .5px rgba(0,0,0,.13); }
+  .typing i { width: 7px; height: 7px; border-radius: 50%; background: #8696a0; animation: dot 1.1s infinite ease-in-out; }
+  .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes dot { 0%, 60%, 100% { opacity: .35; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
+  .js .m.wait, .js .typing.wait { display: none; }
+  .m.show { animation: pop .28s ease-out; }
+  @keyframes pop { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
 
-  /* Bandeau secteurs */
-  .sectors { background: var(--deep-2); color: var(--mist); padding: 22px 0; border-top: 1px solid var(--line-d); }
-  .sectors .wrap { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; justify-content: center; font-weight: 500; }
-  .sectors b { color: var(--light); }
+  /* Une nuit avec Wakil : une vraie suite d'heures, verticale sur téléphone, horizontale sur ordinateur */
+  .night-line { margin: 52px 0 0; padding: 0; display: grid; gap: 0; }
+  .night-line li { list-style: none; position: relative; margin-left: 9px; padding: 0 0 34px 30px; border-left: 2px solid var(--line); }
+  .night-line li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  .night-line li::after { content: ""; position: absolute; left: -10px; top: 3px; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); border: 3px solid var(--gold); box-sizing: border-box; }
+  .night-line li.morning::after { background: var(--gold); }
+  .night-line .t { display: block; font: 800 26px/1 var(--display); color: var(--navy); font-variant-numeric: tabular-nums; letter-spacing: -.02em; margin-bottom: 10px; }
+  .night-line h3 { margin-bottom: 4px; }
+  .night-line p { color: var(--ink-2); max-width: 56ch; }
+  @media (min-width: 960px) {
+    .night-line { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
+    .night-line li { margin-left: 0; padding: 30px 28px 0 0; border-left: 0; border-top: 2px solid var(--line); }
+    .night-line li:last-child { border-top-color: var(--line); }
+    .night-line li::after { left: 0; top: -10px; }
+    .night-line .t { margin-top: 6px; }
+  }
+  .ar-mark { margin-top: 44px; display: inline-flex; align-items: center; gap: 14px; color: var(--ink-2); }
+  .ar-mark span { font: 700 34px/1 "Noto Kufi Arabic", serif; color: var(--navy); }
 
-  /* Problème */
-  .problem .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start; }
-  .pains { display: grid; gap: 16px; }
-  .pain { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 26px; }
-  .pain h3 { margin-bottom: 6px; }
-  .pain p { color: var(--ink-2); }
-  @media (max-width: 860px) { .problem .wrap { grid-template-columns: 1fr; gap: 36px; } }
+  /* Ce qu'il sait faire : une liste, pas une grille de cartes */
+  .skills { margin-top: 48px; display: grid; gap: 0 56px; }
+  @media (min-width: 860px) { .skills { grid-template-columns: 1fr 1fr; } }
+  .skill { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; padding: 22px 0; border-top: 1px solid var(--line); }
+  .skill .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--paper); color: var(--navy); display: grid; place-items: center; box-shadow: inset 0 0 0 1px var(--line); }
+  .skill .ic svg { width: 22px; height: 22px; }
+  .skill p { color: var(--ink-2); margin-top: 4px; }
+  .skill.new .ic { background: var(--gold); box-shadow: none; }
+  .badge { display: inline-block; margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: var(--navy); color: #fff; font: 700 12px/1.5 var(--body); vertical-align: 3px; }
 
-  /* Fonctions */
-  .head { max-width: 760px; margin-bottom: 48px; display: grid; gap: 16px; }
-  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-  @media (max-width: 960px) { .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 620px) { .grid3 { grid-template-columns: 1fr; } }
-  .card { background: rgba(244, 239, 230, .06); border: 1px solid var(--line-d); border-radius: var(--radius); padding: 28px; display: grid; gap: 12px; align-content: start; }
-  .card p { color: var(--mist); }
-  .ic { width: 52px; height: 52px; border-radius: 14px; background: var(--gold); color: var(--deep); display: grid; place-items: center; }
-  .ic svg { width: 26px; height: 26px; }
-  .launch { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; background: rgba(244, 178, 58, .14); border: 1px solid rgba(244, 178, 58, .45); color: var(--light);
-            border-radius: 999px; padding: 8px 16px 8px 8px; font-weight: 600; font-size: 15px; text-decoration: none; margin-bottom: 18px; }
-  .launch b { background: var(--gold); color: var(--deep); border-radius: 999px; padding: 4px 12px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
-  .launch:hover { border-color: var(--gold); }
-  .soons { margin-top: 18px; display: grid; gap: 12px; }
-  .soons .soon { margin-top: 0; }
-  .soon.next { border-style: solid; border-color: var(--gold); background: rgba(244, 178, 58, .08); color: var(--light); }
-  .soon.next svg { width: 22px; height: 22px; color: var(--gold); }
-  /* Lancement */
-  .lancement .box { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
-  @media (max-width: 860px) { .lancement .box { grid-template-columns: 1fr; } }
-  .lancement img { width: 100%; height: auto; border-radius: 24px; box-shadow: 0 30px 70px -30px rgba(21, 25, 58, .55); }
-  .lancement .txt { display: grid; gap: 20px; align-content: start; }
-  .count { display: flex; gap: 12px; flex-wrap: wrap; }
-  .count div { background: var(--deep); color: var(--light); border-radius: 18px; padding: 14px 18px; min-width: 104px; text-align: center; }
-  .count b { display: block; font: 800 44px/1 var(--display); color: var(--gold); font-variant-numeric: tabular-nums; }
-  .count span { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--mist); }
-  .lancement .cta { display: flex; flex-wrap: wrap; gap: 12px; }
-  .lancement ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
-  .soon { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 24px; border-radius: var(--radius); border: 1px dashed rgba(242, 169, 59, .5); color: var(--mist); }
-  .soon b { color: var(--gold); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
-
-  /* Étapes */
-  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; counter-reset: s; }
-  @media (max-width: 780px) { .steps { grid-template-columns: 1fr; } }
-  .step { border-top: 2px solid var(--ink); padding-top: 20px; display: grid; gap: 10px; }
-  .step::before { counter-increment: s; content: "0" counter(s); font: 800 52px/1 var(--display); color: var(--gold-ink); }
-  .step p { color: var(--ink-2); }
-
-  /* Démo */
-  .demo .box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; background: var(--deep-2); border-radius: 32px; padding: clamp(28px, 5vw, 56px); }
-  @media (max-width: 860px) { .demo .box { grid-template-columns: 1fr; } }
-  .demo .box > div { display: grid; gap: 18px; }
+  /* Démonstration en direct */
+  .demo .wrap { display: grid; gap: 40px; }
+  @media (min-width: 960px) { .demo .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 64px; } }
+  .demo .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
   .tries { display: grid; gap: 10px; }
-  .try { text-align: left; background: rgba(244, 239, 230, .07); border: 1px solid var(--line-d); color: var(--light); border-radius: 16px; padding: 14px 18px;
-         font: 500 16px/1.4 var(--body); cursor: pointer; display: flex; gap: 12px; align-items: center; transition: background .2s, border-color .2s; }
-  .try:hover { background: rgba(244, 239, 230, .12); border-color: var(--gold); }
-  .try svg { width: 18px; height: 18px; color: var(--gold); flex: none; margin-left: auto; }
-  .note { font-size: 14px; color: var(--mist); }
+  .try { text-align: left; background: var(--night-2); color: var(--moon); border: 1px solid var(--line-night); border-radius: 16px; padding: 16px 18px; font: 500 16px/1.4 var(--body); cursor: pointer; transition: border-color .15s, background .15s; }
+  .try:hover { border-color: var(--gold); background: #22286f; }
+  .try small { display: block; color: var(--moon-2); font-size: 13.5px; margin-top: 2px; }
+
+  /* Mise en route */
+  .steps { margin-top: 48px; display: grid; gap: 18px; counter-reset: step; }
+  @media (min-width: 860px) { .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; } }
+  .step { counter-increment: step; background: var(--paper); border-radius: 20px; padding: 26px 24px 28px; box-shadow: inset 0 0 0 1px var(--line); }
+  .step::before { content: counter(step); display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font: 800 17px/1 var(--display); margin-bottom: 18px; }
+  .step p { color: var(--ink-2); margin-top: 6px; }
+  .steps-cta { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .steps-cta p { color: var(--ink-2); font-size: 15px; }
+
+  /* Lancement */
+  .launch .wrap { display: grid; gap: 40px; align-items: center; }
+  @media (min-width: 900px) { .launch .wrap { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 64px; } }
+  .launch img { width: 100%; height: auto; border-radius: 20px; box-shadow: 0 30px 60px -30px rgba(22,26,61,.45); }
+  .count { display: flex; gap: 14px; margin: 26px 0 8px; }
+  .count div { min-width: 92px; padding: 14px 16px; border-radius: 16px; background: var(--mist); text-align: center; }
+  .count b { display: block; font: 800 40px/1 var(--display); color: var(--navy); font-variant-numeric: tabular-nums; }
+  .count span { font-size: 14px; color: var(--ink-2); }
+  .launch ul { margin: 18px 0 0; padding-left: 20px; color: var(--ink-2); }
+  .launch .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
 
   /* Tarifs */
-  .price { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 32px; overflow: hidden; }
-  @media (max-width: 860px) { .price { grid-template-columns: 1fr; } }
-  .price > div { padding: clamp(28px, 4vw, 48px); display: grid; gap: 18px; align-content: start; }
-  .price .side { background: var(--deep); color: var(--light); }
-  .price .side p { color: var(--mist); }
-  .tag { display: inline-block; justify-self: start; background: var(--gold); color: var(--deep); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
-  .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-  .checks li { display: flex; gap: 12px; align-items: flex-start; }
-  .checks svg { width: 22px; height: 22px; flex: none; color: #1f7a55; margin-top: 1px; }
+  .price { margin-top: 44px; display: grid; gap: 0; border-radius: 24px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
+  @media (min-width: 900px) { .price { grid-template-columns: 1.3fr 1fr; } }
+  .price .inc { padding: 32px 30px; background: var(--paper); }
+  .price .inc ul { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 12px; }
+  .price .inc li { display: grid; grid-template-columns: 24px 1fr; gap: 12px; }
+  .price .inc svg { width: 22px; height: 22px; color: #1e7a4c; margin-top: 2px; }
+  .price .talk { padding: 32px 30px; background: var(--night); color: var(--moon); display: grid; align-content: center; gap: 14px; }
+  .price .talk p { color: var(--moon-2); }
+  .price .talk .btn { justify-self: start; margin-top: 6px; }
+  .trial { font: 800 clamp(30px, 3.4vw, 40px)/1.05 var(--display); color: #fff; letter-spacing: -.02em; }
 
-  /* FAQ */
-  .faq { max-width: 860px; }
-  details { border-bottom: 1px solid var(--line); }
-  summary { cursor: pointer; list-style: none; padding: 22px 44px 22px 0; position: relative; font: 600 20px/1.3 var(--display); }
-  summary::-webkit-details-marker { display: none; }
-  summary::after { content: "+"; position: absolute; right: 6px; top: 16px; font: 400 30px/1 var(--body); color: var(--gold-ink); transition: transform .2s; }
-  details[open] summary::after { transform: rotate(45deg); }
-  details p { padding: 0 0 22px; color: var(--ink-2); max-width: 720px; }
+  /* Questions */
+  .faq { max-width: 820px; }
+  .faq details { border-top: 1px solid var(--line); padding: 4px 0; }
+  .faq details:last-of-type { border-bottom: 1px solid var(--line); }
+  .faq summary { list-style: none; cursor: pointer; padding: 18px 40px 18px 0; position: relative; font: 700 19px/1.35 var(--display); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: ""; position: absolute; right: 6px; top: 50%; width: 12px; height: 12px; border-right: 2.5px solid var(--navy); border-bottom: 2.5px solid var(--navy); transform: translateY(-75%) rotate(45deg); transition: transform .2s; }
+  .faq details[open] summary::after { transform: translateY(-25%) rotate(-135deg); }
+  .faq details p { color: var(--ink-2); padding: 0 0 20px; max-width: 64ch; }
 
-  /* Formulaire */
-  .form-box { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 56px; align-items: start; }
-  @media (max-width: 900px) { .form-box { grid-template-columns: 1fr; gap: 36px; } }
-  form { background: var(--paper); color: var(--ink); border-radius: 28px; padding: clamp(24px, 4vw, 40px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-  @media (max-width: 560px) { form { grid-template-columns: 1fr; } }
-  label { display: grid; gap: 7px; font-weight: 600; font-size: 15px; }
-  label small { font-weight: 400; color: var(--ink-2); }
-  .full { grid-column: 1 / -1; }
-  input, select, textarea { font: 400 16px/1.4 var(--body); color: var(--ink); background: #fff; border: 1.5px solid rgba(21, 25, 58, .22); border-radius: 12px; padding: 12px 14px; min-height: 50px; width: 100%; }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--deep); box-shadow: 0 0 0 3px rgba(242, 169, 59, .45); }
-  textarea { resize: vertical; min-height: 96px; }
-  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  form .btn { justify-self: start; }
-  .status { grid-column: 1 / -1; font-weight: 600; min-height: 1.4em; }
-  .status.err { color: #a3261a; }
-  .thanks { background: var(--paper); color: var(--ink); border-radius: 28px; padding: 40px; display: grid; gap: 12px; }
-  .thanks[hidden] { display: none; }
+  /* Dernier appel et formulaire */
+  .final .wrap { display: grid; gap: 40px; }
+  @media (min-width: 960px) { .final .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; } }
+  .final .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  form#lead { background: var(--paper); color: var(--ink); border-radius: 24px; padding: 28px 24px; display: grid; gap: 14px; }
+  @media (min-width: 600px) { form#lead { grid-template-columns: 1fr 1fr; padding: 32px 30px; } }
+  form#lead h3 { grid-column: 1 / -1; }
+  form#lead .intro { grid-column: 1 / -1; color: var(--ink-2); font-size: 15px; margin-top: -6px; }
+  form#lead label { display: grid; gap: 6px; font-weight: 700; font-size: 14.5px; }
+  form#lead label small { font-weight: 400; color: var(--ink-2); }
+  form#lead .full, form#lead button, form#lead .status { grid-column: 1 / -1; }
+  form#lead input, form#lead select, form#lead textarea { font: 400 16px/1.4 var(--body); padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); width: 100%; }
+  form#lead textarea { min-height: 96px; resize: vertical; }
+  form#lead input:focus, form#lead select:focus, form#lead textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(244,178,58,.5); }
+  form#lead .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .status { min-height: 1.4em; font-size: 15px; color: var(--ink-2); }
+  .status.err { color: #b3261e; }
+  .thanks { background: var(--paper); color: var(--ink); border-radius: 24px; padding: 32px 30px; display: grid; gap: 10px; }
+  .thanks p { color: var(--ink-2); }
 
-  footer { background: #10143f; color: var(--mist); padding: 40px 0; font-size: 15px; }
-  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; }
-  footer .brand b { color: var(--light); font-size: 24px; }
-  footer .brand svg { width: 32px; height: 32px; }
-  footer .ar { font-family: "Noto Kufi Arabic", sans-serif; color: var(--gold); }
+  footer { background: var(--night); color: var(--moon-2); padding-block: 36px; border-top: 1px solid var(--line-night); font-size: 15px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; justify-content: space-between; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: #fff; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .typing i, .m.show { animation: none; }
+    .btn, .try { transition: none; }
+  }
 </style>
 </head>
 <body>
-
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".15"/><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  </defs>
+  <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".15"/><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="bubble" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#" aria-label="Wakil, accueil"><svg aria-hidden="true"><use href="#logo"/></svg><b>wakil</b></a>
+    <a class="brand" href="/" aria-label="Wakil, accueil"><svg aria-hidden="true"><use href="#logo"/></svg>wakil</a>
     <nav class="nav" aria-label="Sections">
-      <a href="#fonctionnement">Fonctionnement</a>
+      <a href="#nuit">Comment ça marche</a>
       <a href="#demo">Démo</a>
-      <a href="#lancement">Lancement</a>
       <a href="#tarifs">Tarifs</a>
-      <a href="#faq">Questions</a>
+      <a href="#questions">Questions</a>
     </nav>
+    <a class="login" href="/app/">Se connecter</a>
     <a class="btn btn-gold" href="/inscription">Essayer gratuitement</a>
   </div>
 </header>
 
 <main>
-  <section class="hero dark" aria-labelledby="titre">
+  <section class="hero night" aria-labelledby="titre">
     <div class="wrap">
       <div>
-        <a class="launch" href="#lancement"><b>Lancement</b>12 décembre 2026<span class="j-count"></span></a>
-        <p class="eyebrow">Commercial IA · WhatsApp et site web</p>
-        <h1 id="titre">Votre meilleur commercial <span>ne dort jamais.</span></h1>
-        <p class="lead">Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Vous recevez chaque demande sur votre téléphone.</p>
+        <p class="clock" aria-hidden="true"><span class="hh">21</span><span class="colon"> h </span><span class="mm">47</span></p>
+        <h1 id="titre"><span class="sr">Il est <span class="time-text">21 h 47</span>. </span>Un client vous écrit.<span class="after" id="moment">Vous dormez. Wakil lui répond.</span></h1>
+        <p class="lead">Wakil est votre commercial sur WhatsApp et sur votre site. Il comprend les vocaux, conseille le bon produit et prend la commande. Vous la recevez résumée sur votre téléphone.</p>
         <div class="cta">
-          <a class="btn btn-gold" href="/inscription">Essayer 14 jours gratuits <svg aria-hidden="true"><use href="#arrow"/></svg></a>
-          <a class="btn btn-ghost" href="#demo">Parler à Wakil maintenant</a>
+          <a class="btn btn-gold" href="/inscription">Essayer 14 jours gratuits</a>
+          <a class="btn btn-line" href="#demo">Parler à Wakil maintenant</a>
         </div>
-        <div class="meaning">
-          <span class="ar" lang="ar" dir="rtl">وكيل</span>
-          <p><b>Wakil</b> : « celui qui agit en votre nom ». Un mot compris de Tunis à Abidjan, de Dakar à Zanzibar.</p>
-        </div>
+        <p class="reassure">Sans carte bancaire. Les 14 jours commencent quand Wakil répond à vos clients.</p>
       </div>
 
-      <div class="phone" role="img" aria-label="Exemple de conversation WhatsApp : un client envoie un vocal pour une dalle, Wakil conseille du gravier 15/25 et du sable 0/5, calcule les quantités et prend la commande.">
+      <div class="phone" role="img" aria-label="Conversation WhatsApp : un client envoie un vocal pour une dalle, Wakil conseille du gravier 15/25 et du sable 0/5, calcule les quantités et enregistre la commande.">
         <div class="screen" aria-hidden="true">
-          <div class="bar"><div class="av">CK</div><div><b>Carrière Kouamé</b><small>répond en quelques secondes</small></div></div>
-          <div class="chat">
-            <div class="bub out">
+          <div class="wa-head"><div class="av">CK</div><div><b>Carrière Kouamé</b><small>en ligne</small></div></div>
+          <div class="wa-body" id="wa">
+            <span class="day">Aujourd'hui</span>
+            <div class="m out wait">
               <div class="voice">
-                <svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="#2c5a4c"/></svg>
-                <div class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:12px"></i><i style="height:24px"></i><i style="height:18px"></i><i style="height:10px"></i><i style="height:22px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:19px"></i><i style="height:13px"></i><i style="height:21px"></i><i style="height:11px"></i><i style="height:8px"></i></div>
-                <small>0:07</small>
+                <svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="currentColor"/></svg>
+                <div class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:12px"></i><i style="height:24px"></i><i style="height:18px"></i><i style="height:10px"></i><i style="height:22px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:19px"></i><i style="height:13px"></i><i style="height:21px"></i><i style="height:11px"></i><i style="height:8px"></i><i style="height:15px"></i></div>
               </div>
-              <div class="trans">« Je coule une dalle de 10 sur 8, il me faut quoi ? »</div>
+              <div class="heard">« Je coule une dalle de 10 sur 8, il me faut quoi ? »</div>
+              <time data-plus="0">21:47</time>
             </div>
-            <div class="bub in">Pour une dalle, je vous conseille le <b>gravier 15/25</b> avec du <b>sable 0/5</b>. Pour 10 × 8 m sur 15 cm : environ <b>14 t de gravier</b> et <b>7 t de sable</b>. On vous livre où ?</div>
-            <div class="bub out">À Yopougon, demain matin</div>
-            <div class="bub in">C'est noté ✓ Votre référence : <b>W-4K2P9Q</b>. L'équipe vous confirme le prix et l'heure de livraison.<div class="pay">Bientôt : payer l'acompte par mobile money</div></div>
+            <div class="typing wait"><i></i><i></i><i></i></div>
+            <div class="m in wait">Pour une dalle, je vous conseille le <b>gravier 15/25</b> avec du <b>sable 0/5</b>. Pour 10 × 8 m sur 15 cm, comptez environ <b>14 t de gravier</b> et <b>7 t de sable</b>. On vous livre où ?<time data-plus="0">21:47</time></div>
+            <div class="m out wait">À Yopougon, demain matin<time data-plus="1">21:48</time></div>
+            <div class="typing wait"><i></i><i></i><i></i></div>
+            <div class="m in wait">C'est noté ✓ Gravier 15/25 : 14 t, sable 0/5 : 7 t, livraison à Yopougon demain matin.<br><span class="ref">W-4K2P9Q</span><br>L'équipe vous confirme le prix et l'heure.<time data-plus="1">21:48</time></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="sectors" aria-label="Secteurs">
-    <div class="wrap"><b>Pensé pour :</b><span>Matériaux de construction</span><span>Carrières</span><span>Quincailleries</span><span>Grossistes</span><span>Boutiques</span></div>
-  </div>
-
-  <section class="problem" aria-labelledby="probleme">
+  <section id="nuit" aria-labelledby="nuit-titre">
     <div class="wrap">
-      <div class="head" style="margin:0">
-        <p class="eyebrow">Le problème</p>
-        <h2 id="probleme">Vos clients écrivent quand vous n'êtes pas là.</h2>
-        <p class="lead">Le soir, le dimanche, quand vous êtes sur le chantier ou au dépôt. Chaque message qui attend, c'est un client qui appelle le concurrent.</p>
-      </div>
-      <div class="pains">
-        <div class="pain"><h3>Des messages sans réponse</h3><p>Le client demande un prix à 21 h. Le lendemain matin, il a déjà acheté ailleurs.</p></div>
-        <div class="pain"><h3>Toujours les mêmes questions</h3><p>« C'est quoi la différence entre le 5/10 et le 15/25 ? » « Vous livrez à Cocody ? » Dix fois par jour.</p></div>
-        <div class="pain"><h3>Des devis qui se perdent</h3><p>Un vocal par-ci, une photo par-là : la commande est éparpillée dans la conversation et personne ne la note.</p></div>
+      <h2 id="nuit-titre">Une nuit avec Wakil.</h2>
+      <p class="lead" style="margin-top:16px">Le soir, le dimanche, quand vous êtes au dépôt ou sur un chantier : chaque message qui attend, c'est un client qui appelle le concurrent. Voici ce qui se passe quand c'est Wakil qui répond.</p>
+      <ol class="night-line">
+        <li><span class="t">21:47</span><div class="what"><h3>Une question de prix</h3><p>Il répond avec les prix de votre catalogue, et seulement ceux-là. Un produit sur devis ? Il prend la demande.</p></div></li>
+        <li><span class="t">22:30</span><div class="what"><h3>Un vocal</h3><p>Il l'écoute, le comprend et répond. Il envoie la photo du produit si le client hésite.</p></div></li>
+        <li><span class="t">23:10</span><div class="what"><h3>Une commande</h3><p>Récapitulatif, confirmation du client, référence. La commande arrive résumée sur votre WhatsApp.</p></div></li>
+        <li class="morning"><span class="t">07:30</span><div class="what"><h3>Vous reprenez la main</h3><p>Un client voulait négocier ? Wakil vous a prévenu avec un résumé, et il se tait pendant que vous répondez.</p></div></li>
+      </ol>
+      <p class="ar-mark"><span lang="ar" dir="rtl">وكيل</span>Wakil : celui qui agit en votre nom. Un mot compris de Tunis à Abidjan.</p>
+    </div>
+  </section>
+
+  <section class="mist" aria-labelledby="skills-titre">
+    <div class="wrap">
+      <h2 id="skills-titre">Un vrai commercial, pas un robot à menus.</h2>
+      <p class="lead" style="margin-top:16px">Le client parle normalement, comme à un vendeur. Wakil comprend, répond et fait avancer la vente.</p>
+      <div class="skills">
+        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>Comprend les vocaux</h3><p>Écrits ou vocaux, en français d'ici. Il répond aussi en vocal quand le client préfère.</p></div></div>
+        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></span><div><h3>Connaît votre catalogue</h3><p>Il conseille vos produits, envoie leurs photos et n'invente jamais un prix.</p></div></div>
+        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M8 18h2M12 18h2"/></svg></span><div><h3>Calcule les quantités</h3><p>« Une dalle de 10 sur 8 ? » Il estime ce qu'il faut, comme votre meilleur vendeur.</p></div></div>
+        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h9"/></svg></span><div><h3>Prend les commandes</h3><p>Il note tout, fait confirmer le client et vous envoie la commande sur WhatsApp.</p></div></div>
+        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11l2 2 4-4"/></svg></span><div><h3>Vous passe la main</h3><p>Réclamation, négociation, grosse commande : il vous prévient et se met en retrait.</p></div></div>
+        <div class="skill new"><span class="ic"><svg aria-hidden="true"><use href="#phone"/></svg></span><div><h3>Répond à voix haute<span class="badge">Nouveau</span></h3><p>Sur votre site, le client appelle Wakil et lui parle comme au téléphone. Prochaine étape : les appels WhatsApp.</p></div></div>
       </div>
     </div>
   </section>
 
-  <section class="dark" id="fonctionnement" aria-labelledby="fonctions">
+  <section class="night demo" id="demo" aria-labelledby="demo-titre">
     <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Ce que fait Wakil</p>
-        <h2 id="fonctions">Un vrai commercial, pas un robot à menus.</h2>
-        <p class="lead">Le client parle normalement, comme à un vendeur. Wakil comprend, répond et fait avancer la vente.</p>
+      <div>
+        <h2 id="demo-titre">Parlez à Wakil. Pour de vrai.</h2>
+        <p class="lead" style="margin-top:16px">L'assistant de cette page, c'est Wakil lui-même. Demandez-lui ce qu'il peut faire pour votre entreprise, ou de vous répondre comme à un de vos clients.</p>
+        <div class="actions">
+          <button class="btn btn-gold" type="button" id="open-demo"><svg aria-hidden="true"><use href="#bubble"/></svg>Écrire à Wakil</button>
+          <button class="btn btn-line" type="button" id="call-demo" hidden><svg aria-hidden="true"><use href="#phone"/></svg>Appeler Wakil</button>
+        </div>
       </div>
-      <div class="grid3">
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div><h3>Comprend les vocaux</h3><p>Messages écrits ou vocaux, en français d'ici, et il répond dans la langue du client.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div><h3>Connaît votre catalogue</h3><p>Il conseille uniquement vos produits, envoie leurs photos et n'invente jamais un prix.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h2M12 18h2"/></svg></div><h3>Calcule les quantités</h3><p>« Une dalle de 10 sur 8 ? » Il estime les tonnes nécessaires, comme votre meilleur vendeur.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h9"/></svg></div><h3>Prend les commandes</h3><p>Récapitulatif, confirmation du client, référence. La commande arrive résumée sur votre WhatsApp.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11l2 2 4-4"/></svg></div><h3>Vous passe la main</h3><p>Réclamation, négociation, grosse commande : il vous prévient et se met en retrait.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="14" height="11" rx="2"/><path d="M6 19h6M9 15v4"/><rect x="17" y="8" width="5" height="12" rx="1.5"/></svg></div><h3>WhatsApp et votre site</h3><p>Le même assistant répond sur votre numéro WhatsApp et dans un chat sur votre site web.</p></div>
-      </div>
-      <div class="soons">
-        <div class="soon next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><b>Prochaine étape</b><span>Wakil répondra aussi au téléphone : le client appelle, Wakil décroche, conseille et prend la commande, de vive voix.</span></div>
-        <div class="soon"><b>Bientôt</b><span>Paiement de l'acompte par mobile money (Wave, Orange Money, MTN MoMo), directement dans la conversation.</span></div>
+      <div class="tries">
+        <button class="try" type="button" data-q="J'ai une quincaillerie, qu'est-ce que Wakil peut faire pour moi ?">« J'ai une quincaillerie, qu'est-ce que tu peux faire pour moi ? »<small>Il vous explique, avec votre métier</small></button>
+        <button class="try" type="button" data-q="Je vends du ciment et du fer. Réponds-moi comme tu répondrais à un de mes clients : c'est combien le sac de ciment ?">« Réponds comme à un de mes clients »<small>Il se met dans la peau de votre vendeur</small></button>
+        <button class="try" type="button" data-q="Combien ça coûte, et il faut combien de temps pour démarrer ?">« Combien ça coûte, et pour démarrer ? »<small>Tarifs et mise en route</small></button>
+        <button class="try" type="button" data-q="Je veux parler à quelqu'un de l'équipe Wakil">« Je veux parler à quelqu'un de l'équipe »<small>Il passe la main, comme il le fera pour vous</small></button>
       </div>
     </div>
   </section>
 
-  <section aria-labelledby="etapes">
+  <section class="mist" id="demarrer" aria-labelledby="demarrer-titre">
     <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Mise en route</p>
-        <h2 id="etapes">Trois étapes, et il travaille pour vous.</h2>
-      </div>
+      <h2 id="demarrer-titre">En ligne en trois étapes.</h2>
+      <p class="lead" style="margin-top:16px">Pas d'application à installer. Vous gardez votre numéro personnel : Wakil a son propre numéro WhatsApp, à votre nom.</p>
       <div class="steps">
-        <div class="step"><h3>Envoyez votre catalogue</h3><p>Une photo de votre liste, un PDF ou un fichier Excel : nous préparons tout.</p></div>
-        <div class="step"><h3>Connectez votre WhatsApp</h3><p>Un numéro dédié à Wakil, à votre nom. Choisissez son ton et ce qu'il peut faire.</p></div>
-        <div class="step"><h3>Recevez les commandes</h3><p>Jour et nuit, 7 jours sur 7, résumées sur votre téléphone.</p></div>
+        <div class="step"><h3>Inscrivez-vous</h3><p>Le nom de votre entreprise, vos produits et vos prix, et le numéro que Wakil utilisera : une nouvelle puce convient.</p></div>
+        <div class="step"><h3>Saisissez le code</h3><p>Nous validons votre inscription. Un code arrive par SMS sur le numéro de Wakil : vous le saisissez, c'est tout.</p></div>
+        <div class="step"><h3>Recevez les commandes</h3><p>Wakil répond à vos clients jour et nuit. Les commandes arrivent sur votre WhatsApp personnel.</p></div>
+      </div>
+      <div class="steps-cta">
+        <a class="btn btn-navy" href="/inscription">Commencer l'inscription</a>
+        <p>Deux minutes, sans carte bancaire.</p>
       </div>
     </div>
   </section>
 
-  <section class="dark demo" id="demo" aria-labelledby="demo-titre">
+  <section class="launch" id="lancement" aria-labelledby="lancement-titre">
     <div class="wrap">
-      <div class="box">
-        <div>
-          <p class="eyebrow">Démonstration en direct</p>
-          <h2 id="demo-titre">Parlez à Wakil.</h2>
-          <p class="lead">L'assistant de cette page, c'est Wakil lui-même. Posez-lui vos questions sur ce qu'il peut faire pour votre entreprise, ou demandez-lui de répondre comme il répondrait à vos clients.</p>
-          <p class="note">Il répond comme il le fera pour vos clients : tout de suite, simplement, et il passe la main à notre équipe quand il le faut.</p>
+      <a href="/img/wakil-lancement.jpg" target="_blank" rel="noopener"><img src="/img/wakil-lancement.jpg" width="1080" height="1350" loading="lazy" alt="Affiche de lancement de Wakil : « Vos clients écrivent à 21 h. Wakil répond. » Lancement le 12 décembre 2026."></a>
+      <div>
+        <h2 id="lancement-titre">Lancement le 12 décembre 2026.</h2>
+        <p class="lead" style="margin-top:16px">Wakil répond déjà aux clients de SICAR SARL et de SANA, en Côte d'Ivoire. Le 12 décembre, il ouvre à toutes les entreprises.</p>
+        <div class="count" role="timer" aria-live="off" aria-label="Temps restant avant le lancement">
+          <div><b data-n="j">–</b><span>jours</span></div>
+          <div><b data-n="h">–</b><span>heures</span></div>
+          <div><b data-n="m">–</b><span>minutes</span></div>
         </div>
-        <div class="tries">
-          <button class="try" type="button" data-q="J'ai une quincaillerie, qu'est-ce que Wakil peut faire pour moi ?">« J'ai une quincaillerie, qu'est-ce que tu peux faire pour moi ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="try" type="button" data-q="Je vends du ciment et du fer. Réponds-moi comme tu répondrais à un de mes clients : c'est combien le sac de ciment ?">« Réponds comme à un de mes clients »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="try" type="button" data-q="Combien ça coûte, et il faut combien de temps pour démarrer ?">« Combien ça coûte, et pour démarrer ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="try" type="button" data-q="Je veux parler à quelqu'un de l'équipe Wakil">« Je veux parler à quelqu'un de l'équipe »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="btn btn-gold" type="button" id="open-demo">Écrire ma propre question</button>
-        </div>
+        <ul>
+          <li>Les entreprises inscrites avant le lancement démarrent en priorité.</li>
+          <li>Vos produits sont prêts le jour J : Wakil répond dès la première minute.</li>
+        </ul>
+        <div class="cta"><a class="btn btn-navy" href="/inscription">Réserver ma place</a></div>
       </div>
     </div>
   </section>
 
-  <section class="lancement" id="lancement" aria-labelledby="lancement-titre">
+  <section class="mist" id="tarifs" aria-labelledby="tarifs-titre">
     <div class="wrap">
-      <div class="box">
-        <a href="/img/wakil-lancement.jpg" target="_blank" rel="noopener"><img src="/img/wakil-lancement.jpg" width="1080" height="1350" loading="lazy" alt="Affiche de lancement de Wakil : « Vos clients écrivent à 21 h. Wakil répond. » Lancement le 12 décembre 2026. Prochaine étape : Wakil répondra aussi au téléphone."></a>
-        <div class="txt">
-          <p class="eyebrow">Lancement officiel</p>
-          <h2 id="lancement-titre">Rendez-vous le 12 décembre 2026.</h2>
-          <p class="lead">Wakil est déjà en test chez <b>SICAR SARL</b>, en Côte d'Ivoire. Le 12 décembre, il ouvre à toutes les entreprises.</p>
-          <div class="count" role="timer" aria-live="off" aria-label="Temps restant avant le lancement">
-            <div><b data-n="j">–</b><span>jours</span></div>
-            <div><b data-n="h">–</b><span>heures</span></div>
-            <div><b data-n="m">–</b><span>minutes</span></div>
-          </div>
-          <ul>
-            <li>Les premières entreprises inscrites démarrent en priorité.</li>
-            <li>Nous préparons votre catalogue avant le lancement : Wakil est prêt le jour J.</li>
-          </ul>
-          <div class="cta">
-            <a class="btn btn-deep" href="#essayer">Réserver ma place <svg aria-hidden="true"><use href="#arrow"/></svg></a>
-            <a class="btn" href="/img/wakil-lancement.jpg" download="wakil-lancement.jpg" style="border-color:var(--line)">Télécharger l'affiche</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="tarifs" aria-labelledby="tarifs-titre">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Tarifs</p>
-        <h2 id="tarifs-titre">Un tarif adapté à votre activité.</h2>
-        <p class="lead">Nous démarrons avec nos premières entreprises. Le tarif dépend du nombre de conversations et des canaux choisis.</p>
-      </div>
+      <h2 id="tarifs-titre">Un tarif adapté à votre activité.</h2>
+      <p class="lead" style="margin-top:16px">Le tarif dépend du nombre de conversations et des canaux choisis. Essayez d'abord, gratuitement.</p>
       <div class="price">
-        <div>
-          <span class="tag">Inclus</span>
-          <ul class="checks">
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Assistant sur votre numéro WhatsApp, 24 h/24</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Chat sur votre site web</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Mise en place de votre catalogue par notre équipe</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Commandes et demandes de conseiller envoyées sur votre WhatsApp</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Compréhension des vocaux</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Réglages du ton et des règles de vente</li>
+        <div class="inc">
+          <h3>Ce qui est inclus</h3>
+          <ul>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Wakil sur son propre numéro WhatsApp, 24 h/24</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Le chat sur votre site web, avec l'appel à voix haute</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Compréhension des vocaux, réponses en vocal</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Commandes et demandes de rappel envoyées sur votre WhatsApp</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>Votre espace pour suivre les conversations et les commandes</li>
+            <li><svg aria-hidden="true"><use href="#check"/></svg>L'aide de notre équipe pour préparer votre catalogue</li>
           </ul>
         </div>
-        <div class="side">
-          <h3>Parlons de votre entreprise</h3>
-          <p>Dites-nous ce que vous vendez et combien de messages vous recevez : nous vous proposons un tarif clair, en FCFA.</p>
-          <a class="btn btn-gold" href="#essayer">Demander un tarif <svg aria-hidden="true"><use href="#arrow"/></svg></a>
+        <div class="talk">
+          <p class="trial">14 jours gratuits.</p>
+          <p>Ensuite, nous vous proposons un tarif clair en FCFA, selon ce que vous vendez et le nombre de messages que vous recevez.</p>
+          <a class="btn btn-gold" href="/inscription">Essayer gratuitement</a>
         </div>
       </div>
     </div>
   </section>
 
-  <section style="padding-top:0" id="faq" aria-labelledby="faq-titre">
+  <section id="questions" aria-labelledby="questions-titre">
     <div class="wrap faq">
-      <div class="head"><p class="eyebrow">Questions</p><h2 id="faq-titre">Vous vous demandez sûrement…</h2></div>
-      <details><summary>Mes clients sauront-ils qu'ils parlent à une IA ?</summary><p>Oui. Wakil se présente comme l'assistant virtuel de votre entreprise, et le dit si on lui demande. Les clients apprécient surtout d'avoir une réponse tout de suite.</p></details>
-      <details><summary>Et s'il ne sait pas répondre ?</summary><p>Il ne devine pas. Pour une question hors catalogue, une réclamation ou une négociation, il vous prévient sur WhatsApp avec un résumé, et vous reprenez la conversation.</p></details>
-      <details><summary>Est-ce qu'il donne des prix ?</summary><p>Seulement ceux que vous lui donnez. Si un produit est « sur devis », il prend la demande et votre équipe confirme le prix.</p></details>
-      <details><summary>Faut-il un nouveau numéro WhatsApp ?</summary><p>Nous recommandons un numéro dédié à Wakil, enregistré au nom de votre entreprise chez Meta. Votre numéro personnel reste à vous.</p></details>
-      <details><summary>Combien de temps pour démarrer ?</summary><p>En général quelques jours : le temps de préparer votre catalogue et de faire valider votre numéro par Meta.</p></details>
-      <details><summary>Que devient ce que disent mes clients ?</summary><p>Les conversations servent uniquement à répondre à vos clients et à vous transmettre leurs commandes. Elles ne sont ni vendues ni partagées.</p></details>
+      <h2 id="questions-titre">Vous vous demandez sûrement…</h2>
+      <div style="margin-top:32px">
+        <details><summary>Mes clients sauront-ils qu'ils parlent à une IA ?</summary><p>Oui. Wakil se présente comme l'assistant virtuel de votre entreprise, et le dit si on lui demande. Les clients apprécient surtout d'avoir une réponse tout de suite.</p></details>
+        <details><summary>Et s'il ne sait pas répondre ?</summary><p>Il ne devine pas. Pour une question hors catalogue, une réclamation ou une négociation, il vous prévient sur WhatsApp avec un résumé, et vous reprenez la conversation.</p></details>
+        <details><summary>Est-ce qu'il donne des prix ?</summary><p>Seulement ceux que vous lui donnez. Si un produit est « sur devis », il prend la demande et votre équipe confirme le prix.</p></details>
+        <details><summary>Quel numéro WhatsApp utiliser ?</summary><p>Un numéro réservé à Wakil, qui n'a pas de compte WhatsApp : une nouvelle puce convient très bien. Votre numéro personnel reste à vous, et c'est là que vous recevez les commandes.</p></details>
+        <details><summary>Combien de temps pour démarrer ?</summary><p>L'inscription prend deux minutes. Ensuite, le temps que notre équipe valide votre numéro et que vous saisissiez le code reçu par SMS : souvent le jour même.</p></details>
+        <details><summary>Faut-il installer une application ?</summary><p>Non. Wakil travaille sur WhatsApp et sur votre site. Si vous le souhaitez, votre espace en ligne vous montre les conversations et les commandes.</p></details>
+        <details><summary>Que devient ce que disent mes clients ?</summary><p>Les conversations servent uniquement à répondre à vos clients et à vous transmettre leurs commandes. Elles ne sont ni vendues ni partagées. Voir notre <a href="/confidentialite">politique de confidentialité</a>.</p></details>
+      </div>
     </div>
   </section>
 
-  <section class="dark" id="essayer" aria-labelledby="essayer-titre">
-    <div class="wrap form-box">
-      <div class="head" style="margin:0">
-        <p class="eyebrow">Essayer Wakil</p>
-        <h2 id="essayer-titre">Mettez un commercial de plus dans votre équipe.</h2>
-        <p class="lead">Créez votre espace tout de suite : <a href="/inscription" style="color:var(--gold);font-weight:700">14 jours gratuits</a>. Ou laissez vos coordonnées : nous vous recontactons sur WhatsApp pour préparer Wakil avec votre catalogue.</p>
+  <section class="night final" id="essayer" aria-labelledby="essayer-titre">
+    <div class="wrap">
+      <div>
+        <h2 id="essayer-titre">Ce soir, c'est Wakil qui répond.</h2>
+        <p class="lead" style="margin-top:16px">Inscrivez-vous maintenant : 14 jours gratuits à partir du jour où il répond à vos clients.</p>
+        <div class="cta"><a class="btn btn-gold" href="/inscription">Essayer 14 jours gratuits</a></div>
       </div>
       <div>
         <form id="lead" novalidate>
+          <h3>Vous préférez qu'on vous appelle ?</h3>
+          <p class="intro">Laissez vos coordonnées : nous vous recontactons sur WhatsApp pour préparer Wakil avec vous.</p>
           <label>Votre nom<input name="name" autocomplete="name" required maxlength="80"></label>
           <label>Entreprise<input name="company" autocomplete="organization" required maxlength="120"></label>
           <label>Secteur
@@ -426,6 +434,7 @@
               <option>Matériaux de construction</option>
               <option>Carrière / granulats</option>
               <option>Quincaillerie</option>
+              <option>Élevage et alimentation animale</option>
               <option>Grossiste / distribution</option>
               <option>Boutique / commerce</option>
               <option>Autre</option>
@@ -433,14 +442,14 @@
           </label>
           <label>Ville et pays<input name="city" autocomplete="address-level2" maxlength="80" placeholder="Abidjan, Côte d'Ivoire"></label>
           <label class="full">Numéro WhatsApp <small>avec l'indicatif du pays</small><input name="phone" type="tel" autocomplete="tel" required placeholder="+225 07 00 00 00 00"></label>
-          <label class="full">Ce que vous vendez, ce que vous attendez de Wakil <small>(facultatif)</small><textarea name="message" maxlength="1000"></textarea></label>
+          <label class="full">Ce que vous vendez <small>(facultatif)</small><textarea name="message" maxlength="1000"></textarea></label>
           <label class="hp" aria-hidden="true">Site web<input name="website" tabindex="-1" autocomplete="off"></label>
-          <button class="btn btn-deep" type="submit">Envoyer ma demande <svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <button class="btn btn-navy" type="submit">Être rappelé sur WhatsApp</button>
           <p class="status" role="status" aria-live="polite"></p>
         </form>
         <div class="thanks" hidden tabindex="-1">
           <h3>Merci, c'est bien reçu.</h3>
-          <p>Nous vous écrivons très vite sur WhatsApp. En attendant, posez vos questions à Wakil dans le chat.</p>
+          <p>Nous vous écrivons sur WhatsApp très bientôt pour préparer Wakil avec vous. En attendant, vous pouvez parler à Wakil en bas de cette page.</p>
         </div>
       </div>
     </div>
@@ -449,32 +458,97 @@
 
 <footer>
   <div class="wrap">
-    <a class="brand" href="#" aria-label="Wakil, haut de page"><svg aria-hidden="true"><use href="#logo"/></svg><b>wakil</b></a>
-    <p><span class="ar" lang="ar" dir="rtl">وكيل</span> · le commercial qui agit en votre nom</p>
-    <p><a href="/app/" style="color:inherit">Espace client</a> · <a href="/confidentialite" style="color:inherit">Confidentialité</a> · © <span id="year">2026</span> Wakil</p>
+    <a class="brand" href="/" aria-label="Wakil, accueil" style="font-size:21px"><svg aria-hidden="true" style="width:28px;height:28px"><use href="#logo"/></svg>wakil</a>
+    <nav aria-label="Liens">
+      <a href="/inscription">Inscription</a>
+      <a href="/app/">Se connecter</a>
+      <a href="/confidentialite">Confidentialité</a>
+      <span>© <span id="year">2026</span> Wakil</span>
+    </nav>
   </div>
 </footer>
 
 <script src="/wakil-chat.js" data-tenant="wakil" data-accent="#f4b23a" data-on-accent="#1b2066" data-position="right" data-title="Wakil" data-teaser="Une question sur Wakil ? Je vous réponds tout de suite." data-greeting="Bonjour 👋 Je suis Wakil, le commercial virtuel qui répond à vos clients sur WhatsApp et sur votre site. Que vendez-vous ? Je vous montre ce que je peux faire pour votre entreprise." defer></script>
 <script>
+  document.documentElement.classList.add("js");
+  // Sur téléphone, la bulle d'invitation du chat cacherait les boutons du haut de page.
+  if (matchMedia("(max-width: 720px)").matches) {
+    const widget = document.querySelector('script[src="/wakil-chat.js"]');
+    if (widget) widget.dataset.teaser = "off";
+  }
   document.getElementById("year").textContent = new Date().getFullYear();
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  // Compte à rebours jusqu'au lancement (12 décembre 2026, minuit à Abidjan).
+  /* ---------- L'heure du visiteur, et ce qu'il fait probablement à cette heure-là ---------- */
+  const two = (n) => String(n).padStart(2, "0");
+  function moment(h) {
+    if (h >= 21 || h < 6) return "Vous dormez. Wakil lui répond.";
+    if (h >= 18) return "Vous avez fermé. Wakil lui répond.";
+    if (h < 8) return "Vous n'avez pas encore ouvert. Wakil lui répond.";
+    return "Vous êtes avec un autre client. Wakil lui répond.";
+  }
+  function setClock() {
+    const now = new Date();
+    document.querySelector(".clock .hh").textContent = two(now.getHours());
+    document.querySelector(".clock .mm").textContent = two(now.getMinutes());
+    document.querySelector(".time-text").textContent = `${now.getHours()} h ${two(now.getMinutes())}`;
+    document.getElementById("moment").textContent = moment(now.getHours());
+  }
+  setClock();
+  setInterval(setClock, 15000);
+
+  // La conversation porte l'heure de la visite.
+  const start = new Date();
+  document.querySelectorAll("#wa time").forEach((t) => {
+    const d = new Date(start.getTime() + Number(t.dataset.plus) * 60000);
+    t.textContent = `${two(d.getHours())}:${two(d.getMinutes())}`;
+  });
+
+  /* ---------- La conversation se déroule une fois, comme sur un vrai téléphone ---------- */
+  const steps = [...document.querySelectorAll("#wa .wait")];
+  if (reduced) {
+    steps.filter((el) => !el.classList.contains("typing")).forEach((el) => el.classList.remove("wait"));
+  } else {
+    const delays = [700, 900, 1700, 1500, 900, 1900];
+    let i = 0;
+    const next = () => {
+      if (i > 0 && steps[i - 1].classList.contains("typing")) steps[i - 1].classList.add("wait");
+      if (i >= steps.length) return;
+      const el = steps[i];
+      el.classList.remove("wait");
+      if (!el.classList.contains("typing")) el.classList.add("show");
+      i++;
+      setTimeout(next, delays[i - 1] ?? 1200);
+    };
+    setTimeout(next, 500);
+  }
+
+  /* ---------- Compte à rebours du lancement (12 décembre 2026, minuit à Abidjan) ---------- */
   const LAUNCH = Date.UTC(2026, 11, 12);
   function tick() {
     const left = Math.max(0, LAUNCH - Date.now());
     const j = Math.floor(left / 864e5), h = Math.floor(left / 36e5) % 24, m = Math.floor(left / 6e4) % 60;
     for (const [k, v] of Object.entries({ j, h, m })) document.querySelector(`[data-n="${k}"]`).textContent = v;
-    document.querySelectorAll(".j-count").forEach((el) => (el.textContent = left ? `· J-${j + (h || m ? 1 : 0)}` : "· C'est parti !"));
   }
-  tick(); setInterval(tick, 30000);
+  tick();
+  setInterval(tick, 30000);
 
-  // Démo : les exemples ouvrent le chat et envoient la question.
-  const withChat = (fn) => (window.WakilChat ? fn(window.WakilChat) : setTimeout(() => withChat(fn), 200));
+  /* ---------- Démonstration : les exemples ouvrent le chat de Wakil ---------- */
+  const withChat = (fn, tries = 0) => (window.WakilChat ? fn(window.WakilChat) : tries < 50 && setTimeout(() => withChat(fn, tries + 1), 200));
   document.querySelectorAll(".try").forEach((b) => b.addEventListener("click", () => withChat((c) => c.send(b.dataset.q))));
   document.getElementById("open-demo").addEventListener("click", () => withChat((c) => c.open()));
+  // « Appeler Wakil » seulement quand la voix est prête (le serveur le dit dans /chat/config).
+  fetch("/chat/config?tenant=wakil")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((c) => {
+      if (!c?.call || !navigator.mediaDevices?.getUserMedia) return;
+      const btn = document.getElementById("call-demo");
+      btn.hidden = false;
+      btn.addEventListener("click", () => withChat((w) => (w.call ? w.call() : w.open())));
+    })
+    .catch(() => {});
 
-  // Formulaire « Essayer Wakil »
+  /* ---------- Formulaire « être rappelé » ---------- */
   const form = document.getElementById("lead"), status = form.querySelector(".status"), button = form.querySelector("button");
   const ERRORS = {
     missing_fields: "Indiquez votre nom et le nom de votre entreprise.",

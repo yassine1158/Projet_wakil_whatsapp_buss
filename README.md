@@ -241,8 +241,12 @@ Envoyez « Bonjour » au numéro de test : Wakil répond.
 ## Le site de Wakil
 
 Le Worker sert aussi le site de présentation de Wakil (`public/index.html`), à sa propre adresse : `https://wakil-whatsapp.<votre-compte>.workers.dev/`. On y trouve :
-- **Wakil en direct** : le chat de la page est Wakil lui-même (`wakil` dans `config/tenants.json`), qui présente l'offre aux patrons, répond à leurs questions et peut jouer le rôle de leur assistant ; il les invite à remplir le formulaire ;
-- **le formulaire « Essayer Wakil »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
+- **le haut de page à l'heure du visiteur** : « Il est 21 h 47. Un client vous écrit. », puis une phrase selon l'heure (« Vous dormez. », « Vous avez fermé. »…) et une conversation WhatsApp qui se déroule une fois, horodatée à l'heure de la visite (sans animation si le visiteur l'a demandé à son appareil) ;
+- **Wakil en direct** : le chat de la page est Wakil lui-même (`wakil` dans `config/tenants.json`), qui présente l'offre aux patrons et peut jouer le rôle de leur assistant. Le bouton **Appeler Wakil** n'apparaît que lorsque la voix est prête (`call` dans `/chat/config`) ;
+- **l'inscription** (`/inscription`) mise en avant partout, avec les trois étapes : s'inscrire, saisir le code, recevoir les commandes ;
+- **le formulaire « être rappelé »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
+
+Sur téléphone, la bulle d'invitation du chat n'est pas montrée (`data-teaser="off"`), pour ne pas cacher les boutons du haut de page.
 
 Les messages de la démonstration sont de vrais appels au modèle : les limites du chat web s'appliquent aussi.
 
