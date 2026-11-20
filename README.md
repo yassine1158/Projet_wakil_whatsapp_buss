@@ -241,13 +241,14 @@ Envoyez « Bonjour » au numéro de test : Wakil répond.
 ## Le site de Wakil
 
 Le Worker sert aussi le site de présentation de Wakil (`public/index.html`), à sa propre adresse : `https://wakil-whatsapp.<votre-compte>.workers.dev/`. On y trouve :
-- **le site qui vous appelle** : le haut de page est un appel entrant de Wakil (« Allô ? Ici Wakil. Ce site vous appelle. »). **Décrocher** fait parler Wakil pendant 25 secondes avec la voix française de l'appareil (synthèse vocale du navigateur, sans serveur ni autorisation), et chaque mot s'affiche en très grand, le mot en cours en or. Sans voix française, les sous-titres défilent seuls. **Plus tard** affiche un « appel manqué » et le message vocal laissé par Wakil. À la fin : « À vous. », pour lui parler (appel en direct si la voix est prête, sinon le chat) ou s'inscrire ;
-- **une nuit sur votre téléphone** : l'écran verrouillé d'un patron ; le défilement fait passer la nuit de 21:47 à 07:30, le ciel passe à l'aube, et les notifications de Wakil arrivent (une commande, un client à rappeler), pendant que la liste à côté montre ce que Wakil règle seul ;
+- **« Embauchez Wakil »** : le site est le dossier d'embauche d'un commercial, dessiné avec les papiers du comptoir (carnet de bons à souches à l'encre carbone, bloc rose « message téléphonique », tampon rouge). Archivo pour l'imprimé, Kalam pour ce qui est écrit à la main ;
+- **le bon de commande qui se remplit tout seul** (haut de page) : quand il arrive à l'écran, le bon N° 0001 s'écrit à la main, le vocal du client tenu par un trombone, puis le tampon « CONFIRMÉE » tombe ;
+- **la fiche de poste** (horaires, missions, et ce qu'il ne fera jamais : inventer un prix, promettre une livraison sans vous…), **« Pendant votre absence »** (le défilement fait passer la nuit de 21:47 à 07:30 : les messages roses s'empilent, puis s'étalent sur le bureau à l'aube), **l'entretien** (« Présentez-vous » : Wakil parle avec la voix française de l'appareil, ses mots s'écrivent à la main en direct ; puis les questions d'entretien ouvrent le vrai chat), **l'embauche en trois étapes**, **le bulletin de paie** (le tarif), **la prise de poste** (lancement), **avant de signer** (questions), **le contrat de période d'essai** et le formulaire « être rappelé » en message rose ;
 - **Wakil en direct** : le chat de la page est Wakil lui-même (`wakil` dans `config/tenants.json`), qui présente l'offre aux patrons et peut jouer le rôle de leur assistant. Le bouton **Appeler Wakil** n'apparaît que lorsque la voix est prête (`call` dans `/chat/config`) ;
 - **l'inscription** (`/inscription`) mise en avant partout, avec les trois étapes : s'inscrire, saisir le code, recevoir les commandes ;
 - **le formulaire « être rappelé »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
 
-Sur ce site, la bulle d'invitation du chat n'est pas montrée (`data-teaser="off"`) : l'appel du haut de page invite déjà à parler à Wakil. Le bouton flottant du chat se retire pendant l'appel et la nuit, tant que le visiteur ne l'a pas utilisé.
+Sur ce site, la bulle d'invitation du chat n'est pas montrée (`data-teaser="off"`) : l'entretien invite déjà à parler à Wakil. Le bouton flottant du chat se retire pendant la nuit (il cacherait les messages), tant que le visiteur ne l'a pas utilisé.
 
 Les messages de la démonstration sont de vrais appels au modèle : les limites du chat web s'appliquent aussi.
 
