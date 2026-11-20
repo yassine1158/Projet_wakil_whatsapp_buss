@@ -1,7 +1,9 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { runAgent, type AgentConfig, type ClaudeClient } from "./agent";
+import { anonymize, claudeAction, type BrainPrediction } from "./brain";
 import { sanitizeHistory, trimHistory } from "./history";
 import { buildSystemPrompt, buildTurnContext } from "./prompt";
+import { isServing } from "./subscription";
 import type { ToolContext } from "./tools";
 import type { Transcriber } from "./transcribe";
 import type { Catalog, ConversationMeta, IncomingMessage, LogEntry, Order, Tenant } from "./types";
@@ -23,6 +25,7 @@ export interface WhatsAppSender {
   sendText(to: string, body: string): Promise<void>;
   sendImage(to: string, link: string, caption?: string): Promise<void>;
   sendTemplate(to: string, name: string, language: string, bodyParams: string[]): Promise<void>;
+  sendAudio(to: string, audio: Uint8Array, mimeType: string): Promise<void>;
   markReadWithTyping(messageId: string): Promise<void>;
   downloadMedia(mediaId: string): Promise<{ bytes: Uint8Array; mimeType: string }>;
 }
@@ -33,7 +36,12 @@ export interface ReplySink {
   sendImage(link: string, caption?: string): Promise<void>;
   /** Chat web seulement : bouton qui ouvre WhatsApp, affiché sous les réponses. */
   sendLink?(label: string, url: string): Promise<void>;
+  /** WhatsApp seulement : la réponse dite à voix haute. */
+  sendAudio?(audio: Uint8Array, mimeType: string): Promise<void>;
 }
+
+/** Synthèse vocale d'une réponse écrite, ou null si elle échoue. */
+export type VoiceMaker = (text: string) => Promise<{ bytes: Uint8Array; mimeType: string } | null>;
 
 const MAX_SEEN = 100;
 const MAX_LOG = 200;
@@ -45,6 +53,8 @@ const IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp
 export const TECHNICAL_ISSUE_REPLY =
   "Désolé, j'ai un petit souci technique. Un conseiller de l'équipe va vous recontacter très vite.";
 export const WEB_HANDOFF_REPLY = "Votre message a bien été transmis à un conseiller, qui va vous recontacter.";
+export const TRIAL_ENDED_NOTICE =
+  "⏳ Votre essai Wakil est terminé : vos clients ne reçoivent plus de réponse automatique, leurs messages vous sont transférés ici. Pour réactiver Wakil, répondez à l'équipe Wakil ou ouvrez votre espace.";
 
 /**
  * Ajoute un message à la file d'attente de la conversation.
@@ -116,10 +126,51 @@ export interface InboxReporter {
     status: "wakil" | "equipe";
   }): Promise<void>;
   order(order: Order): Promise<void>;
+  /** Mode ombre de Wakil Brain : sa prédiction et ce que Claude a fait. */
+  brainSample?(sample: BrainSample): Promise<void>;
+}
+
+export interface BrainSample {
+  at: number;
+  /** Dernier message de l'assistant avant celui du client (sans numéros ni e-mails). */
+  context: string;
+  /** Message du client (sans numéros ni e-mails). */
+  text: string;
+  predicted: string;
+  confidence: number;
+  /** Ce que Claude a fait : reponse, humain, commande ou photo. */
+  teacher: string;
 }
 
 export async function pauseAssistant(storage: ConversationStorage, until: number) {
   await storage.put("handoffUntil", until);
+}
+
+/**
+ * Le patron a répondu lui-même depuis l'application WhatsApp Business (numéro en coexistence) :
+ * sa réponse rejoint le fil et l'historique, et l'assistant se met en retrait pour ce client,
+ * comme quand l'équipe répond depuis l'application Wakil.
+ */
+export async function recordOwnerReply(
+  storage: ConversationStorage,
+  meta: ConversationMeta,
+  echo: { id: string; text: string; at: number },
+  pauseUntil: number,
+): Promise<ConversationMeta | null> {
+  // Meta renvoie parfois la même notification.
+  const seen = (await storage.get<string[]>("seen")) ?? [];
+  if (seen.includes(echo.id)) return null;
+  await storage.put("seen", [...seen, echo.id].slice(-MAX_SEEN));
+  const { text, at } = echo;
+  const saved = (await storage.get<ConversationMeta>("meta")) ?? meta;
+  await storage.put("meta", saved);
+  const history = (await storage.get<MessageParam[]>("history")) ?? [];
+  if (history.length) {
+    await storage.put("history", [...history, { role: "assistant", content: [{ type: "text", text: `[Message de l'équipe] ${text}` }] }]);
+  }
+  await appendLog(storage, [{ from: "equipe", text, at }]);
+  await pauseAssistant(storage, Math.max(pauseUntil, (await storage.get<number>("handoffUntil")) ?? 0));
+  return saved;
 }
 
 export async function resumeAssistant(storage: ConversationStorage) {
@@ -136,9 +187,13 @@ export interface EngineDeps {
   claude: ClaudeClient;
   agentConfig: AgentConfig;
   transcribe: Transcriber;
+  /** Réponses vocales sur WhatsApp (voir Tenant.voiceReplies) ; sans elle, Wakil n'écrit que du texte. */
+  speak?: VoiceMaker;
   loadCatalog: () => Promise<Catalog>;
   now: () => number;
   inbox?: InboxReporter;
+  /** Wakil Brain, en mode ombre : ne change jamais la réponse envoyée. */
+  brain?: (context: string, text: string) => BrainPrediction;
   log?: (message: string, err?: unknown) => void;
 }
 
@@ -157,6 +212,7 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   const sink: ReplySink = deps.sink ?? {
     sendText: (text) => whatsapp.sendText(meta.customerId, text),
     sendImage: (link, caption) => whatsapp.sendImage(meta.customerId, link, caption),
+    sendAudio: (audio, mimeType) => whatsapp.sendAudio(meta.customerId, audio, mimeType),
   };
   const now = deps.now();
   const sent: LogEntry[] = [];
@@ -178,9 +234,16 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   const blocks: BlockParam[] = [];
   const received: LogEntry[] = [];
   for (const m of pending) {
-    const converted = await toContentBlocks(m, whatsapp, deps.transcribe, hint, log);
+    // Ce qui a échoué (vocal, photo) est noté dans le fil de l'application, pas envoyé au modèle.
+    const problems: string[] = [];
+    const note = (message: string, err?: unknown) => {
+      log(message, err);
+      problems.push(err === undefined ? message : `${message} : ${errorText(err)}`);
+    };
+    const converted = await toContentBlocks(m, whatsapp, deps.transcribe, hint, note);
     blocks.push(...converted);
-    received.push({ from: "client", text: blocksToText(converted) || `[${m.rawType}]`, at: m.timestamp || now });
+    const text = blocksToText(converted) || `[${m.rawType}]`;
+    received.push({ from: "client", text: problems.length ? `${text}\n⚠️ ${problems.join(" · ")}` : text, at: m.timestamp || now });
   }
 
   // À chaque sortie : fil de conversation à jour et résumé envoyé à l'application.
@@ -194,10 +257,21 @@ export async function processPending(deps: EngineDeps): Promise<void> {
       .catch((e) => log("Mise à jour de la boîte de réception échouée", e));
   };
 
+  // Essai ou abonnement terminé : comme pour un conseiller, l'assistant se tait et fait suivre au patron.
+  // Le mode essai de l'application reste ouvert, pour que le patron voie ce qu'il réactive.
+  if (!meta.test && !isServing(tenant, now)) {
+    await notifyOwner(`${TRIAL_ENDED_NOTICE}\n\n💬 Message de ${who(meta)} :\n${blocksToText(blocks)}${contactLine(meta)}`);
+    if (isWeb) await reply(WEB_HANDOFF_REPLY);
+    await saveHistory(storage, [...history, { role: "user", content: blocks }]);
+    await finish();
+    return;
+  }
+
   // Conversation confiée à un conseiller : l'assistant se tait et fait suivre au patron.
   const handoffUntil = (await storage.get<number>("handoffUntil")) ?? 0;
   if (now < handoffUntil) {
-    await notifyOwner(`💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}${contactLine(meta)}`);
+    // En coexistence, le patron voit déjà le message dans son application WhatsApp Business.
+    if (!(meta.channel === "whatsapp" && tenant.whatsapp?.coexistence)) await notifyOwner(`💬 Nouveau message de ${who(meta)} (conversation suivie par un conseiller) :\n${blocksToText(blocks)}${contactLine(meta)}`);
     if (isWeb) await reply(WEB_HANDOFF_REPLY);
     await saveHistory(storage, [...history, { role: "user", content: blocks }]);
     await finish();
@@ -290,9 +364,68 @@ export async function processPending(deps: EngineDeps): Promise<void> {
   }
 
   for (const text of result.replies.length ? result.replies : [TECHNICAL_ISSUE_REPLY]) await reply(text);
+  // Le texte part d'abord (références, quantités) ; la version vocale suit.
+  const voice = tenant.voiceReplies ?? "after-voice";
+  const speakNow = voice === "always" || (voice === "after-voice" && pending.some((m) => m.kind === "audio"));
+  if (deps.speak && sink.sendAudio && speakNow && result.replies.length && !result.refused) {
+    try {
+      const audio = await deps.speak(result.replies.join("\n"));
+      if (audio) {
+        await sink.sendAudio(audio.bytes, audio.mimeType);
+        sent.push({ from: "wakil", text: "[Réponse vocale]", at: now });
+      }
+    } catch (err) {
+      log("Réponse vocale échouée", err);
+    }
+  }
   for (const l of links) await sink.sendLink!(l.label, l.url).catch((e) => log("Envoi du lien échoué", e));
   await saveHistory(storage, [...history, ...result.newMessages]);
   await finish();
+  if (!meta.test && !result.refused) await shadowBrain(deps, history, blocks, result.newMessages, now, log);
+}
+
+/**
+ * Mode ombre : Wakil Brain devine ce qu'il faudrait faire, on le compare à ce que Claude a fait.
+ * Après les réponses au client, et toute erreur est ignorée : le client n'est jamais touché.
+ */
+async function shadowBrain(
+  deps: EngineDeps,
+  history: MessageParam[],
+  blocks: BlockParam[],
+  newMessages: MessageParam[],
+  now: number,
+  log: (message: string, err?: unknown) => void,
+) {
+  if (!deps.brain || !deps.inbox?.brainSample) return;
+  try {
+    const context = anonymize(lastAssistantText(history)).slice(-500);
+    const text = anonymize(blocksToText(blocks)).slice(0, 1000);
+    const prediction = deps.brain(context, text);
+    const toolNames = newMessages
+      .filter((m) => m.role === "assistant" && Array.isArray(m.content))
+      .flatMap((m) => (m.content as BlockParam[]).filter((b) => b.type === "tool_use").map((b) => (b as { name: string }).name));
+    await deps.inbox.brainSample({
+      at: now,
+      context,
+      text,
+      predicted: prediction.label,
+      confidence: prediction.confidence,
+      teacher: claudeAction(toolNames),
+    });
+  } catch (err) {
+    log("Wakil Brain (mode ombre) a échoué", err);
+  }
+}
+
+function lastAssistantText(history: MessageParam[]): string {
+  for (let i = history.length - 1; i >= 0; i--) {
+    const m = history[i];
+    if (m.role !== "assistant") continue;
+    if (typeof m.content === "string") return m.content;
+    const text = m.content.filter((b) => b.type === "text").map((b) => (b as { text: string }).text).join("\n");
+    if (text) return text;
+  }
+  return "";
 }
 
 async function saveHistory(storage: ConversationStorage, messages: MessageParam[]) {
@@ -329,6 +462,7 @@ async function toContentBlocks(
         const media = await whatsapp.downloadMedia(m.mediaId ?? "");
         const text = await transcribe(media.bytes, media.mimeType, hint);
         if (text) return [{ type: "text", text: `[Message vocal, transcription automatique] ${text}` }];
+        log(`Transcription vide (${media.mimeType}, ${media.bytes.length} octets)`);
       } catch (err) {
         log("Transcription échouée", err);
       }
@@ -375,6 +509,10 @@ async function toContentBlocks(
         },
       ];
   }
+}
+
+function errorText(err: unknown): string {
+  return (err instanceof Error ? err.message : String(err)).slice(0, 300);
 }
 
 function blocksToText(blocks: BlockParam[]): string {
@@ -433,6 +571,9 @@ export function formatOrderForOwner(order: Order): string {
 async function sendToOwner(deps: EngineDeps, text: string) {
   const { tenant, whatsapp } = deps;
   if (!tenant.ownerPhone) return; // démonstration : personne à prévenir
+  // Le patron dont le numéro est celui de l'assistant (coexistence) ne peut pas s'écrire à lui-même :
+  // il suit commandes et demandes dans l'application Wakil.
+  if (tenant.ownerPhone === tenant.whatsapp?.displayPhone?.replace(/\D/g, "")) return;
   const template = tenant.ownerNotifyTemplate;
   if (!template) return whatsapp.sendText(tenant.ownerPhone, text);
   const oneLine = text.replace(/\s*\n\s*/g, " | ").replace(/\s{2,}/g, " ").slice(0, 1000);

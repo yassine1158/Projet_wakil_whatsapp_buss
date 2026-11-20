@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wakil sur mon WhatsApp · inscription</title>
+<meta name="description" content="Créez votre espace Wakil en deux minutes : votre commercial IA répond à vos clients sur WhatsApp et sur votre site. 14 jours gratuits.">
+<meta name="theme-color" content="#1b2066">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F4B23A'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%231B2066' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap">
+<style>
+  :root { --deep: #1b2066; --deep-2: #232a7a; --cream: #f4f3ee; --ink: #15193a; --ink-2: #4a4f73; --gold: #f4b23a; --mist: #c3c6e8; --line: rgba(21, 25, 58, .14); --danger: #b3261e; --ok: #1e7a4c; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; font-family: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--deep); line-height: 1.5; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .page { min-height: 100vh; display: grid; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .page { grid-template-columns: 1fr 1fr; } }
+  .pitch { color: var(--cream); padding: 28px 20px 8px; display: flex; flex-direction: column; gap: 22px; }
+  @media (min-width: 900px) { .pitch { padding: 56px 56px; justify-content: center; } }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font: 800 26px/1 "Bricolage Grotesque", sans-serif; letter-spacing: -.5px; }
+  .brand svg { width: 34px; height: 34px; }
+  h1 { font: 800 clamp(30px, 5vw, 48px)/1.02 "Bricolage Grotesque", sans-serif; letter-spacing: -1.5px; margin: 0; }
+  h1 em { font-style: normal; color: var(--gold); }
+  .points { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .points li { display: flex; gap: 12px; align-items: flex-start; color: #d9dbf0; }
+  .points b { color: var(--cream); }
+  .points svg { flex: none; width: 22px; height: 22px; color: var(--gold); margin-top: 1px; }
+  .panel { background: var(--cream); padding: 28px 20px 40px; border-radius: 24px 24px 0 0; }
+  @media (min-width: 900px) { .panel { border-radius: 0; display: grid; align-content: center; padding: 56px; } }
+  form { max-width: 460px; width: 100%; margin: 0 auto; display: grid; gap: 16px; }
+  h2 { font: 800 26px/1.1 "Bricolage Grotesque", sans-serif; margin: 0; letter-spacing: -.5px; }
+  .muted { color: var(--ink-2); margin: 0; }
+  label { display: grid; gap: 6px; font-weight: 700; font-size: 15px; }
+  input, select { font: inherit; font-weight: 400; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); width: 100%; }
+  input:focus, select:focus { outline: none; border-color: var(--deep); box-shadow: 0 0 0 3px rgba(244, 178, 58, .45); }
+  [aria-invalid="true"] { border-color: var(--danger); }
+  .phone { display: grid; grid-template-columns: 110px 1fr; gap: 8px; }
+  .hint { font-weight: 400; font-size: 13.5px; color: var(--ink-2); }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; font-size: 14.5px; color: var(--ink-2); }
+  .check input { width: 20px; height: 20px; margin: 2px 0 0; flex: none; accent-color: var(--deep); }
+  .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  button { font: inherit; font-weight: 700; font-size: 17px; padding: 14px 18px; border-radius: 14px; border: 0; background: var(--gold); color: var(--deep); cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  .error { color: var(--danger); margin: 0; min-height: 1.5em; font-size: 15px; }
+  .small { font-size: 14.5px; text-align: center; }
+  .ok { color: var(--ok); font-weight: 700; }
+  textarea { font: inherit; font-weight: 400; padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); width: 100%; resize: vertical; min-height: 92px; }
+  textarea:focus { outline: none; border-color: var(--deep); box-shadow: 0 0 0 3px rgba(244, 178, 58, .45); }
+  .opt { font-weight: 400; color: var(--ink-2); }
+  .track { max-width: 460px; width: 100%; margin: 0 auto; display: grid; gap: 18px; }
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+  .steps li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; padding-bottom: 18px; position: relative; }
+  .steps li:not(:last-child)::after { content: ""; position: absolute; left: 14px; top: 30px; bottom: 2px; width: 2px; background: var(--line); }
+  .steps .dot { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--line); background: #fff; display: grid; place-items: center; font-weight: 700; font-size: 14px; color: var(--ink-2); }
+  .steps li.passed .dot { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .steps li.now .dot { border-color: var(--deep); color: var(--deep); box-shadow: 0 0 0 4px rgba(244, 178, 58, .45); }
+  .steps b { display: block; }
+  .steps p { margin: 2px 0 0; color: var(--ink-2); font-size: 14.5px; }
+  .steps li:not(.passed):not(.now) b { color: var(--ink-2); font-weight: 500; }
+  .code-form { display: grid; gap: 10px; background: #fff; border: 1.5px solid var(--deep); border-radius: 16px; padding: 16px; }
+  .code-form input { font: 800 26px/1 "Bricolage Grotesque", sans-serif; letter-spacing: 6px; text-align: center; }
+  .live { background: #e7f4ec; border-radius: 16px; padding: 16px; display: grid; gap: 6px; }
+  .live b { font: 800 22px/1.2 "Bricolage Grotesque", sans-serif; color: var(--ok); }
+  .note { font-size: 14px; color: var(--ink-2); margin: 0; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<div class="page">
+  <section class="pitch">
+    <a class="brand" href="/"><svg aria-hidden="true"><use href="#logo"/></svg>wakil</a>
+    <h1>Votre commercial IA, <em>prêt en 10 minutes.</em></h1>
+    <ul class="points">
+      <li><svg aria-hidden="true"><use href="#check"/></svg><span><b>14 jours gratuits</b>, comptés à partir du jour où Wakil répond. Sans carte bancaire.</span></li>
+      <li><svg aria-hidden="true"><use href="#check"/></svg><span><b>Il répond à vos clients jour et nuit</b> sur WhatsApp et sur votre site, comprend leurs vocaux et prend les commandes.</span></li>
+      <li><svg aria-hidden="true"><use href="#check"/></svg><span><b>Vous gardez la main</b> : chaque commande arrive sur votre WhatsApp, et vous reprenez une conversation quand vous voulez.</span></li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <form id="signup" novalidate>
+      <div><h2>Mettre Wakil sur mon WhatsApp</h2><p class="muted">Deux minutes. L'équipe Wakil valide, vous saisissez le code reçu par SMS, et Wakil répond à vos clients.</p></div>
+      <label for="businessName">Nom de votre entreprise<input id="businessName" name="businessName" type="text" autocomplete="organization" maxlength="80" required></label>
+      <label for="sector">Votre activité<select id="sector" name="sector">
+        <option value="">Choisir…</option>
+        <option>Matériaux de construction</option>
+        <option>Élevage et alimentation animale</option>
+        <option>Boutique ou commerce</option>
+        <option>Restauration</option>
+        <option>Services</option>
+        <option>Autre</option>
+      </select></label>
+      <label for="phone">Votre numéro WhatsApp personnel
+        <span class="phone">
+          <select id="countryCode" name="countryCode" aria-label="Indicatif du pays">
+            <option value="225">🇨🇮 +225</option><option value="221">🇸🇳 +221</option><option value="223">🇲🇱 +223</option>
+            <option value="226">🇧🇫 +226</option><option value="224">🇬🇳 +224</option><option value="228">🇹🇬 +228</option>
+            <option value="229">🇧🇯 +229</option><option value="237">🇨🇲 +237</option><option value="216">🇹🇳 +216</option>
+            <option value="212">🇲🇦 +212</option><option value="33">🇫🇷 +33</option>
+          </select>
+          <input id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="07 00 00 00 00" required>
+        </span>
+        <span class="hint">Vous y recevrez les commandes de vos clients.</span></label>
+      <label for="wakilPhone">Le numéro WhatsApp de Wakil
+        <input id="wakilPhone" name="wakilPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="05 00 00 00 00" required>
+        <span class="hint">Le numéro sur lequel vos clients écriront. Il doit recevoir les SMS ou les appels, et ne pas avoir de compte WhatsApp : une nouvelle puce convient très bien. Même indicatif que ci-dessus.</span></label>
+      <label class="check"><input id="numberFree" name="numberFree" type="checkbox" required><span>Ce numéro n'a pas de compte WhatsApp, ou je supprime ce compte du téléphone avant la validation.</span></label>
+      <label for="catalogText">Ce que vous vendez, avec vos prix <span class="opt">(conseillé)</span>
+        <textarea id="catalogText" name="catalogText" maxlength="3000" placeholder="Poussins chair : 650 F l'unité&#10;Aliment démarrage 50 kg : 18 500 F&#10;Livraison à Bouaké : 2 000 F"></textarea>
+        <span class="hint">Wakil s'en sert dès le premier jour. Vous pourrez compléter plus tard.</span></label>
+      <label for="infoText">Horaires, adresse, livraison, paiement <span class="opt">(facultatif)</span>
+        <textarea id="infoText" name="infoText" maxlength="800" placeholder="Ouvert du lundi au samedi, 8 h - 18 h. Quartier Commerce, Bouaké. Paiement Orange Money ou Wave."></textarea></label>
+      <label for="password">Mot de passe<input id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="200" required>
+        <span class="hint">Au moins 8 caractères.</span></label>
+      <label class="trap" aria-hidden="true">Site web<input name="website" type="text" tabindex="-1" autocomplete="off"></label>
+      <label class="check"><input id="accept" name="accept" type="checkbox" required><span>J'ai lu la <a href="/confidentialite" target="_blank">politique de confidentialité</a> et j'accepte que Wakil traite ces informations pour créer mon espace.</span></label>
+      <p class="error" id="error" role="alert"></p>
+      <button type="submit">Envoyer mon inscription</button>
+      <p class="muted small">Déjà un espace ? <a href="/app/">Se connecter</a></p>
+    </form>
+
+    <div class="track" id="track" hidden>
+      <div><p class="ok">Inscription reçue 🎉</p><h2 id="track-title">Wakil arrive sur votre WhatsApp</h2></div>
+      <ol class="steps" id="steps">
+        <li data-step="1"><span class="dot">1</span><div><b>Inscription reçue</b><p>Vos produits et vos numéros sont enregistrés.</p></div></li>
+        <li data-step="2"><span class="dot">2</span><div><b>Validation par l'équipe Wakil</b><p id="step2-text">Nous ajoutons votre numéro à WhatsApp. Gardez la puce près de vous : un code va arriver.</p></div></li>
+        <li data-step="3"><span class="dot">3</span><div><b>Code reçu sur <span class="wa-number"></span></b><p id="step3-text">Saisissez-le ici dès qu'il arrive.</p></div></li>
+        <li data-step="4"><span class="dot">4</span><div><b>Wakil répond à vos clients</b><p>Jour et nuit, sur WhatsApp.</p></div></li>
+      </ol>
+      <form class="code-form" id="code-form" hidden novalidate>
+        <label for="code">Code à 6 chiffres<input id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="123456" required></label>
+        <p class="error" id="code-error" role="alert"></p>
+        <button type="submit">Activer Wakil</button>
+      </form>
+      <div class="live" id="live" hidden>
+        <b>Wakil répond maintenant sur <span class="wa-number"></span></b>
+        <p class="note">Essayez : écrivez « Bonjour » à ce numéro depuis un autre téléphone. Les commandes arrivent sur votre WhatsApp personnel.</p>
+      </div>
+      <p class="note" id="problem" role="status" hidden></p>
+      <p class="note">Votre identifiant : <b id="login-id"></b>. Avec votre mot de passe, il vous permet de revenir sur cette page depuis un autre téléphone (<a href="/app/">se connecter</a>).</p>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const form = document.getElementById("signup"), error = document.getElementById("error");
+  const save = (k, v) => { try { localStorage.setItem("wakil-app:" + k, v); } catch {} };
+  const load = (k) => { try { return localStorage.getItem("wakil-app:" + k); } catch { return null; } };
+  const $ = (id) => document.getElementById(id);
+  const pretty = (digits, cc) => {
+    const rest = cc && digits.startsWith(cc) ? digits.slice(cc.length) : digits;
+    return "+" + (cc ? cc + " " : "") + rest.replace(/(\d{2})(?=\d)/g, "$1 ");
+  };
+
+  /* ---------- Suivi : validation, code reçu, Wakil en ligne ---------- */
+  let poll = null;
+  function showTrack(login) {
+    form.hidden = true;
+    $("track").hidden = false;
+    $("login-id").textContent = login;
+  }
+  function renderTrack(tenant) {
+    const h = tenant.hostedNumber;
+    if (!h) return;
+    const step = h.state === "connected" ? 5 : h.state === "code_sent" || h.state === "verified" ? 3 : 2;
+    document.querySelectorAll("#steps li").forEach((li) => {
+      const n = Number(li.dataset.step);
+      li.classList.toggle("passed", n < step);
+      li.classList.toggle("now", n === step);
+    });
+    document.querySelectorAll(".wa-number").forEach((el) => (el.textContent = pretty(h.phone, h.countryCode)));
+    $("step3-text").textContent = h.codeMethod === "VOICE" ? "Un appel vous dicte le code : saisissez-le ici." : "Un SMS vous donne le code : saisissez-le ici.";
+    const showCode = h.state === "code_sent";
+    if (showCode && $("code-form").hidden) { $("code-form").hidden = false; $("code").focus(); }
+    if (!showCode) $("code-form").hidden = true;
+    $("live").hidden = h.state !== "connected";
+    $("track-title").textContent = h.state === "connected" ? "C'est parti !" : "Wakil arrive sur votre WhatsApp";
+    const problem = $("problem");
+    problem.hidden = !(h.error && h.state === "submitted");
+    if (!problem.hidden) problem.textContent = "L'équipe Wakil règle un souci avec votre numéro (" + h.error + "). Nous vous contactons sur votre WhatsApp personnel.";
+    if (h.state === "connected") { clearInterval(poll); poll = null; }
+  }
+  async function refresh() {
+    const token = load("token"), id = load("tenant");
+    if (!token || !id) return null;
+    try {
+      const res = await fetch("/api/companies/" + encodeURIComponent(id), { headers: { authorization: "Bearer " + token } });
+      if (!res.ok) return null;
+      const { tenant } = await res.json();
+      renderTrack(tenant);
+      return tenant;
+    } catch { return null; }
+  }
+  function follow(login) {
+    showTrack(login);
+    refresh();
+    clearInterval(poll);
+    poll = setInterval(refresh, 10000);
+  }
+  $("code-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector("button"), codeError = $("code-error");
+    const code = $("code").value.replace(/\D/g, "");
+    codeError.textContent = "";
+    if (code.length !== 6) { codeError.textContent = "Le code a 6 chiffres."; return; }
+    btn.disabled = true; btn.textContent = "Activation…";
+    try {
+      const res = await fetch("/api/companies/" + encodeURIComponent(load("tenant")) + "/whatsapp/verify", {
+        method: "POST",
+        headers: { "content-type": "application/json", authorization: "Bearer " + load("token") },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.tenant) { renderTrack(data.tenant); return; }
+      codeError.textContent = data.error === "wrong_code" ? "Ce code n'est pas le bon. Vérifiez le dernier SMS reçu, puis réessayez."
+        : data.error === "meta_error" ? "Le code est bon, mais l'activation a échoué. L'équipe Wakil est prévenue et termine pour vous."
+        : "L'activation n'a pas abouti. Réessayez dans un instant.";
+      refresh();
+    } catch {
+      codeError.textContent = "L'activation n'a pas abouti. Vérifiez votre connexion et réessayez.";
+    } finally {
+      btn.disabled = false; btn.textContent = "Activer Wakil";
+    }
+  });
+  // Déjà inscrit sur ce téléphone : on montre directement le suivi.
+  // (Seulement pour le patron lui-même : l'administrateur connecté sur ce navigateur voit le formulaire.)
+  if (load("token") && load("tenant") && load("login") === load("tenant")) {
+    refresh().then((tenant) => { if (tenant?.hostedNumber) follow(tenant.id); });
+  }
+  const MESSAGES = {
+    businessName: "Indiquez le nom de votre entreprise.",
+    invalid_phone: "Ce numéro n'est pas valable : vérifiez l'indicatif et le numéro.",
+    weak_password: "Choisissez un mot de passe d'au moins 8 caractères.",
+    accept: "Cochez la case pour continuer.",
+    numberFree: "Confirmez que le numéro de Wakil n'a pas de compte WhatsApp (ou que vous le supprimez).",
+    same_phone: "Le numéro de Wakil doit être différent de votre numéro personnel : vous recevez les commandes sur le vôtre.",
+    number_in_use: "Ce numéro est déjà utilisé par une entreprise inscrite sur Wakil.",
+    phone_in_use: "Ce numéro a déjà un espace Wakil. Connectez-vous, ou écrivez-nous si vous avez oublié votre mot de passe.",
+    rate_limited: "Trop d'essais. Patientez une minute, puis réessayez.",
+  };
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    error.textContent = "";
+    form.querySelectorAll("[aria-invalid]").forEach((el) => el.removeAttribute("aria-invalid"));
+    const btn = form.querySelector("button"); btn.disabled = true;
+    const v = (n) => form.elements.namedItem(n).value.trim();
+    try {
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ businessName: v("businessName"), sector: v("sector"), countryCode: v("countryCode"), phone: v("phone"),
+          wakilPhone: v("wakilPhone"), numberFree: form.elements.namedItem("numberFree").checked, catalogText: v("catalogText"), infoText: v("infoText"),
+          password: form.elements.namedItem("password").value, accept: form.elements.namedItem("accept").checked, website: v("website") }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.token) {
+        const field = data.field;
+        error.textContent = MESSAGES[data.error] || MESSAGES[field] || "L'inscription n'a pas abouti. Vérifiez votre connexion et réessayez.";
+        const input = field && form.elements.namedItem(field);
+        if (input) { input.setAttribute("aria-invalid", "true"); input.focus(); }
+        btn.disabled = false;
+        return;
+      }
+      save("token", data.token); save("login", data.login); save("tenant", data.login);
+      follow(data.login);
+      $("track").scrollIntoView({ block: "start" });
+    } catch {
+      error.textContent = "L'inscription n'a pas abouti. Vérifiez votre connexion et réessayez.";
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

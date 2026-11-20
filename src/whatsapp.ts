@@ -4,7 +4,17 @@ import type { IncomingMessage } from "./types";
 /** Limite de Meta pour le corps d'un message texte. */
 export const MAX_TEXT_LENGTH = 4096;
 
+const MEDIA_USER_AGENT = "Wakil/1.0";
+
 type FetchLike = typeof fetch;
+
+const AUDIO_EXTENSIONS: Record<string, string> = {
+  "audio/mpeg": "mp3",
+  "audio/ogg": "ogg",
+  "audio/mp4": "m4a",
+  "audio/aac": "aac",
+  "audio/amr": "amr",
+};
 
 /** Vérifie l'en-tête X-Hub-Signature-256 envoyé par Meta (HMAC-SHA256 du corps brut). */
 export async function verifySignature(
@@ -100,6 +110,46 @@ function normalizeMessage(m: any, name: string | undefined): IncomingMessage | n
   }
 }
 
+/** Message que le patron a envoyé lui-même à un client, depuis l'application WhatsApp Business. */
+export interface OwnerEcho {
+  phoneNumberId: string;
+  /** Numéro du client, absent quand WhatsApp ne le donne pas. */
+  to?: string;
+  id: string;
+  text: string;
+  timestamp: number;
+}
+
+const ECHO_LABELS: Record<string, string> = {
+  image: "[Photo]",
+  audio: "[Vocal]",
+  video: "[Vidéo]",
+  document: "[Document]",
+  sticker: "[Autocollant]",
+  location: "[Position]",
+};
+
+/**
+ * Échos d'un numéro en coexistence (champ « smb_message_echoes ») : ce que le patron a
+ * répondu depuis son téléphone. Ils ne sont jamais traités comme des messages de client.
+ */
+export function parseEchoes(payload: unknown): OwnerEcho[] {
+  const out: OwnerEcho[] = [];
+  for (const entry of ((payload as { entry?: unknown[] })?.entry ?? []) as { changes?: unknown[] }[]) {
+    for (const change of (entry.changes ?? []) as { field?: string; value?: any }[]) {
+      if (change.field !== "smb_message_echoes") continue;
+      const phoneNumberId: string | undefined = change.value?.metadata?.phone_number_id;
+      if (!phoneNumberId) continue;
+      for (const m of change.value?.message_echoes ?? []) {
+        if (!m?.id) continue;
+        const text = m.type === "text" ? String(m.text?.body ?? "") : (m[m.type]?.caption as string | undefined) || ECHO_LABELS[m.type] || `[${m.type}]`;
+        out.push({ phoneNumberId, ...(m.to ? { to: String(m.to) } : {}), id: String(m.id), text, timestamp: Number(m.timestamp) * 1000 || Date.now() });
+      }
+    }
+  }
+  return out;
+}
+
 /** Découpe un texte trop long pour WhatsApp, de préférence sur un saut de ligne. */
 export function splitForWhatsApp(text: string, max = MAX_TEXT_LENGTH): string[] {
   const parts: string[] = [];
@@ -149,6 +199,27 @@ export class WhatsAppClient {
     await this.send({ to, type: "image", image: caption ? { link, caption } : { link } });
   }
 
+  /**
+   * Envoie un fichier audio : téléversé chez Meta, puis envoyé par son identifiant.
+   * Seul un OGG/OPUS s'affiche comme message vocal ; un MP3 part comme fichier audio.
+   */
+  async sendAudio(to: string, audio: Uint8Array, mimeType: string): Promise<void> {
+    const id = await this.uploadMedia(audio, mimeType);
+    await this.send({ to, type: "audio", audio: mimeType.startsWith("audio/ogg") ? { id, voice: true } : { id } });
+  }
+
+  /** Téléverse un média chez Meta (valable 30 jours) et renvoie son identifiant. */
+  async uploadMedia(bytes: Uint8Array, mimeType: string): Promise<string> {
+    const form = new FormData();
+    form.append("messaging_product", "whatsapp");
+    form.append("type", mimeType);
+    form.append("file", new Blob([new Uint8Array(bytes)], { type: mimeType }), `wakil.${AUDIO_EXTENSIONS[mimeType] ?? "bin"}`);
+    const res = await this.request(`${this.base}/${this.phoneNumberId}/media`, { method: "POST", body: form });
+    const { id } = (await res.json()) as { id?: string };
+    if (!id) throw new WhatsAppError("Média refusé par WhatsApp", res.status);
+    return id;
+  }
+
   async sendTemplate(to: string, name: string, language: string, bodyParams: string[]) {
     await this.send({
       to,
@@ -178,11 +249,15 @@ export class WhatsAppClient {
     const meta = await this.request(`${this.base}/${mediaId}`, { method: "GET" });
     const info = (await meta.json()) as { url?: string; mime_type?: string };
     if (!info.url) throw new WhatsAppError("Média introuvable", meta.status);
-    const file = await this.request(info.url, { method: "GET" });
-    return {
-      bytes: new Uint8Array(await file.arrayBuffer()),
-      mimeType: info.mime_type ?? file.headers.get("content-type") ?? "application/octet-stream",
-    };
+    // Le serveur de fichiers de Meta peut refuser une requête sans User-Agent.
+    const file = await this.request(info.url, { method: "GET", headers: { "user-agent": MEDIA_USER_AGENT } });
+    const type = file.headers.get("content-type") ?? "";
+    if (type.startsWith("text/html")) {
+      throw new WhatsAppError("Meta a renvoyé une page web au lieu du fichier", file.status);
+    }
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    if (!bytes.length) throw new WhatsAppError("Fichier reçu vide", file.status);
+    return { bytes, mimeType: info.mime_type ?? (type || "application/octet-stream") };
   }
 
   private async send(message: Record<string, unknown>): Promise<void> {
@@ -204,7 +279,8 @@ export class WhatsAppClient {
   private async request(url: string, init: RequestInit): Promise<Response> {
     const res = await this.fetchFn(url, {
       ...init,
-      headers: { ...(init.headers as Record<string, string>), authorization: `Bearer ${this.token}` },
+      // Un jeton recopié avec un espace ou un retour à la ligne en trop serait refusé par fetch.
+      headers: { ...(init.headers as Record<string, string>), authorization: `Bearer ${this.token.trim()}` },
     });
     if (!res.ok) {
       const detail = (await res.json().catch(() => ({}))) as { error?: { message?: string; code?: number } };

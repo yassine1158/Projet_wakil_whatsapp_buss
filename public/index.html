@@ -2,445 +2,706 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wakil · Votre commercial IA sur WhatsApp</title>
-<meta name="description" content="Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Pour les commerces et PME d'Afrique.">
-<meta name="theme-color" content="#1b2066">
-<meta property="og:title" content="Wakil · Votre commercial IA sur WhatsApp">
-<meta property="og:description" content="Il répond, il conseille, il vend. Même à 3 h du matin.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wakil · Embauchez un commercial qui ne dort jamais</title>
+<meta name="description" content="Wakil répond à vos clients sur WhatsApp et sur votre site, de jour comme de nuit : il comprend leurs vocaux, conseille le bon produit et remplit votre carnet de commandes. 14 jours d'essai gratuits.">
+<meta name="theme-color" content="#2338b5">
+<meta property="og:title" content="Embauchez un commercial qui ne dort jamais.">
+<meta property="og:description" content="Wakil répond à vos clients sur WhatsApp, jour et nuit, et remplit votre carnet de commandes.">
+<meta property="og:image" content="/img/wakil-lancement.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F4B23A'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%231B2066' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>document.documentElement.classList.add("js");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Kufi+Arabic:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Kalam:wght@400;700&family=Noto+Kufi+Arabic:wght@700&display=swap">
 <style>
+  /*
+   * Embauchez Wakil. Le site est le dossier d'embauche d'un commercial, dessiné avec les papiers
+   * du comptoir : le carnet de bons à souches (encre carbone), le bloc rose « pendant votre absence »,
+   * le tampon rouge. Archivo pour l'imprimé (largeur variable), Kalam pour ce qui est écrit à la main.
+   */
   :root {
-    --deep: #1b2066; --deep-2: #232a7a; --deep-3: #2f3796;
-    --cream: #f4f3ee; --paper: #ffffff; --ink: #15193a; --ink-2: #4a4f73;
-    --gold: #f4b23a; --gold-ink: #8a5800; --mist: #c3c6e8; --light: #f4f3ee;
-    --line: rgba(21, 25, 58, .12); --line-d: rgba(244, 239, 230, .14);
-    --display: "Bricolage Grotesque", system-ui, sans-serif;
-    --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --radius: 22px; --wrap: 1180px;
+    --desk: #e6e9f4;      /* le bureau, bleu-gris pâle */
+    --sheet: #fffefa;     /* le feuillet original */
+    --pink: #fad6dd;      /* le bloc « message téléphonique » */
+    --yellow: #fbeda6;    /* le 3e feuillet */
+    --carbon: #2338b5;    /* l'encre carbone */
+    --carbon-2: #5565c8;
+    --stamp: #d1372b;     /* le tampon */
+    --ink: #1a1d38;
+    --ink-2: #555975;
+    --rule: rgba(35, 56, 181, .2);
+    --night: #121540;
+    --gold: #f4b23a;
+    --print: "Archivo", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+    --hand: "Kalam", "Segoe Print", "Bradley Hand", cursive;
+    --wrap: 1180px; --head: 66px;
   }
   * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-  body { margin: 0; font-family: var(--body); color: var(--ink); background: var(--cream); line-height: 1.55; -webkit-font-smoothing: antialiased; }
-  img, svg { display: block; }
+  [hidden] { display: none !important; }
+  html { scroll-behavior: smooth; scroll-padding-top: var(--head); }
+  body { margin: 0; font-family: var(--print); font-size: 17px; line-height: 1.6; color: var(--ink); background: var(--desk); -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .55;
+                 background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .13 0 0 0 0 .35 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  header, main, footer { position: relative; z-index: 1; }
+  img, svg { display: block; max-width: 100%; }
   a { color: inherit; }
-  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
-  .wrap { width: 100%; max-width: var(--wrap); margin: 0 auto; padding: 0 20px; }
-  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; line-height: 1.02; }
-  h2 { font-size: clamp(34px, 5vw, 56px); font-weight: 800; }
-  h3 { font-size: 22px; font-weight: 600; letter-spacing: -.01em; }
+  h1, h2, h3 { margin: 0; color: var(--carbon); text-wrap: balance; }
+  h2 { font: 800 clamp(34px, 5vw, 60px)/1 var(--print); font-stretch: 112%; letter-spacing: -.02em; }
+  h3 { font: 700 20px/1.25 var(--print); }
   p { margin: 0; }
-  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold-ink); }
-  .dark .eyebrow { color: var(--gold); }
-  .lead { font-size: clamp(18px, 2vw, 21px); color: var(--ink-2); max-width: 640px; }
-  .dark .lead { color: #d9dbf0; }
-  section { padding: clamp(72px, 10vw, 120px) 0; }
-  .dark { background: var(--deep); color: var(--light); }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 26px; border-radius: 999px;
-         font: 700 16px/1 var(--body); text-decoration: none; border: 2px solid transparent; cursor: pointer; transition: transform .2s ease, background .2s ease; }
-  .btn:hover { transform: translateY(-2px); }
-  .btn-gold { background: var(--gold); color: var(--deep); }
-  .btn-gold:hover { background: #f7c770; }
-  .btn-ghost { border-color: var(--line-d); color: var(--light); }
-  .btn-ghost:hover { border-color: var(--light); }
-  .btn-deep { background: var(--deep); color: var(--light); }
-  .btn-deep:hover { background: var(--deep-3); }
-  .btn svg { width: 18px; height: 18px; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
+  .lead { font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); max-width: 58ch; }
+  section { padding-block: clamp(72px, 10vw, 124px); }
+  :focus-visible { outline: 3px solid var(--stamp); outline-offset: 3px; border-radius: 6px; }
+  .hand { font-family: var(--hand); color: var(--carbon); }
 
-  /* En-tête */
-  .top { position: sticky; top: 0; z-index: 50; background: rgba(27, 32, 102, .94); backdrop-filter: blur(10px); color: var(--light); border-bottom: 1px solid var(--line-d); }
-  .top .wrap { display: flex; align-items: center; gap: 24px; min-height: 72px; }
-  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; margin-right: auto; }
-  .brand svg { width: 40px; height: 40px; }
-  .brand b { font: 800 30px/1 var(--display); letter-spacing: -1px; }
-  .nav { display: flex; gap: 26px; font-weight: 500; }
-  .nav a { text-decoration: none; color: var(--mist); padding: 8px 0; }
-  .nav a:hover { color: var(--light); }
-  .top .btn { min-height: 44px; padding: 0 20px; font-size: 15px; }
-  @media (max-width: 860px) { .nav { display: none; } }
+  /* Boutons : à l'encre carbone, ou au tampon */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 0 24px; border-radius: 12px;
+         font: 700 16px/1 var(--print); font-stretch: 105%; text-decoration: none; border: 2px solid var(--carbon); cursor: pointer; transition: transform .12s, background .15s, color .15s; }
+  .btn svg { width: 19px; height: 19px; flex: none; }
+  .btn:active { transform: translateY(1px); }
+  .btn-ink { background: var(--carbon); color: #fff; box-shadow: 0 3px 0 #16248a; }
+  .btn-ink:hover { background: #2b42c9; }
+  .btn-paper { background: var(--sheet); color: var(--carbon); }
+  .btn-paper:hover { background: #fff; }
+  .btn-light { background: transparent; color: #fff; border-color: rgba(255, 255, 255, .45); }
+  .btn-light:hover { border-color: #fff; }
 
-  /* Accueil */
-  .hero { background: var(--deep); color: var(--light); padding: clamp(56px, 8vw, 96px) 0 clamp(72px, 9vw, 110px); overflow: hidden; position: relative; }
-  .hero::before, .hero::after { content: ""; position: absolute; border-radius: 50%; border: 2px solid rgba(242, 169, 59, .16); pointer-events: none; }
-  .hero::before { width: 620px; height: 620px; top: -260px; right: -220px; }
-  .hero::after { width: 420px; height: 420px; top: -160px; right: -120px; }
-  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: 56px; align-items: center; position: relative; }
-  .hero h1 { font-size: clamp(46px, 7.4vw, 92px); font-weight: 800; letter-spacing: -.035em; line-height: .96; margin: 18px 0 24px; }
-  .hero h1 span { color: var(--gold); }
-  .hero .lead { margin-bottom: 34px; }
-  .cta { display: flex; flex-wrap: wrap; gap: 14px; }
-  .meaning { margin-top: 40px; display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 16px; background: rgba(244, 239, 230, .06); max-width: 560px; }
-  .meaning .ar { font: 700 34px/1.2 "Noto Kufi Arabic", sans-serif; color: var(--gold); }
-  .meaning p { font-size: 16px; color: var(--mist); }
-  .meaning b { color: var(--light); }
-  @media (max-width: 900px) { .hero .wrap { grid-template-columns: 1fr; } .phone { margin: 0 auto; } }
+  /* En-tête : la bande perforée du haut du carnet */
+  .top { position: sticky; top: 0; z-index: 50; background: rgba(255, 254, 250, .94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 6px;
+                background: radial-gradient(circle at 6px 0, transparent 3px, rgba(255, 254, 250, .94) 3.5px) 0 0 / 12px 6px repeat-x; }
+  .top .wrap { display: flex; align-items: center; gap: 24px; min-height: var(--head); }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--carbon); font: 900 26px/1 var(--print); font-stretch: 115%; letter-spacing: -.03em; }
+  .brand svg { width: 34px; height: 34px; }
+  .nav { display: none; gap: 24px; margin-left: auto; }
+  .nav a, .login { color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 15.5px; }
+  .nav a:hover, .login:hover { color: var(--carbon); }
+  .login { display: none; }
+  .top .btn { min-height: 42px; padding: 0 16px; font-size: 15px; margin-left: auto; }
+  @media (min-width: 1000px) { .nav { display: flex; } .login { display: inline; } .top .btn { margin-left: 0; } }
 
-  /* Téléphone de démonstration */
-  .phone { width: min(100%, 370px); border-radius: 46px; background: #0b0e2e; padding: 12px; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, .6); }
-  .screen { border-radius: 36px; overflow: hidden; background: #efe8dd; color: #1b1f1d; font-size: 14px; line-height: 1.42; }
-  .screen .bar { background: var(--deep-2); color: var(--light); padding: 20px 18px 14px; display: flex; align-items: center; gap: 12px; }
-  .screen .av { width: 40px; height: 40px; border-radius: 50%; background: var(--deep-3); display: grid; place-items: center; font-weight: 700; font-size: 14px; }
-  .screen .bar small { display: block; color: #b9bde6; font-size: 12px; }
-  .chat { padding: 16px 12px 20px; display: flex; flex-direction: column; gap: 9px; }
-  .bub { max-width: 84%; padding: 9px 12px; border-radius: 14px; }
-  .bub.in { align-self: flex-start; background: #fff; border-bottom-left-radius: 4px; }
-  .bub b { white-space: nowrap; }
-  .bub.out { align-self: flex-end; background: #cdebc0; border-bottom-right-radius: 4px; }
-  .voice { display: flex; align-items: center; gap: 8px; }
-  .voice svg { width: 20px; height: 20px; flex: none; }
-  .wave { display: flex; align-items: center; gap: 3px; height: 24px; }
-  .wave i { width: 3px; border-radius: 2px; background: #2c5a4c; }
-  .voice small { color: #3e5a50; font-size: 12px; }
-  .trans { font-size: 12.5px; font-style: italic; color: #3e5a50; margin-top: 6px; }
-  .pay { margin-top: 9px; background: var(--deep); color: var(--light); border-radius: 10px; padding: 9px; text-align: center; font-weight: 700; font-size: 13px; }
+  /* ---------- Les papiers ---------- */
+  .paper { background: var(--sheet); border-radius: 4px; position: relative;
+           box-shadow: 0 1px 1px rgba(26, 29, 56, .06), 0 14px 30px -18px rgba(26, 29, 56, .45); }
+  .row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 10px; border-bottom: 1.5px solid var(--rule); padding: 8px 0 5px; }
+  .lab { font: 600 13.5px/1.3 var(--print); font-stretch: 78%; color: var(--carbon-2); white-space: nowrap; }
+  .val { font: 400 23px/1.15 var(--hand); color: var(--carbon); min-height: 1.15em; }
+  .num { font: 700 15px/1 var(--print); font-stretch: 85%; color: var(--stamp); font-variant-numeric: tabular-nums; letter-spacing: .04em; white-space: nowrap; }
+  .souche .num { font-size: 12.5px; letter-spacing: 0; }
 
-  /* Bandeau secteurs */
-  .sectors { background: var(--deep-2); color: var(--mist); padding: 22px 0; border-top: 1px solid var(--line-d); }
-  .sectors .wrap { display: flex; flex-wrap: wrap; gap: 10px 28px; align-items: center; justify-content: center; font-weight: 500; }
-  .sectors b { color: var(--light); }
+  /* Le tampon */
+  .stamp { color: var(--stamp); position: absolute; pointer-events: none; mix-blend-mode: multiply; }
+  .stamp text { font-family: var(--print); font-stretch: 90%; }
 
-  /* Problème */
-  .problem .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: start; }
-  .pains { display: grid; gap: 16px; }
-  .pain { background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px 26px; }
-  .pain h3 { margin-bottom: 6px; }
-  .pain p { color: var(--ink-2); }
-  @media (max-width: 860px) { .problem .wrap { grid-template-columns: 1fr; gap: 36px; } }
+  /* ---------- Haut de page ---------- */
+  .hero { padding-block: clamp(40px, 6vw, 88px) clamp(64px, 8vw, 110px); }
+  .hero .wrap { display: grid; gap: 52px; align-items: center; }
+  @media (min-width: 1000px) { .hero .wrap { grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr); gap: 48px; } }
+  .hero h1 { font: 900 clamp(40px, 5vw, 72px)/.96 var(--print); font-stretch: 110%; letter-spacing: -.035em; }
+  .hero .lead { margin-top: 24px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .fine { margin-top: 16px; color: var(--ink-2); font-size: 15px; }
 
-  /* Fonctions */
-  .head { max-width: 760px; margin-bottom: 48px; display: grid; gap: 16px; }
-  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-  @media (max-width: 960px) { .grid3 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 620px) { .grid3 { grid-template-columns: 1fr; } }
-  .card { background: rgba(244, 239, 230, .06); border: 1px solid var(--line-d); border-radius: var(--radius); padding: 28px; display: grid; gap: 12px; align-content: start; }
-  .card p { color: var(--mist); }
-  .ic { width: 52px; height: 52px; border-radius: 14px; background: var(--gold); color: var(--deep); display: grid; place-items: center; }
-  .ic svg { width: 26px; height: 26px; }
-  .launch { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; background: rgba(244, 178, 58, .14); border: 1px solid rgba(244, 178, 58, .45); color: var(--light);
-            border-radius: 999px; padding: 8px 16px 8px 8px; font-weight: 600; font-size: 15px; text-decoration: none; margin-bottom: 18px; }
-  .launch b { background: var(--gold); color: var(--deep); border-radius: 999px; padding: 4px 12px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; }
-  .launch:hover { border-color: var(--gold); }
-  .soons { margin-top: 18px; display: grid; gap: 12px; }
-  .soons .soon { margin-top: 0; }
-  .soon.next { border-style: solid; border-color: var(--gold); background: rgba(244, 178, 58, .08); color: var(--light); }
-  .soon.next svg { width: 22px; height: 22px; color: var(--gold); }
-  /* Lancement */
-  .lancement .box { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
-  @media (max-width: 860px) { .lancement .box { grid-template-columns: 1fr; } }
-  .lancement img { width: 100%; height: auto; border-radius: 24px; box-shadow: 0 30px 70px -30px rgba(21, 25, 58, .55); }
-  .lancement .txt { display: grid; gap: 20px; align-content: start; }
-  .count { display: flex; gap: 12px; flex-wrap: wrap; }
-  .count div { background: var(--deep); color: var(--light); border-radius: 18px; padding: 14px 18px; min-width: 104px; text-align: center; }
-  .count b { display: block; font: 800 44px/1 var(--display); color: var(--gold); font-variant-numeric: tabular-nums; }
-  .count span { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--mist); }
-  .lancement .cta { display: flex; flex-wrap: wrap; gap: 12px; }
-  .lancement ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
-  .soon { margin-top: 18px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 24px; border-radius: var(--radius); border: 1px dashed rgba(242, 169, 59, .5); color: var(--mist); }
-  .soon b { color: var(--gold); text-transform: uppercase; letter-spacing: .12em; font-size: 13px; }
+  /* Le bon de commande qui se remplit tout seul */
+  .bon-zone { position: relative; padding: 88px 0 10px; justify-self: center; width: min(560px, 100%); }
+  .bon { display: grid; grid-template-columns: 76px minmax(0, 1fr); transform: rotate(-1.2deg); }
+  .bon::before { content: ""; position: absolute; top: 0; bottom: 0; left: 72px; width: 9px;
+                 background: radial-gradient(circle, var(--desk) 3.2px, transparent 3.7px) 0 4px / 9px 15px repeat-y; }
+  .souche { border-right: 2px dashed var(--rule); padding: 18px 10px; display: grid; align-content: start; gap: 10px; text-align: center; }
+  .souche .val { font-size: 17px; }
+  .bon-main { padding: 18px 22px 24px; }
+  .bon-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 2.5px solid var(--carbon); padding-bottom: 8px; }
+  .bon-head b { font: 800 22px/1 var(--print); font-stretch: 115%; color: var(--carbon); letter-spacing: -.01em; }
+  .bon-shop { font: 600 13px/1.3 var(--print); font-stretch: 85%; color: var(--ink-2); margin-top: 8px; }
+  .lines { margin-top: 10px; }
+  .lines .grid { display: grid; grid-template-columns: minmax(0, 1fr) 70px; gap: 10px; border-bottom: 1.5px solid var(--rule); padding: 7px 0 4px; align-items: baseline; }
+  .lines .grid.th { border-bottom: 2px solid var(--carbon-2); }
+  .lines .grid.th span { font: 600 13px/1.3 var(--print); font-stretch: 78%; color: var(--carbon-2); }
+  .sign { display: flex; justify-content: flex-end; align-items: baseline; gap: 10px; margin-top: 14px; }
+  .sign .val { font-weight: 700; font-size: 30px; transform: rotate(-4deg); }
+  .bon-zone .stamp { left: 28%; bottom: 1%; width: 196px; transform: rotate(-9deg); }
+  .voice { position: absolute; top: 0; left: 8%; z-index: 2; width: min(300px, 74%); transform: rotate(2.2deg); background: #fff; border-radius: 12px 12px 12px 3px;
+           padding: 10px 40px 10px 12px; box-shadow: 0 10px 24px -14px rgba(26, 29, 56, .55); display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px 10px; align-items: center; }
+  .voice .play { width: 26px; height: 26px; color: #54656f; }
+  .voice .wave { display: flex; align-items: center; gap: 2px; height: 22px; }
+  .voice .wave i { width: 3px; border-radius: 2px; background: #8696a0; }
+  .voice q { grid-column: 1 / -1; font: 400 15px/1.35 var(--print); color: #3b4a54; font-style: italic; quotes: "« " " »"; }
+  .clip { position: absolute; z-index: 3; top: 48px; left: calc(8% + min(300px, 74%) - 31px); width: 22px; height: 58px; color: #8b93a8; transform: rotate(8deg); }
 
-  /* Étapes */
-  .steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; counter-reset: s; }
-  @media (max-width: 780px) { .steps { grid-template-columns: 1fr; } }
-  .step { border-top: 2px solid var(--ink); padding-top: 20px; display: grid; gap: 10px; }
-  .step::before { counter-increment: s; content: "0" counter(s); font: 800 52px/1 var(--display); color: var(--gold-ink); }
-  .step p { color: var(--ink-2); }
+  /* L'écriture à la main, et le coup de tampon (une seule fois, au chargement) */
+  .js .bon .val[data-w] { clip-path: inset(-10% 100% -10% 0); }
+  .js .bon.writing .val[data-w] { animation: write var(--dur, .7s) linear var(--d, 0s) forwards; }
+  @keyframes write { to { clip-path: inset(-10% -2% -10% 0); } }
+  .js .bon-zone .voice { opacity: 0; transform: translateY(-10px) rotate(2.2deg); }
+  .js .bon-zone.go .voice { opacity: 1; transform: rotate(2.2deg); transition: opacity .5s, transform .5s; }
+  .js .bon-zone .stamp { opacity: 0; }
+  .js .bon-zone.stamped .stamp { animation: thump .38s cubic-bezier(.3, 1.6, .5, 1) forwards; }
+  @keyframes thump { 0% { opacity: 0; transform: scale(1.9) rotate(-16deg); } 65% { opacity: 1; transform: scale(.94) rotate(-8deg); } 100% { opacity: .92; transform: scale(1) rotate(-9deg); } }
 
-  /* Démo */
-  .demo .box { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; background: var(--deep-2); border-radius: 32px; padding: clamp(28px, 5vw, 56px); }
-  @media (max-width: 860px) { .demo .box { grid-template-columns: 1fr; } }
-  .demo .box > div { display: grid; gap: 18px; }
-  .tries { display: grid; gap: 10px; }
-  .try { text-align: left; background: rgba(244, 239, 230, .07); border: 1px solid var(--line-d); color: var(--light); border-radius: 16px; padding: 14px 18px;
-         font: 500 16px/1.4 var(--body); cursor: pointer; display: flex; gap: 12px; align-items: center; transition: background .2s, border-color .2s; }
-  .try:hover { background: rgba(244, 239, 230, .12); border-color: var(--gold); }
-  .try svg { width: 18px; height: 18px; color: var(--gold); flex: none; margin-left: auto; }
-  .note { font-size: 14px; color: var(--mist); }
+  /* ---------- La fiche de poste ---------- */
+  .poste .wrap { display: grid; gap: 40px; }
+  @media (min-width: 1000px) { .poste .wrap { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 64px; align-items: start; } }
+  .fiche { padding: 26px 26px 30px; transform: rotate(.6deg); }
+  .fiche-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 2.5px solid var(--carbon); padding-bottom: 10px; margin-bottom: 6px; }
+  .fiche-head b { font: 800 24px/1 var(--print); font-stretch: 115%; color: var(--carbon); }
+  .fiche .cols { display: grid; gap: 0 28px; }
+  @media (min-width: 640px) { .fiche .cols { grid-template-columns: 1fr 1fr; } }
+  .tasks { margin-top: 22px; display: grid; gap: 20px; }
+  @media (min-width: 640px) { .tasks { grid-template-columns: 1fr 1fr; } }
+  .tasks h3 { font: 700 15px/1.3 var(--print); font-stretch: 85%; color: var(--carbon-2); margin-bottom: 8px; }
+  .tasks ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+  .tasks li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; font-size: 16px; line-height: 1.4; }
+  .tick { font: 700 22px/1 var(--hand); color: var(--carbon); }
+  .never li { color: var(--ink-2); }
+  .never .tick { color: var(--stamp); }
+  .new-tag { display: inline-block; margin-left: 6px; padding: 0 8px; border: 2px solid var(--stamp); border-radius: 6px; color: var(--stamp); font: 800 12px/1.6 var(--print); transform: rotate(-3deg); }
+  .ar { margin-top: 22px; display: flex; align-items: center; gap: 14px; color: var(--ink-2); font-size: 15.5px; }
+  .ar span { font: 700 34px/1 "Noto Kufi Arabic", serif; color: var(--carbon); }
 
-  /* Tarifs */
-  .price { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 32px; overflow: hidden; }
-  @media (max-width: 860px) { .price { grid-template-columns: 1fr; } }
-  .price > div { padding: clamp(28px, 4vw, 48px); display: grid; gap: 18px; align-content: start; }
-  .price .side { background: var(--deep); color: var(--light); }
-  .price .side p { color: var(--mist); }
-  .tag { display: inline-block; justify-self: start; background: var(--gold); color: var(--deep); font-weight: 700; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 12px; border-radius: 999px; }
-  .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-  .checks li { display: flex; gap: 12px; align-items: flex-start; }
-  .checks svg { width: 22px; height: 22px; flex: none; color: #1f7a55; margin-top: 1px; }
+  /* ---------- Pendant votre absence : la nuit passe au défilement ---------- */
+  .absence { background: var(--night); color: #e7e9f8; padding-bottom: 0; position: relative; overflow: clip; }
+  .absence h2 { color: #fff; }
+  .absence .lead { color: #b6bae0; margin-top: 16px; }
+  .glow { position: absolute; inset: 0; pointer-events: none; opacity: var(--dawn, 0);
+          background: radial-gradient(110% 60% at 50% 110%, rgba(255, 168, 96, .55), rgba(255, 168, 96, 0) 62%), linear-gradient(180deg, rgba(38, 50, 120, 0), rgba(83, 74, 140, .5)); }
+  .abs-track { position: relative; height: 320vh; }
+  .abs-sticky { position: sticky; top: var(--head); height: calc(100vh - var(--head)); height: calc(100svh - var(--head)); display: grid; align-items: center; overflow: hidden; }
+  .abs-grid { display: grid; gap: 18px; justify-items: center; text-align: center; }
+  @media (min-width: 1000px) { .abs-grid { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 64px; text-align: left; justify-items: stretch; align-items: center; } }
+  .abs-clock { font: 900 clamp(64px, 11vw, 150px)/.9 var(--print); font-stretch: 118%; letter-spacing: -.04em; color: #fff; font-variant-numeric: tabular-nums; }
+  .abs-day { color: #b6bae0; font-size: 16px; margin-top: 8px; }
+  .abs-now { margin-top: 18px; min-height: 5.6em; max-width: 40ch; }
+  .abs-now b { display: block; font: 700 21px/1.3 var(--print); color: #fff; }
+  .abs-now p { color: #b6bae0; margin-top: 4px; }
+  .pad { position: relative; width: min(420px, 90vw); height: min(390px, calc(100svh - var(--head) - 290px)); justify-self: center; }
+  @media (min-width: 1000px) { .pad { height: 420px; } }
+  .pad::before { content: ""; position: absolute; inset: 14px -6px -10px 6px; background: #f3c3cd; border-radius: 4px; transform: rotate(2deg); box-shadow: 0 20px 40px -20px rgba(0, 0, 0, .6); }
+  .msg { position: absolute; inset: 0; background: var(--pink); color: var(--ink); border-radius: 4px; padding: 16px 18px 18px; text-align: left; overflow: hidden;
+         box-shadow: 0 1px 1px rgba(0, 0, 0, .08), 0 18px 34px -18px rgba(0, 0, 0, .55); transform: rotate(var(--r, 0deg)); }
+  .js-abs .msg { opacity: 0; transform: translate(40px, -30px) rotate(calc(var(--r, 0deg) + 8deg)); transition: opacity .35s ease, transform .45s cubic-bezier(.2, .9, .3, 1.1); }
+  .js-abs .msg.on { opacity: 1; transform: rotate(var(--r, 0deg)); }
+  .pad::before { transition: opacity .5s; }
+  .pad.spread::before { opacity: 0; }
+  .js-abs .pad.spread .msg.on { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(.56); transition: transform .7s cubic-bezier(.2, .8, .2, 1); }
+  .msg-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 2px solid rgba(26, 29, 56, .35); padding-bottom: 6px; }
+  .msg-head b { font: 800 19px/1.1 var(--print); font-stretch: 112%; color: #8e1f2f; }
+  .msg-head small { font: 600 12.5px/1.2 var(--print); font-stretch: 82%; color: #8e1f2f; }
+  .msg .row { border-bottom-color: rgba(142, 31, 47, .22); }
+  .msg .lab { color: #8e1f2f; }
+  .msg .val { font-size: 21px; }
+  .boxes { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 9px 0 4px; border-bottom: 1.5px solid rgba(142, 31, 47, .22); }
+  .boxes span { display: inline-flex; align-items: center; gap: 6px; font: 600 13.5px/1.2 var(--print); font-stretch: 82%; color: #8e1f2f; }
+  .boxes i { width: 17px; height: 17px; border: 1.8px solid #8e1f2f; border-radius: 3px; display: grid; place-items: center; font: 700 20px/1 var(--hand); color: var(--carbon); font-style: normal; }
+  .msg-text { font: 400 20px/1.3 var(--hand); color: var(--carbon); margin-top: 8px; }
+  .msg .by { position: absolute; right: 18px; bottom: 12px; font: 700 22px/1 var(--hand); color: var(--carbon); transform: rotate(-4deg); }
+  .msg .stamp { right: 16px; top: 60%; width: 160px; transform: rotate(-11deg); }
 
-  /* FAQ */
+  /* ---------- L'entretien ---------- */
+  .interview .wrap { display: grid; gap: 34px; }
+  .interview .papers { display: grid; gap: 28px; align-items: start; }
+  @media (min-width: 1000px) { .interview .papers { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; } }
+  .pitch { background: var(--yellow); padding: 24px 24px 26px; transform: rotate(-.8deg); }
+  .pitch-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 2px solid rgba(35, 56, 181, .35); padding-bottom: 8px; }
+  .pitch-head b { font: 800 22px/1.1 var(--print); font-stretch: 112%; color: var(--carbon); }
+  .pitch-head small { color: var(--carbon-2); font: 600 14px/1 var(--print); font-variant-numeric: tabular-nums; }
+  .pitch-body { min-height: 230px; display: grid; align-content: center; padding: 18px 0 8px; }
+  .pitch-idle p { color: var(--ink-2); margin-top: 6px; }
+  .pitch-idle .q { font: 400 clamp(28px, 3.6vw, 40px)/1.15 var(--hand); color: var(--carbon); }
+  .caption { font: 400 clamp(26px, 3.4vw, 38px)/1.25 var(--hand); color: rgba(35, 56, 181, .3); min-height: 3.75em; }
+  .caption .done { color: var(--carbon); }
+  .caption .now { color: var(--stamp); }
+  .dots { display: flex; gap: 6px; margin-top: 12px; }
+  .dots i { width: 26px; height: 4px; border-radius: 2px; background: rgba(35, 56, 181, .2); }
+  .dots i.on { background: var(--carbon); }
+  .cap-note { margin-top: 10px; color: var(--ink-2); font-size: 14.5px; }
+  .pitch-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
+  .roundbtn { display: inline-flex; align-items: center; gap: 12px; background: none; border: 0; padding: 0; font: 700 16px/1.2 var(--print); color: var(--carbon); cursor: pointer; }
+  .roundbtn .ic { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; color: #fff; transition: transform .12s; }
+  .roundbtn:hover .ic { transform: scale(1.06); }
+  .roundbtn .ic svg { width: 24px; height: 24px; }
+  .go .ic { background: #1fb35b; box-shadow: 0 0 0 6px rgba(31, 179, 91, .18); }
+  .stop .ic { background: var(--stamp); }
+  .down { transform: rotate(135deg); }
+  .quiz { padding: 24px 24px 26px; transform: rotate(.7deg); }
+  .quiz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 2.5px solid var(--carbon); padding-bottom: 8px; }
+  .quiz-head b { font: 800 22px/1.1 var(--print); font-stretch: 112%; color: var(--carbon); }
+  .quiz ol { list-style: none; margin: 8px 0 0; padding: 0; counter-reset: q; }
+  .quiz li { border-bottom: 1.5px solid var(--rule); }
+  .ask { width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; text-align: left; background: none; border: 0; padding: 13px 0; cursor: pointer; color: var(--ink); font: 500 17px/1.4 var(--print); }
+  .ask::before { counter-increment: q; content: counter(q) "."; font: 700 17px/1.4 var(--print); color: var(--carbon-2); }
+  .ask:hover { color: var(--carbon); }
+  .ask:hover span { text-decoration: underline; text-decoration-color: var(--stamp); text-underline-offset: 4px; }
+  .quiz .cta { margin-top: 20px; }
+
+  /* ---------- Trois étapes ---------- */
+  .steps { margin-top: 44px; display: grid; gap: 18px; }
+  @media (min-width: 900px) { .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; } }
+  .ticket { display: grid; grid-template-columns: 64px minmax(0, 1fr); }
+  .ticket:nth-child(1) { transform: rotate(-.8deg); } .ticket:nth-child(2) { transform: rotate(.5deg); } .ticket:nth-child(3) { transform: rotate(-.4deg); }
+  .ticket::before { content: ""; position: absolute; top: 0; bottom: 0; left: 60px; width: 9px; background: radial-gradient(circle, var(--desk) 3.2px, transparent 3.7px) 0 4px / 9px 15px repeat-y; }
+  .ticket .souche { padding: 18px 8px; align-content: center; }
+  .ticket .souche b { font: 900 34px/1 var(--print); font-stretch: 110%; color: var(--stamp); }
+  .ticket .body { padding: 20px 20px 22px; }
+  .ticket p { color: var(--ink-2); margin-top: 6px; }
+  .steps-cta { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
+  .steps-cta p { color: var(--ink-2); font-size: 15px; }
+
+  /* ---------- Le salaire : un bulletin de paie ---------- */
+  .salaire .wrap { display: grid; gap: 40px; }
+  @media (min-width: 1000px) { .salaire .wrap { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 64px; align-items: center; } }
+  .paie { padding: 26px 26px 28px; transform: rotate(-.5deg); }
+  .paie-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 2.5px solid var(--carbon); padding-bottom: 10px; }
+  .paie-head b { font: 800 22px/1.1 var(--print); font-stretch: 115%; color: var(--carbon); }
+  .paie-head span { font: 600 14px/1.3 var(--print); font-stretch: 85%; color: var(--ink-2); }
+  .paie table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 16px; }
+  .paie th { text-align: left; font: 600 13.5px/1.3 var(--print); font-stretch: 78%; color: var(--carbon-2); padding: 8px 0 6px; border-bottom: 2px solid var(--carbon-2); }
+  .paie td { padding: 10px 0 8px; border-bottom: 1.5px solid var(--rule); vertical-align: baseline; }
+  .paie td:last-child { text-align: right; font: 400 21px/1.2 var(--hand); color: var(--carbon); padding-left: 16px; }
+  .paie tfoot td { border-bottom: 0; padding-top: 14px; font-weight: 700; }
+  .paie tfoot td:last-child { font: 700 26px/1.1 var(--hand); color: var(--stamp); }
+  .incl { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 8px; }
+  .incl li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; color: var(--ink-2); }
+
+  /* ---------- Prise de poste ---------- */
+  .launch .wrap { display: grid; gap: 40px; align-items: center; }
+  @media (min-width: 900px) { .launch .wrap { grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); gap: 64px; } }
+  .launch img { width: 100%; height: auto; border-radius: 4px; transform: rotate(-1.5deg); box-shadow: 0 24px 46px -24px rgba(26, 29, 56, .55); }
+  .count { display: flex; gap: 12px; margin: 26px 0 8px; }
+  .count div { min-width: 90px; padding: 12px 14px; text-align: center; background: var(--sheet); border-radius: 4px; box-shadow: 0 10px 20px -16px rgba(26, 29, 56, .5); }
+  .count b { display: block; font: 900 40px/1 var(--print); font-stretch: 110%; color: var(--carbon); font-variant-numeric: tabular-nums; }
+  .count span { font-size: 14px; color: var(--ink-2); }
+  .launch ul { margin: 18px 0 0; padding-left: 20px; color: var(--ink-2); }
+
+  /* ---------- Questions ---------- */
   .faq { max-width: 860px; }
-  details { border-bottom: 1px solid var(--line); }
-  summary { cursor: pointer; list-style: none; padding: 22px 44px 22px 0; position: relative; font: 600 20px/1.3 var(--display); }
-  summary::-webkit-details-marker { display: none; }
-  summary::after { content: "+"; position: absolute; right: 6px; top: 16px; font: 400 30px/1 var(--body); color: var(--gold-ink); transition: transform .2s; }
-  details[open] summary::after { transform: rotate(45deg); }
-  details p { padding: 0 0 22px; color: var(--ink-2); max-width: 720px; }
+  .faq .list { margin-top: 30px; }
+  .faq details { background: var(--sheet); border-radius: 4px; margin-bottom: 10px; box-shadow: 0 8px 18px -16px rgba(26, 29, 56, .55); }
+  .faq summary { list-style: none; cursor: pointer; padding: 18px 52px 18px 20px; position: relative; font: 700 18.5px/1.35 var(--print); color: var(--ink); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; position: absolute; right: 20px; top: 50%; transform: translateY(-52%); font: 700 28px/1 var(--hand); color: var(--carbon); }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { color: var(--ink-2); padding: 0 20px 20px; max-width: 64ch; }
 
-  /* Formulaire */
-  .form-box { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 56px; align-items: start; }
-  @media (max-width: 900px) { .form-box { grid-template-columns: 1fr; gap: 36px; } }
-  form { background: var(--paper); color: var(--ink); border-radius: 28px; padding: clamp(24px, 4vw, 40px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
-  @media (max-width: 560px) { form { grid-template-columns: 1fr; } }
-  label { display: grid; gap: 7px; font-weight: 600; font-size: 15px; }
-  label small { font-weight: 400; color: var(--ink-2); }
-  .full { grid-column: 1 / -1; }
-  input, select, textarea { font: 400 16px/1.4 var(--body); color: var(--ink); background: #fff; border: 1.5px solid rgba(21, 25, 58, .22); border-radius: 12px; padding: 12px 14px; min-height: 50px; width: 100%; }
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--deep); box-shadow: 0 0 0 3px rgba(242, 169, 59, .45); }
-  textarea { resize: vertical; min-height: 96px; }
-  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  form .btn { justify-self: start; }
-  .status { grid-column: 1 / -1; font-weight: 600; min-height: 1.4em; }
-  .status.err { color: #a3261a; }
-  .thanks { background: var(--paper); color: var(--ink); border-radius: 28px; padding: 40px; display: grid; gap: 12px; }
-  .thanks[hidden] { display: none; }
+  /* ---------- Le contrat, et le message pour l'équipe ---------- */
+  .contrat-sec .wrap { display: grid; gap: 34px; }
+  @media (min-width: 1000px) { .contrat-sec .wrap { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 48px; align-items: start; } }
+  .contrat { padding: 30px 30px 32px; transform: rotate(-.4deg); }
+  .contrat h2 { font-size: clamp(30px, 3.8vw, 44px); }
+  .contrat .clauses { margin-top: 18px; display: grid; gap: 4px; }
+  .contrat .sigs { display: grid; gap: 22px; margin-top: 28px; }
+  @media (min-width: 560px) { .contrat .sigs { grid-template-columns: 1fr 1fr; } }
+  .sig { border-bottom: 1.5px dashed var(--carbon-2); padding-bottom: 6px; min-height: 76px; display: grid; align-content: end; }
+  .sig small { font: 600 13px/1.3 var(--print); font-stretch: 82%; color: var(--carbon-2); }
+  .sig .val { font-size: 30px; font-weight: 700; transform: rotate(-3deg); transform-origin: left; }
+  .sig .you { color: rgba(35, 56, 181, .35); }
+  .contrat .cta { margin-top: 28px; }
+  form#lead { background: var(--pink); color: var(--ink); border-radius: 4px; padding: 22px 22px 24px; transform: rotate(.8deg); display: grid; gap: 4px;
+              box-shadow: 0 1px 1px rgba(0, 0, 0, .06), 0 18px 34px -20px rgba(26, 29, 56, .55); }
+  form#lead .msg-head { margin-bottom: 4px; }
+  form#lead .intro { color: #6b2b37; font-size: 15px; margin: 6px 0 4px; }
+  form#lead label { display: grid; grid-template-columns: 110px minmax(0, 1fr); align-items: baseline; gap: 10px; border-bottom: 1.5px solid rgba(142, 31, 47, .25); padding: 6px 0 2px; }
+  form#lead label span { font: 600 13.5px/1.3 var(--print); font-stretch: 80%; color: #8e1f2f; }
+  form#lead input, form#lead select, form#lead textarea { font: 400 21px/1.3 var(--hand); color: var(--carbon); background: transparent; border: 0; padding: 4px 0; width: 100%; min-width: 0; }
+  form#lead input::placeholder, form#lead textarea::placeholder { color: rgba(35, 56, 181, .35); }
+  form#lead select { font-size: 19px; }
+  form#lead textarea { min-height: 64px; resize: vertical; }
+  form#lead input:focus, form#lead select:focus, form#lead textarea:focus { outline: 2px solid var(--carbon); outline-offset: 2px; border-radius: 4px; }
+  form#lead .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  form#lead .boxes { border: 0; padding-top: 10px; }
+  form#lead button { margin-top: 14px; justify-self: start; }
+  .status { min-height: 1.4em; font-size: 15px; color: #6b2b37; margin-top: 6px; }
+  .status.err { color: #b3261e; font-weight: 700; }
+  .thanks { background: var(--pink); border-radius: 4px; padding: 26px 24px; transform: rotate(.8deg); box-shadow: 0 18px 34px -20px rgba(26, 29, 56, .55); }
+  .thanks p { margin-top: 8px; color: #6b2b37; }
 
-  footer { background: #10143f; color: var(--mist); padding: 40px 0; font-size: 15px; }
-  footer .wrap { display: flex; flex-wrap: wrap; gap: 16px 32px; align-items: center; justify-content: space-between; }
-  footer .brand b { color: var(--light); font-size: 24px; }
-  footer .brand svg { width: 32px; height: 32px; }
-  footer .ar { font-family: "Noto Kufi Arabic", sans-serif; color: var(--gold); }
+  footer { background: var(--carbon); color: #d9ddf6; padding-block: 32px calc(32px + env(safe-area-inset-bottom)); font-size: 15px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; justify-content: space-between; }
+  footer .brand { color: #fff; font-size: 22px; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: #fff; text-decoration: underline; }
+
+  html.stage:not(.chat-used) #wakil-chat { visibility: hidden; }
+
+  @media (max-width: 999px) {
+    .bon { grid-template-columns: 58px minmax(0, 1fr); }
+    .bon::before { left: 54px; }
+    .souche { padding: 16px 6px; }
+    .bon-main { padding: 16px 16px 20px; }
+    .val { font-size: 21px; }
+    .bon-zone .stamp { width: 158px; left: 26%; }
+    .msg .stamp { width: 140px; }
+    .abs-now { min-height: 4.6em; margin-top: 10px; }
+    .abs-day { margin-top: 4px; }
+    .pitch-body { min-height: 200px; }
+    form#lead label { grid-template-columns: 92px minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .js .bon .val[data-w] { clip-path: none; animation: none !important; }
+    .js .bon-zone .voice, .js .bon-zone .stamp { opacity: 1; animation: none !important; transition: none; }
+    .js-abs .msg { transition: none; }
+    .btn, .roundbtn .ic { transition: none; }
+  }
 </style>
 </head>
 <body>
-
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".15"/><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 1.75" result="mask"/>
+      <feComposite in="SourceGraphic" in2="mask" operator="in"/>
+    </filter>
   </defs>
+  <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" fill="currentColor"/></symbol>
+  <symbol id="bubble" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></symbol>
 </svg>
 
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="#" aria-label="Wakil, accueil"><svg aria-hidden="true"><use href="#logo"/></svg><b>wakil</b></a>
+    <a class="brand" href="/" aria-label="Wakil, accueil"><svg aria-hidden="true"><use href="#logo"/></svg>wakil</a>
     <nav class="nav" aria-label="Sections">
-      <a href="#fonctionnement">Fonctionnement</a>
-      <a href="#demo">Démo</a>
-      <a href="#lancement">Lancement</a>
-      <a href="#tarifs">Tarifs</a>
-      <a href="#faq">Questions</a>
+      <a href="#poste">Le poste</a>
+      <a href="#absence">Sa nuit</a>
+      <a href="#entretien">L'entretien</a>
+      <a href="#salaire">Son salaire</a>
+      <a href="#questions">Questions</a>
     </nav>
-    <a class="btn btn-gold" href="#essayer">Essayer Wakil</a>
+    <a class="login" href="/app/">Se connecter</a>
+    <a class="btn btn-ink" href="/inscription">Embaucher Wakil</a>
   </div>
 </header>
 
 <main>
-  <section class="hero dark" aria-labelledby="titre">
+  <!-- Haut de page : le bon de commande se remplit tout seul -->
+  <section class="hero" aria-labelledby="titre">
     <div class="wrap">
       <div>
-        <a class="launch" href="#lancement"><b>Lancement</b>12 décembre 2026<span class="j-count"></span></a>
-        <p class="eyebrow">Commercial IA · WhatsApp et site web</p>
-        <h1 id="titre">Votre meilleur commercial <span>ne dort jamais.</span></h1>
-        <p class="lead">Wakil répond à vos clients sur WhatsApp et sur votre site, comprend leurs vocaux, conseille le bon produit et prend les commandes. Vous recevez chaque demande sur votre téléphone.</p>
+        <h1 id="titre">Embauchez un commercial qui ne dort jamais.</h1>
+        <p class="lead">Wakil répond à vos clients sur WhatsApp, de jour comme de nuit. Il comprend leurs vocaux, conseille le bon produit et remplit votre carnet de commandes. Vous, vous livrez.</p>
         <div class="cta">
-          <a class="btn btn-gold" href="#essayer">Essayer Wakil <svg aria-hidden="true"><use href="#arrow"/></svg></a>
-          <a class="btn btn-ghost" href="#demo">Parler à Wakil maintenant</a>
+          <a class="btn btn-ink" href="/inscription">Commencer la période d'essai</a>
+          <a class="btn btn-paper" href="#entretien">Lui faire passer l'entretien</a>
         </div>
-        <div class="meaning">
-          <span class="ar" lang="ar" dir="rtl">وكيل</span>
-          <p><b>Wakil</b> : « celui qui agit en votre nom ». Un mot compris de Tunis à Abidjan, de Dakar à Zanzibar.</p>
-        </div>
+        <p class="fine">14 jours d'essai gratuits, comptés à partir de son premier jour de travail. Sans carte bancaire.</p>
       </div>
 
-      <div class="phone" role="img" aria-label="Exemple de conversation WhatsApp : un client envoie un vocal pour une dalle, Wakil conseille du gravier 15/25 et du sable 0/5, calcule les quantités et prend la commande.">
-        <div class="screen" aria-hidden="true">
-          <div class="bar"><div class="av">CK</div><div><b>Carrière Kouamé</b><small>répond en quelques secondes</small></div></div>
-          <div class="chat">
-            <div class="bub out">
-              <div class="voice">
-                <svg viewBox="0 0 24 24"><path d="M7 4.5v15l12-7.5z" fill="#2c5a4c"/></svg>
-                <div class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:12px"></i><i style="height:24px"></i><i style="height:18px"></i><i style="height:10px"></i><i style="height:22px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:19px"></i><i style="height:13px"></i><i style="height:21px"></i><i style="height:11px"></i><i style="height:8px"></i></div>
-                <small>0:07</small>
-              </div>
-              <div class="trans">« Je coule une dalle de 10 sur 8, il me faut quoi ? »</div>
+      <div class="bon-zone" role="img" aria-label="Bon de commande rempli par Wakil à 21 h 47 : un client de Yopougon a envoyé un vocal pour une dalle de 10 mètres sur 8 ; Wakil a noté 14 tonnes de gravier 15/25 et 7 tonnes de sable 0/5, livraison demain matin, et la commande est tamponnée « confirmée ».">
+        <div class="voice" aria-hidden="true">
+          <svg class="play" aria-hidden="true"><use href="#play"/></svg>
+          <div class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:11px"></i><i style="height:22px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:21px"></i><i style="height:15px"></i><i style="height:8px"></i><i style="height:18px"></i><i style="height:12px"></i><i style="height:20px"></i><i style="height:10px"></i><i style="height:7px"></i><i style="height:14px"></i><i style="height:19px"></i><i style="height:9px"></i></div>
+          <q>Je coule une dalle de 10 sur 8, il me faut quoi ?</q>
+        </div>
+        <svg class="clip" viewBox="0 0 26 60" aria-hidden="true"><path d="M8 18V8a5 5 0 0 1 10 0v38a8 8 0 0 1-16 0V14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        <div class="bon paper" aria-hidden="true">
+          <div class="souche">
+            <span class="num">N° 0001</span>
+            <span class="val" data-w>Koffi</span>
+            <span class="val" data-w>21:47</span>
+          </div>
+          <div class="bon-main">
+            <div class="bon-head"><b>Bon de commande</b><span class="num">N° 0001</span></div>
+            <p class="bon-shop">Carrière Kouamé, Abidjan</p>
+            <div class="row"><span class="lab">Date :</span><span class="val" data-w id="bon-date">20/11/2026</span></div>
+            <div class="row"><span class="lab">Client :</span><span class="val" data-w>Koffi, Yopougon</span></div>
+            <div class="lines">
+              <div class="grid th"><span>Désignation</span><span>Quantité</span></div>
+              <div class="grid"><span class="val" data-w>Gravier 15/25</span><span class="val" data-w>14 t</span></div>
+              <div class="grid"><span class="val" data-w>Sable 0/5</span><span class="val" data-w>7 t</span></div>
             </div>
-            <div class="bub in">Pour une dalle, je vous conseille le <b>gravier 15/25</b> avec du <b>sable 0/5</b>. Pour 10 × 8 m sur 15 cm : environ <b>14 t de gravier</b> et <b>7 t de sable</b>. On vous livre où ?</div>
-            <div class="bub out">À Yopougon, demain matin</div>
-            <div class="bub in">C'est noté ✓ Votre référence : <b>W-4K2P9Q</b>. L'équipe vous confirme le prix et l'heure de livraison.<div class="pay">Bientôt : payer l'acompte par mobile money</div></div>
+            <div class="row"><span class="lab">Livraison :</span><span class="val" data-w>demain matin</span></div>
+            <div class="sign"><span class="lab">Pris par :</span><span class="val" data-w>Wakil</span></div>
+          </div>
+        </div>
+        <svg class="stamp" viewBox="0 0 220 92" aria-hidden="true"><g filter="url(#ink)"><rect x="4" y="4" width="212" height="84" rx="12" fill="none" stroke="currentColor" stroke-width="5"/><rect x="13" y="13" width="194" height="66" rx="7" fill="none" stroke="currentColor" stroke-width="2"/><text x="110" y="52" text-anchor="middle" font-size="31" font-weight="900" letter-spacing="1.5" fill="currentColor">CONFIRMÉE</text><text x="110" y="71" text-anchor="middle" font-size="14" font-weight="700" letter-spacing="2" fill="currentColor">W-4K2P9Q</text></g></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- La fiche de poste -->
+  <section class="poste" id="poste" aria-labelledby="poste-titre">
+    <div class="wrap">
+      <div>
+        <h2 id="poste-titre">La fiche de poste.</h2>
+        <p class="lead" style="margin-top:18px">Un vrai commercial, pas un robot à menus : le client lui parle normalement, comme à un vendeur, et Wakil fait avancer la vente. Il sait aussi ce qui n'est pas son rôle.</p>
+        <p class="ar"><span lang="ar" dir="rtl">وكيل</span>Wakil : celui qui agit en votre nom. Un mot compris de Tunis à Abidjan.</p>
+      </div>
+      <div class="fiche paper">
+        <div class="fiche-head"><b>Fiche de poste</b><span class="num">Réf. COM-01</span></div>
+        <div class="cols">
+          <div class="row"><span class="lab">Poste :</span><span class="val">Commercial</span></div>
+          <div class="row"><span class="lab">Horaires :</span><span class="val">24 h/24, 7 j/7</span></div>
+          <div class="row"><span class="lab">Lieu :</span><span class="val">votre WhatsApp et votre site</span></div>
+          <div class="row"><span class="lab">Langue :</span><span class="val">français, écrit et vocal</span></div>
+        </div>
+        <div class="tasks">
+          <div>
+            <h3>Ses missions</h3>
+            <ul>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Répondre à chaque client en quelques secondes</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Comprendre les vocaux, et répondre en vocal</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Conseiller le bon produit, photo à l'appui</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Calculer les quantités pour un chantier</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Prendre la commande et vous l'envoyer</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Parler à voix haute sur votre site<span class="new-tag">Nouveau</span></span></li>
+            </ul>
+          </div>
+          <div class="never">
+            <h3>Ce qu'il ne fera jamais</h3>
+            <ul>
+              <li><span class="tick" aria-hidden="true">✗</span><span>Inventer un prix : il donne ceux de votre catalogue</span></li>
+              <li><span class="tick" aria-hidden="true">✗</span><span>Promettre une livraison sans votre accord</span></li>
+              <li><span class="tick" aria-hidden="true">✗</span><span>Garder pour lui une réclamation : il vous passe la main</span></li>
+              <li><span class="tick" aria-hidden="true">✗</span><span>Se faire passer pour un humain : il dit qu'il est l'assistant virtuel</span></li>
+            </ul>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <div class="sectors" aria-label="Secteurs">
-    <div class="wrap"><b>Pensé pour :</b><span>Matériaux de construction</span><span>Carrières</span><span>Quincailleries</span><span>Grossistes</span><span>Boutiques</span></div>
-  </div>
-
-  <section class="problem" aria-labelledby="probleme">
+  <!-- Pendant votre absence : la nuit passe au défilement -->
+  <section class="absence" id="absence" aria-labelledby="absence-titre">
+    <div class="glow" aria-hidden="true"></div>
     <div class="wrap">
-      <div class="head" style="margin:0">
-        <p class="eyebrow">Le problème</p>
-        <h2 id="probleme">Vos clients écrivent quand vous n'êtes pas là.</h2>
-        <p class="lead">Le soir, le dimanche, quand vous êtes sur le chantier ou au dépôt. Chaque message qui attend, c'est un client qui appelle le concurrent.</p>
-      </div>
-      <div class="pains">
-        <div class="pain"><h3>Des messages sans réponse</h3><p>Le client demande un prix à 21 h. Le lendemain matin, il a déjà acheté ailleurs.</p></div>
-        <div class="pain"><h3>Toujours les mêmes questions</h3><p>« C'est quoi la différence entre le 5/10 et le 15/25 ? » « Vous livrez à Cocody ? » Dix fois par jour.</p></div>
-        <div class="pain"><h3>Des devis qui se perdent</h3><p>Un vocal par-ci, une photo par-là : la commande est éparpillée dans la conversation et personne ne la note.</p></div>
-      </div>
+      <h2 id="absence-titre">Pendant votre absence.</h2>
+      <p class="lead">Faites défiler : la nuit passe. Chaque fois qu'il se passe quelque chose, Wakil vous laisse un mot.</p>
     </div>
-  </section>
-
-  <section class="dark" id="fonctionnement" aria-labelledby="fonctions">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Ce que fait Wakil</p>
-        <h2 id="fonctions">Un vrai commercial, pas un robot à menus.</h2>
-        <p class="lead">Le client parle normalement, comme à un vendeur. Wakil comprend, répond et fait avancer la vente.</p>
-      </div>
-      <div class="grid3">
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></div><h3>Comprend les vocaux</h3><p>Messages écrits ou vocaux, en français d'ici, et il répond dans la langue du client.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div><h3>Connaît votre catalogue</h3><p>Il conseille uniquement vos produits, envoie leurs photos et n'invente jamais un prix.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h2M12 18h2"/></svg></div><h3>Calcule les quantités</h3><p>« Une dalle de 10 sur 8 ? » Il estime les tonnes nécessaires, comme votre meilleur vendeur.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h9"/></svg></div><h3>Prend les commandes</h3><p>Récapitulatif, confirmation du client, référence. La commande arrive résumée sur votre WhatsApp.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11l2 2 4-4"/></svg></div><h3>Vous passe la main</h3><p>Réclamation, négociation, grosse commande : il vous prévient et se met en retrait.</p></div>
-        <div class="card"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="14" height="11" rx="2"/><path d="M6 19h6M9 15v4"/><rect x="17" y="8" width="5" height="12" rx="1.5"/></svg></div><h3>WhatsApp et votre site</h3><p>Le même assistant répond sur votre numéro WhatsApp et dans un chat sur votre site web.</p></div>
-      </div>
-      <div class="soons">
-        <div class="soon next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg><b>Prochaine étape</b><span>Wakil répondra aussi au téléphone : le client appelle, Wakil décroche, conseille et prend la commande, de vive voix.</span></div>
-        <div class="soon"><b>Bientôt</b><span>Paiement de l'acompte par mobile money (Wave, Orange Money, MTN MoMo), directement dans la conversation.</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section aria-labelledby="etapes">
-    <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Mise en route</p>
-        <h2 id="etapes">Trois étapes, et il travaille pour vous.</h2>
-      </div>
-      <div class="steps">
-        <div class="step"><h3>Envoyez votre catalogue</h3><p>Une photo de votre liste, un PDF ou un fichier Excel : nous préparons tout.</p></div>
-        <div class="step"><h3>Connectez votre WhatsApp</h3><p>Un numéro dédié à Wakil, à votre nom. Choisissez son ton et ce qu'il peut faire.</p></div>
-        <div class="step"><h3>Recevez les commandes</h3><p>Jour et nuit, 7 jours sur 7, résumées sur votre téléphone.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="dark demo" id="demo" aria-labelledby="demo-titre">
-    <div class="wrap">
-      <div class="box">
-        <div>
-          <p class="eyebrow">Démonstration en direct</p>
-          <h2 id="demo-titre">Parlez à Wakil.</h2>
-          <p class="lead">L'assistant de cette page, c'est Wakil lui-même. Posez-lui vos questions sur ce qu'il peut faire pour votre entreprise, ou demandez-lui de répondre comme il répondrait à vos clients.</p>
-          <p class="note">Il répond comme il le fera pour vos clients : tout de suite, simplement, et il passe la main à notre équipe quand il le faut.</p>
-        </div>
-        <div class="tries">
-          <button class="try" type="button" data-q="J'ai une quincaillerie, qu'est-ce que Wakil peut faire pour moi ?">« J'ai une quincaillerie, qu'est-ce que tu peux faire pour moi ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="try" type="button" data-q="Je vends du ciment et du fer. Réponds-moi comme tu répondrais à un de mes clients : c'est combien le sac de ciment ?">« Réponds comme à un de mes clients »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="try" type="button" data-q="Combien ça coûte, et il faut combien de temps pour démarrer ?">« Combien ça coûte, et pour démarrer ? »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="try" type="button" data-q="Je veux parler à quelqu'un de l'équipe Wakil">« Je veux parler à quelqu'un de l'équipe »<svg aria-hidden="true"><use href="#arrow"/></svg></button>
-          <button class="btn btn-gold" type="button" id="open-demo">Écrire ma propre question</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="lancement" id="lancement" aria-labelledby="lancement-titre">
-    <div class="wrap">
-      <div class="box">
-        <a href="/img/wakil-lancement.jpg" target="_blank" rel="noopener"><img src="/img/wakil-lancement.jpg" width="1080" height="1350" loading="lazy" alt="Affiche de lancement de Wakil : « Vos clients écrivent à 21 h. Wakil répond. » Lancement le 12 décembre 2026. Prochaine étape : Wakil répondra aussi au téléphone."></a>
-        <div class="txt">
-          <p class="eyebrow">Lancement officiel</p>
-          <h2 id="lancement-titre">Rendez-vous le 12 décembre 2026.</h2>
-          <p class="lead">Wakil est déjà en test chez <b>SICAR SARL</b>, en Côte d'Ivoire. Le 12 décembre, il ouvre à toutes les entreprises.</p>
-          <div class="count" role="timer" aria-live="off" aria-label="Temps restant avant le lancement">
-            <div><b data-n="j">–</b><span>jours</span></div>
-            <div><b data-n="h">–</b><span>heures</span></div>
-            <div><b data-n="m">–</b><span>minutes</span></div>
+    <div class="abs-track">
+      <div class="abs-sticky">
+        <div class="wrap abs-grid">
+          <div>
+            <p class="abs-clock" id="abs-clock" aria-hidden="true">07:30</p>
+            <p class="abs-day" id="abs-day" aria-hidden="true">Vendredi matin</p>
+            <div class="abs-now" id="abs-now" aria-live="off"><b>Vous arrivez.</b><p>Une commande à livrer, une cliente à rappeler. Le reste est fait.</p></div>
           </div>
-          <ul>
-            <li>Les premières entreprises inscrites démarrent en priorité.</li>
-            <li>Nous préparons votre catalogue avant le lancement : Wakil est prêt le jour J.</li>
-          </ul>
+          <div class="pad" role="img" aria-label="Bloc de messages téléphoniques laissés par Wakil pendant la nuit : 21 h 47, question de prix, répondu ; 23 h 10, commande prise W-4K2P9Q ; 1 h 24, vocal, répondu avec photo ; 5 h 52, prière de rappeler Aya pour une négociation.">
+            <div class="msg" data-at="0" style="--r:-2deg;--sx:-24%;--sy:-25%;--sr:-4deg" aria-hidden="true">
+              <div class="msg-head"><b>Message téléphonique</b><small>Pendant votre absence</small></div>
+              <div class="row"><span class="lab">Heure :</span><span class="val">21:47</span></div>
+              <div class="row"><span class="lab">De :</span><span class="val">un client d'Adjamé</span></div>
+              <div class="boxes"><span><i>✓</i>Répondu</span><span><i></i>Commande prise</span><span><i></i>Prière de rappeler</span></div>
+              <p class="msg-text">Voulait le prix du ciment. Je lui ai donné celui du catalogue. Rien à faire.</p>
+              <span class="by">Wakil</span>
+            </div>
+            <div class="msg" data-at="0.2" style="--r:1.5deg;--sx:25%;--sy:-23%;--sr:3deg" aria-hidden="true">
+              <div class="msg-head"><b>Message téléphonique</b><small>Pendant votre absence</small></div>
+              <div class="row"><span class="lab">Heure :</span><span class="val">23:10</span></div>
+              <div class="row"><span class="lab">De :</span><span class="val">Koffi, Yopougon</span></div>
+              <div class="boxes"><span><i>✓</i>Répondu</span><span><i>✓</i>Commande prise</span><span><i></i>Prière de rappeler</span></div>
+              <p class="msg-text">Gravier 15/25 : 14 t, sable 0/5 : 7 t. Livraison demain matin.</p>
+              <svg class="stamp" viewBox="0 0 220 92" aria-hidden="true"><g filter="url(#ink)"><rect x="4" y="4" width="212" height="84" rx="12" fill="none" stroke="currentColor" stroke-width="5"/><text x="110" y="58" text-anchor="middle" font-size="30" font-weight="900" letter-spacing="1.5" fill="currentColor">W-4K2P9Q</text></g></svg>
+              <span class="by">Wakil</span>
+            </div>
+            <div class="msg" data-at="0.44" style="--r:-1deg;--sx:-23%;--sy:26%;--sr:2.5deg" aria-hidden="true">
+              <div class="msg-head"><b>Message téléphonique</b><small>Pendant votre absence</small></div>
+              <div class="row"><span class="lab">Heure :</span><span class="val">01:24</span></div>
+              <div class="row"><span class="lab">De :</span><span class="val">Mariam, Abobo</span></div>
+              <div class="boxes"><span><i>✓</i>Répondu</span><span><i></i>Commande prise</span><span><i></i>Prière de rappeler</span></div>
+              <p class="msg-text">Un vocal à 1 h du matin. J'ai compris, et envoyé la photo du fer de 10. Rien à faire.</p>
+              <span class="by">Wakil</span>
+            </div>
+            <div class="msg" data-at="0.66" style="--r:2.2deg;--sx:25%;--sy:25%;--sr:-3deg" aria-hidden="true">
+              <div class="msg-head"><b>Message téléphonique</b><small>Pendant votre absence</small></div>
+              <div class="row"><span class="lab">Heure :</span><span class="val">05:52</span></div>
+              <div class="row"><span class="lab">De :</span><span class="val">Aya, Cocody</span></div>
+              <div class="boxes"><span><i>✓</i>Répondu</span><span><i></i>Commande prise</span><span><i>✓</i>Prière de rappeler</span></div>
+              <p class="msg-text">Veut négocier le prix pour 30 t de sable. Elle attend votre appel.</p>
+              <svg class="stamp" viewBox="0 0 220 92" aria-hidden="true"><g filter="url(#ink)"><rect x="4" y="4" width="212" height="84" rx="12" fill="none" stroke="currentColor" stroke-width="5"/><text x="110" y="58" text-anchor="middle" font-size="29" font-weight="900" letter-spacing="1.5" fill="currentColor">À RAPPELER</text></g></svg>
+              <span class="by">Wakil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- L'entretien : il se présente, puis on lui pose des questions -->
+  <section class="interview" id="entretien" aria-labelledby="entretien-titre">
+    <div class="wrap">
+      <div>
+        <h2 id="entretien-titre">Faites-lui passer l'entretien.</h2>
+        <p class="lead" style="margin-top:18px">L'assistant de cette page, c'est Wakil lui-même. Écoutez-le se présenter, puis posez-lui vos questions : il répond pour de vrai.</p>
+      </div>
+      <div class="papers">
+        <div class="pitch paper" data-state="idle">
+          <div class="pitch-head"><b>« Présentez-vous. »</b><small id="pitch-timer" data-when="talking ended" hidden>00:00</small></div>
+          <div class="pitch-body">
+            <div class="pitch-idle" data-when="idle">
+              <p class="q">Il se présente en 25 secondes, à voix haute.</p>
+              <p>Mettez le son. Ses mots s'écrivent ici pendant qu'il parle.</p>
+            </div>
+            <div data-when="talking" hidden>
+              <p class="caption" id="caption" aria-live="polite"></p>
+              <div class="dots" aria-hidden="true"></div>
+              <p class="cap-note" id="cap-note" hidden>Pas de voix française sur cet appareil : Wakil se présente par écrit.</p>
+            </div>
+            <div data-when="ended" hidden>
+              <p class="q" style="font:400 clamp(28px,3.6vw,40px)/1.15 var(--hand);color:var(--carbon)">À vous : posez-lui une question.</p>
+              <p style="color:var(--ink-2);margin-top:6px">Choisissez-en une dans la liste, ou écrivez la vôtre.</p>
+            </div>
+          </div>
+          <div class="pitch-actions">
+            <button class="roundbtn go" type="button" id="pitch-start" data-when="idle"><span class="ic"><svg aria-hidden="true"><use href="#phone"/></svg></span>Décrocher : il se présente</button>
+            <button class="roundbtn stop" type="button" id="pitch-stop" data-when="talking" hidden><span class="ic"><svg class="down" aria-hidden="true"><use href="#phone"/></svg></span>Raccrocher</button>
+            <button class="roundbtn go" type="button" id="pitch-again" data-when="ended" hidden><span class="ic"><svg aria-hidden="true"><use href="#play"/></svg></span>Réécouter</button>
+          </div>
+        </div>
+
+        <div class="quiz paper">
+          <div class="quiz-head"><b>Questions d'entretien</b><span class="num">Candidat : Wakil</span></div>
+          <ol>
+            <li><button class="ask" type="button" data-q="Pourquoi devrais-je t'embaucher dans ma quincaillerie ?"><span>Pourquoi devrais-je vous embaucher ?</span></button></li>
+            <li><button class="ask" type="button" data-q="Je vends du ciment et du fer. Réponds-moi comme tu répondrais à un de mes clients : c'est combien le sac de ciment ?"><span>Répondez comme à un de mes clients : c'est combien le sac de ciment ?</span></button></li>
+            <li><button class="ask" type="button" data-q="Que fais-tu si un client se fâche ou veut négocier le prix ?"><span>Que faites-vous si un client se fâche ou veut négocier ?</span></button></li>
+            <li><button class="ask" type="button" data-q="Combien ça coûte, et il faut combien de temps pour démarrer ?"><span>Combien demandez-vous, et quand pouvez-vous commencer ?</span></button></li>
+          </ol>
           <div class="cta">
-            <a class="btn btn-deep" href="#essayer">Réserver ma place <svg aria-hidden="true"><use href="#arrow"/></svg></a>
-            <a class="btn" href="/img/wakil-lancement.jpg" download="wakil-lancement.jpg" style="border-color:var(--line)">Télécharger l'affiche</a>
+            <button class="btn btn-ink" type="button" id="open-demo"><svg aria-hidden="true"><use href="#bubble"/></svg>Lui poser ma question</button>
+            <button class="btn btn-paper" type="button" id="call-demo" hidden><svg aria-hidden="true"><use href="#phone"/></svg>L'appeler</button>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="tarifs" aria-labelledby="tarifs-titre">
+  <!-- L'embauche en trois étapes -->
+  <section id="embauche" aria-labelledby="embauche-titre" style="padding-top:0">
     <div class="wrap">
-      <div class="head">
-        <p class="eyebrow">Tarifs</p>
-        <h2 id="tarifs-titre">Un tarif adapté à votre activité.</h2>
-        <p class="lead">Nous démarrons avec nos premières entreprises. Le tarif dépend du nombre de conversations et des canaux choisis.</p>
+      <h2 id="embauche-titre">L'embauche en trois étapes.</h2>
+      <p class="lead" style="margin-top:18px">Pas d'application à installer. Vous gardez votre numéro personnel : Wakil a son propre numéro WhatsApp, à votre nom.</p>
+      <div class="steps">
+        <div class="ticket paper"><div class="souche"><b>1</b></div><div class="body"><h3>Inscrivez-vous</h3><p>Le nom de votre entreprise, vos produits et vos prix, et le numéro que Wakil utilisera : une nouvelle puce convient.</p></div></div>
+        <div class="ticket paper"><div class="souche"><b>2</b></div><div class="body"><h3>Saisissez le code</h3><p>Nous validons votre inscription. Un code arrive par SMS sur le numéro de Wakil : vous le saisissez, c'est tout.</p></div></div>
+        <div class="ticket paper"><div class="souche"><b>3</b></div><div class="body"><h3>Premier jour de travail</h3><p>Wakil répond à vos clients jour et nuit. Les commandes arrivent sur votre WhatsApp personnel.</p></div></div>
       </div>
-      <div class="price">
-        <div>
-          <span class="tag">Inclus</span>
-          <ul class="checks">
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Assistant sur votre numéro WhatsApp, 24 h/24</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Chat sur votre site web</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Mise en place de votre catalogue par notre équipe</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Commandes et demandes de conseiller envoyées sur votre WhatsApp</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Compréhension des vocaux</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Réglages du ton et des règles de vente</li>
-          </ul>
-        </div>
-        <div class="side">
-          <h3>Parlons de votre entreprise</h3>
-          <p>Dites-nous ce que vous vendez et combien de messages vous recevez : nous vous proposons un tarif clair, en FCFA.</p>
-          <a class="btn btn-gold" href="#essayer">Demander un tarif <svg aria-hidden="true"><use href="#arrow"/></svg></a>
-        </div>
+      <div class="steps-cta">
+        <a class="btn btn-ink" href="/inscription">Commencer la période d'essai</a>
+        <p>Deux minutes, sans carte bancaire.</p>
       </div>
     </div>
   </section>
 
-  <section style="padding-top:0" id="faq" aria-labelledby="faq-titre">
+  <!-- Son salaire : un bulletin de paie -->
+  <section class="salaire" id="salaire" aria-labelledby="salaire-titre" style="padding-top:0">
+    <div class="wrap">
+      <div>
+        <h2 id="salaire-titre">Son salaire.</h2>
+        <p class="lead" style="margin-top:18px">Un tarif clair en FCFA, selon ce que vous vendez et le nombre de messages que vous recevez. Essayez-le d'abord, gratuitement.</p>
+        <ul class="incl">
+          <li><span class="tick" aria-hidden="true">✓</span>Son propre numéro WhatsApp, 24 h/24</li>
+          <li><span class="tick" aria-hidden="true">✓</span>Le chat sur votre site, avec l'appel à voix haute</li>
+          <li><span class="tick" aria-hidden="true">✓</span>Les commandes et les clients à rappeler sur votre WhatsApp</li>
+          <li><span class="tick" aria-hidden="true">✓</span>Votre espace pour suivre conversations et commandes</li>
+          <li><span class="tick" aria-hidden="true">✓</span>L'aide de notre équipe pour préparer votre catalogue</li>
+        </ul>
+      </div>
+      <div class="paie paper">
+        <div class="paie-head"><b>Bulletin de paie</b><span>Salarié : Wakil, commercial</span></div>
+        <table>
+          <thead><tr><th scope="col">Rubrique</th><th scope="col" style="text-align:right">Montant</th></tr></thead>
+          <tbody>
+            <tr><td>Salaire de base</td><td>selon vos messages</td></tr>
+            <tr><td>Heures supplémentaires</td><td>0 (il fait déjà 24 h/24)</td></tr>
+            <tr><td>Prime de nuit</td><td>offerte</td></tr>
+            <tr><td>Congés payés</td><td>il n'en prend pas</td></tr>
+          </tbody>
+          <tfoot><tr><td>Période d'essai</td><td>14 jours gratuits</td></tr></tfoot>
+        </table>
+        <div class="cta"><a class="btn btn-ink" href="/inscription">Commencer la période d'essai</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prise de poste officielle -->
+  <section class="launch" id="lancement" aria-labelledby="lancement-titre" style="padding-top:0">
+    <div class="wrap">
+      <a href="/img/wakil-lancement.jpg" target="_blank" rel="noopener"><img src="/img/wakil-lancement.jpg" width="1080" height="1350" loading="lazy" alt="Affiche de lancement de Wakil : « Vos clients écrivent à 21 h. Wakil répond. » Lancement le 12 décembre 2026."></a>
+      <div>
+        <h2 id="lancement-titre">Prise de poste officielle le 12 décembre 2026.</h2>
+        <p class="lead" style="margin-top:18px">Wakil travaille déjà pour SICAR SARL et pour SANA, en Côte d'Ivoire. Le 12 décembre, il ouvre à toutes les entreprises.</p>
+        <div class="count" role="timer" aria-live="off" aria-label="Temps restant avant le lancement">
+          <div><b data-n="j">–</b><span>jours</span></div>
+          <div><b data-n="h">–</b><span>heures</span></div>
+          <div><b data-n="m">–</b><span>minutes</span></div>
+        </div>
+        <ul>
+          <li>Les entreprises inscrites avant le lancement démarrent en priorité.</li>
+          <li>Vos produits sont prêts le jour J : Wakil répond dès la première minute.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Avant de signer -->
+  <section id="questions" aria-labelledby="questions-titre" style="padding-top:0">
     <div class="wrap faq">
-      <div class="head"><p class="eyebrow">Questions</p><h2 id="faq-titre">Vous vous demandez sûrement…</h2></div>
-      <details><summary>Mes clients sauront-ils qu'ils parlent à une IA ?</summary><p>Oui. Wakil se présente comme l'assistant virtuel de votre entreprise, et le dit si on lui demande. Les clients apprécient surtout d'avoir une réponse tout de suite.</p></details>
-      <details><summary>Et s'il ne sait pas répondre ?</summary><p>Il ne devine pas. Pour une question hors catalogue, une réclamation ou une négociation, il vous prévient sur WhatsApp avec un résumé, et vous reprenez la conversation.</p></details>
-      <details><summary>Est-ce qu'il donne des prix ?</summary><p>Seulement ceux que vous lui donnez. Si un produit est « sur devis », il prend la demande et votre équipe confirme le prix.</p></details>
-      <details><summary>Faut-il un nouveau numéro WhatsApp ?</summary><p>Nous recommandons un numéro dédié à Wakil, enregistré au nom de votre entreprise chez Meta. Votre numéro personnel reste à vous.</p></details>
-      <details><summary>Combien de temps pour démarrer ?</summary><p>En général quelques jours : le temps de préparer votre catalogue et de faire valider votre numéro par Meta.</p></details>
-      <details><summary>Que devient ce que disent mes clients ?</summary><p>Les conversations servent uniquement à répondre à vos clients et à vous transmettre leurs commandes. Elles ne sont ni vendues ni partagées.</p></details>
+      <h2 id="questions-titre">Avant de signer.</h2>
+      <div class="list">
+        <details><summary>Mes clients sauront-ils qu'ils parlent à une IA ?</summary><p>Oui. Wakil se présente comme l'assistant virtuel de votre entreprise, et le dit si on lui demande. Les clients apprécient surtout d'avoir une réponse tout de suite.</p></details>
+        <details><summary>Et s'il ne sait pas répondre ?</summary><p>Il ne devine pas. Pour une question hors catalogue, une réclamation ou une négociation, il vous prévient sur WhatsApp avec un résumé, et vous reprenez la conversation.</p></details>
+        <details><summary>Est-ce qu'il donne des prix ?</summary><p>Seulement ceux que vous lui donnez. Si un produit est « sur devis », il prend la demande et votre équipe confirme le prix.</p></details>
+        <details><summary>Quel numéro WhatsApp utiliser ?</summary><p>Un numéro réservé à Wakil, qui n'a pas de compte WhatsApp : une nouvelle puce convient très bien. Votre numéro personnel reste à vous, et c'est là que vous recevez les commandes.</p></details>
+        <details><summary>Combien de temps pour démarrer ?</summary><p>L'inscription prend deux minutes. Ensuite, le temps que notre équipe valide votre numéro et que vous saisissiez le code reçu par SMS : souvent le jour même.</p></details>
+        <details><summary>Faut-il installer une application ?</summary><p>Non. Wakil travaille sur WhatsApp et sur votre site. Si vous le souhaitez, votre espace en ligne vous montre les conversations et les commandes.</p></details>
+        <details><summary>Que devient ce que disent mes clients ?</summary><p>Les conversations servent uniquement à répondre à vos clients et à vous transmettre leurs commandes. Elles ne sont ni vendues ni partagées. Voir notre <a href="/confidentialite">politique de confidentialité</a>.</p></details>
+      </div>
     </div>
   </section>
 
-  <section class="dark" id="essayer" aria-labelledby="essayer-titre">
-    <div class="wrap form-box">
-      <div class="head" style="margin:0">
-        <p class="eyebrow">Essayer Wakil</p>
-        <h2 id="essayer-titre">Mettez un commercial de plus dans votre équipe.</h2>
-        <p class="lead">Laissez vos coordonnées : nous vous recontactons sur WhatsApp pour préparer Wakil avec votre catalogue.</p>
+  <!-- Le contrat, et le message pour l'équipe -->
+  <section class="contrat-sec" id="contrat" aria-labelledby="contrat-titre" style="padding-top:0">
+    <div class="wrap">
+      <div class="contrat paper">
+        <h2 id="contrat-titre">Contrat de période d'essai.</h2>
+        <div class="clauses">
+          <div class="row"><span class="lab">Entre :</span><span class="val">votre entreprise</span></div>
+          <div class="row"><span class="lab">Et :</span><span class="val">Wakil, commercial</span></div>
+          <div class="row"><span class="lab">Durée :</span><span class="val">14 jours, à partir de son premier jour</span></div>
+          <div class="row"><span class="lab">Horaires :</span><span class="val">24 h/24, 7 j/7</span></div>
+          <div class="row"><span class="lab">Mission :</span><span class="val">répondre à vos clients, remplir votre carnet</span></div>
+        </div>
+        <div class="sigs">
+          <div class="sig"><small>L'employeur</small><span class="val you">vous</span></div>
+          <div class="sig"><small>Le commercial</small><span class="val">Wakil</span></div>
+        </div>
+        <div class="cta"><a class="btn btn-ink" href="/inscription">Signer et commencer l'essai</a></div>
       </div>
+
       <div>
         <form id="lead" novalidate>
-          <label>Votre nom<input name="name" autocomplete="name" required maxlength="80"></label>
-          <label>Entreprise<input name="company" autocomplete="organization" required maxlength="120"></label>
-          <label>Secteur
+          <div class="msg-head"><b>Message téléphonique</b><small>Pour l'équipe Wakil</small></div>
+          <p class="intro">Vous préférez qu'on vous appelle ? Laissez un mot : nous vous recontactons sur WhatsApp.</p>
+          <label><span>De :</span><input name="name" autocomplete="name" required maxlength="80" placeholder="votre nom"></label>
+          <label><span>Entreprise :</span><input name="company" autocomplete="organization" required maxlength="120" placeholder="le nom de votre entreprise"></label>
+          <label><span>Secteur :</span>
             <select name="sector">
-              <option value="">Choisir…</option>
+              <option value="">choisir…</option>
               <option>Matériaux de construction</option>
               <option>Carrière / granulats</option>
               <option>Quincaillerie</option>
+              <option>Élevage et alimentation animale</option>
               <option>Grossiste / distribution</option>
               <option>Boutique / commerce</option>
               <option>Autre</option>
             </select>
           </label>
-          <label>Ville et pays<input name="city" autocomplete="address-level2" maxlength="80" placeholder="Abidjan, Côte d'Ivoire"></label>
-          <label class="full">Numéro WhatsApp <small>avec l'indicatif du pays</small><input name="phone" type="tel" autocomplete="tel" required placeholder="+225 07 00 00 00 00"></label>
-          <label class="full">Ce que vous vendez, ce que vous attendez de Wakil <small>(facultatif)</small><textarea name="message" maxlength="1000"></textarea></label>
+          <label><span>Ville :</span><input name="city" autocomplete="address-level2" maxlength="80" placeholder="Abidjan, Côte d'Ivoire"></label>
+          <label><span>WhatsApp :</span><input name="phone" type="tel" autocomplete="tel" required placeholder="+225 07 00 00 00 00"></label>
+          <label><span>Message :</span><textarea name="message" maxlength="1000" placeholder="ce que vous vendez (facultatif)"></textarea></label>
           <label class="hp" aria-hidden="true">Site web<input name="website" tabindex="-1" autocomplete="off"></label>
-          <button class="btn btn-deep" type="submit">Envoyer ma demande <svg aria-hidden="true"><use href="#arrow"/></svg></button>
+          <div class="boxes"><span><i>✓</i>Prière de rappeler</span></div>
+          <button class="btn btn-ink" type="submit">Laisser le message</button>
           <p class="status" role="status" aria-live="polite"></p>
         </form>
         <div class="thanks" hidden tabindex="-1">
-          <h3>Merci, c'est bien reçu.</h3>
-          <p>Nous vous écrivons très vite sur WhatsApp. En attendant, posez vos questions à Wakil dans le chat.</p>
+          <div class="msg-head"><b>Message reçu</b><small>Pour l'équipe Wakil</small></div>
+          <p>Merci. Nous vous écrivons sur WhatsApp très bientôt pour préparer Wakil avec vous. En attendant, vous pouvez lui parler en bas de cette page.</p>
         </div>
       </div>
     </div>
@@ -449,32 +710,224 @@
 
 <footer>
   <div class="wrap">
-    <a class="brand" href="#" aria-label="Wakil, haut de page"><svg aria-hidden="true"><use href="#logo"/></svg><b>wakil</b></a>
-    <p><span class="ar" lang="ar" dir="rtl">وكيل</span> · le commercial qui agit en votre nom</p>
-    <p><a href="/app/" style="color:inherit">Espace client</a> · <a href="/confidentialite" style="color:inherit">Confidentialité</a> · © <span id="year">2026</span> Wakil</p>
+    <a class="brand" href="/" aria-label="Wakil, accueil"><svg aria-hidden="true" style="width:28px;height:28px"><use href="#logo"/></svg>wakil</a>
+    <nav aria-label="Liens">
+      <a href="/inscription">Inscription</a>
+      <a href="/app/">Se connecter</a>
+      <a href="/confidentialite">Confidentialité</a>
+      <span>© <span id="year">2026</span> Wakil</span>
+    </nav>
   </div>
 </footer>
 
-<script src="/wakil-chat.js" data-tenant="wakil" data-accent="#f4b23a" data-on-accent="#1b2066" data-position="right" data-title="Wakil" data-teaser="Une question sur Wakil ? Je vous réponds tout de suite." data-greeting="Bonjour 👋 Je suis Wakil, le commercial virtuel qui répond à vos clients sur WhatsApp et sur votre site. Que vendez-vous ? Je vous montre ce que je peux faire pour votre entreprise." defer></script>
+<script src="/wakil-chat.js" data-tenant="wakil" data-accent="#2338b5" data-on-accent="#ffffff" data-position="right" data-title="Wakil" data-teaser="off" data-greeting="Bonjour 👋 Je suis Wakil, le commercial virtuel qui répond à vos clients sur WhatsApp et sur votre site. Que vendez-vous ? Je vous montre ce que je peux faire pour votre entreprise." defer></script>
 <script>
+(() => {
   document.getElementById("year").textContent = new Date().getFullYear();
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const two = (n) => String(n).padStart(2, "0");
+  const fetchConfig = fetch("/chat/config?tenant=wakil").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+  const withChat = (fn, tries = 0) => {
+    document.documentElement.classList.add("chat-used");
+    return window.WakilChat ? fn(window.WakilChat) : tries < 50 && setTimeout(() => withChat(fn, tries + 1), 200);
+  };
 
-  // Compte à rebours jusqu'au lancement (12 décembre 2026, minuit à Abidjan).
-  const LAUNCH = Date.UTC(2026, 11, 12);
-  function tick() {
-    const left = Math.max(0, LAUNCH - Date.now());
-    const j = Math.floor(left / 864e5), h = Math.floor(left / 36e5) % 24, m = Math.floor(left / 6e4) % 60;
-    for (const [k, v] of Object.entries({ j, h, m })) document.querySelector(`[data-n="${k}"]`).textContent = v;
-    document.querySelectorAll(".j-count").forEach((el) => (el.textContent = left ? `· J-${j + (h || m ? 1 : 0)}` : "· C'est parti !"));
+  /* ---------- Le bon de commande s'écrit à la main, puis le tampon tombe ---------- */
+  const today = new Date();
+  document.getElementById("bon-date").textContent = `${two(today.getDate())}/${two(today.getMonth() + 1)}/${today.getFullYear()}`;
+  const zone = document.querySelector(".bon-zone");
+  const bon = zone.querySelector(".bon");
+  const fields = [...bon.querySelectorAll(".bon-main .val[data-w]"), ...bon.querySelectorAll(".souche .val[data-w]")];
+  let t = 0.9;
+  fields.forEach((el) => {
+    const dur = Math.min(0.95, Math.max(0.32, el.textContent.length * 0.055));
+    el.style.setProperty("--d", `${t.toFixed(2)}s`);
+    el.style.setProperty("--dur", `${dur.toFixed(2)}s`);
+    t += dur + 0.12;
+  });
+  const start = () => {
+    zone.classList.add("go");
+    bon.classList.add("writing");
+    setTimeout(() => zone.classList.add("stamped"), reduced ? 0 : (t + 0.25) * 1000);
+  };
+  // L'écriture commence quand le bon est à l'écran (sur téléphone, il est sous le titre).
+  const fontsReady = document.fonts?.ready || Promise.resolve();
+  new IntersectionObserver((entries, obs) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    obs.disconnect();
+    fontsReady.then(() => setTimeout(start, 150));
+  }, { threshold: 0.45 }).observe(bon);
+
+  /* ---------- « Présentez-vous. » : la voix de l'appareil, et ses mots écrits à la main ---------- */
+  const LINES = [
+    "Bonjour ! Je suis Wakil, votre futur commercial.",
+    "Je réponds à vos clients sur WhatsApp, même à minuit.",
+    "Je comprends leurs vocaux, je conseille le bon produit, et je calcule les quantités.",
+    "Quand un client est prêt, je prends sa commande, et vous la recevez sur votre téléphone.",
+    "Une réclamation, une négociation ? Je vous passe la main.",
+    "Alors, vous m'embauchez ? Posez-moi vos questions.",
+  ];
+  const pitch = document.querySelector(".pitch");
+  const caption = document.getElementById("caption");
+  const dots = pitch.querySelector(".dots");
+  const note = document.getElementById("cap-note");
+  const timerEl = document.getElementById("pitch-timer");
+  dots.innerHTML = LINES.map(() => "<i></i>").join("");
+  const setState = (s) => {
+    pitch.dataset.state = s;
+    pitch.querySelectorAll("[data-when]").forEach((el) => (el.hidden = !el.dataset.when.split(" ").includes(s)));
+  };
+  const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
+  let voices = [];
+  const loadVoices = () => { try { voices = synth ? synth.getVoices() : []; } catch { voices = []; } };
+  if (synth) { loadVoices(); synth.addEventListener?.("voiceschanged", loadVoices); }
+  function frenchVoice() {
+    const fr = voices.filter((v) => /^fr([-_]|$)/i.test(v.lang));
+    for (const re of [/Denise|Eloise|Vivienne|Henri|Remy/i, /Google/i, /Thomas|Amélie|Amelie|Audrey|Aurélie|Marie|Daniel/i]) {
+      const v = fr.find((x) => re.test(x.name) && /fr[-_]FR/i.test(x.lang)) || fr.find((x) => re.test(x.name));
+      if (v) return v;
+    }
+    return fr.find((x) => /fr[-_]FR/i.test(x.lang)) || fr[0] || null;
   }
-  tick(); setInterval(tick, 30000);
+  let run = 0, started = 0, tick = null, wordTimer = null, gotBoundary = false;
+  const timers = new Set();
+  const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
+  const clearAll = () => { timers.forEach(clearTimeout); timers.clear(); clearInterval(wordTimer); };
+  const duration = (text) => Math.max(1400, text.length * 68);
+  const mark = (upto) => caption.querySelectorAll("span").forEach((s, k) => (s.className = k < upto ? "done" : k === upto ? "now" : ""));
+  function showLine(i) {
+    const words = LINES[i].split(" ");
+    caption.innerHTML = words.map((w) => `<span>${esc(w)}</span>`).join(" ");
+    dots.querySelectorAll("i").forEach((d, k) => d.classList.toggle("on", k <= i));
+    clearInterval(wordTimer);
+    let k = 0;
+    mark(0);
+    wordTimer = setInterval(() => { if (gotBoundary || ++k >= words.length) return clearInterval(wordTimer); mark(k); }, duration(LINES[i]) / words.length);
+  }
+  const wordAt = (i, c) => LINES[i].slice(0, c).split(" ").length - 1;
+  function speak() {
+    const id = ++run;
+    clearAll();
+    try { synth?.cancel(); } catch {}
+    setState("talking");
+    note.hidden = true;
+    started = Date.now();
+    timerEl.textContent = "00:00";
+    clearInterval(tick);
+    tick = setInterval(() => { const s = Math.floor((Date.now() - started) / 1000); timerEl.textContent = `${two(Math.floor(s / 60))}:${two(s % 60)}`; }, 500);
+    showLine(0);
+    if (!synth) return silent(id, 0);
+    loadVoices();
+    const voice = frenchVoice();
+    if (!voice && voices.length) return silent(id, 0);
+    gotBoundary = false;
+    let began = false;
+    LINES.forEach((text, i) => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = voice?.lang || "fr-FR";
+      if (voice) u.voice = voice;
+      u.rate = 1;
+      u.onstart = () => { if (id === run) { began = true; showLine(i); } };
+      u.onboundary = (e) => { if (id === run && typeof e.charIndex === "number" && e.charIndex > 0) { gotBoundary = true; mark(wordAt(i, e.charIndex)); } };
+      u.onend = () => { if (id === run && i === LINES.length - 1) { mark(99); later(() => finish(id), 500); } };
+      u.onerror = (e) => { if (id !== run || e.error === "interrupted" || e.error === "canceled") return; try { synth.cancel(); } catch {} silent(id, i); };
+      synth.speak(u);
+    });
+    later(() => { if (id === run && !began) { try { synth.cancel(); } catch {} silent(id, 0); } }, 2600);
+  }
+  function silent(id, from) {
+    note.hidden = false;
+    const step = (i) => {
+      if (id !== run) return;
+      if (i >= LINES.length) return finish(id);
+      showLine(i);
+      later(() => { mark(99); later(() => step(i + 1), 450); }, duration(LINES[i]) + 200);
+    };
+    step(from);
+  }
+  function stop() { clearAll(); clearInterval(tick); setState("ended"); }
+  function finish(id) { if (id === run) stop(); }
+  function hangUp() { run++; try { synth?.cancel(); } catch {} stop(); }
+  const hangUpQuietly = () => { if (pitch.dataset.state === "talking") hangUp(); };
+  document.getElementById("pitch-start").addEventListener("click", speak);
+  document.getElementById("pitch-again").addEventListener("click", speak);
+  document.getElementById("pitch-stop").addEventListener("click", hangUp);
+  addEventListener("pagehide", () => { try { synth?.cancel(); } catch {} });
 
-  // Démo : les exemples ouvrent le chat et envoient la question.
-  const withChat = (fn) => (window.WakilChat ? fn(window.WakilChat) : setTimeout(() => withChat(fn), 200));
-  document.querySelectorAll(".try").forEach((b) => b.addEventListener("click", () => withChat((c) => c.send(b.dataset.q))));
-  document.getElementById("open-demo").addEventListener("click", () => withChat((c) => c.open()));
+  /* ---------- Questions d'entretien : elles ouvrent le chat de Wakil ---------- */
+  document.querySelectorAll(".ask").forEach((b) => b.addEventListener("click", () => { hangUpQuietly(); withChat((c) => c.send(b.dataset.q)); }));
+  document.getElementById("open-demo").addEventListener("click", () => { hangUpQuietly(); withChat((c) => c.open()); });
+  fetchConfig.then((c) => {
+    if (!c?.call || !navigator.mediaDevices?.getUserMedia) return;
+    const btn = document.getElementById("call-demo");
+    btn.hidden = false;
+    btn.addEventListener("click", () => { hangUpQuietly(); withChat((w) => (w.call ? w.call() : w.open())); });
+  });
 
-  // Formulaire « Essayer Wakil »
+  /* ---------- Pendant votre absence : le défilement fait passer la nuit ---------- */
+  const track = document.querySelector(".abs-track");
+  const section = document.querySelector(".absence");
+  const clock = document.getElementById("abs-clock");
+  const dayEl = document.getElementById("abs-day");
+  const nowEl = document.getElementById("abs-now");
+  const msgs = [...document.querySelectorAll(".msg")];
+  const pad = document.querySelector(".pad");
+  const MOMENTS = [
+    [0, "Une question de prix", "Wakil répond avec le prix de votre catalogue. Il ne vous dérange pas."],
+    [0.2, "Une commande", "Récapitulatif, confirmation, référence : la commande est notée et vous est envoyée."],
+    [0.44, "Un vocal en pleine nuit", "Il écoute, comprend, et envoie la photo du produit."],
+    [0.66, "Une négociation", "30 tonnes, un prix à discuter : il vous laisse un mot pour rappeler la cliente."],
+    [0.88, "Vous arrivez.", "Tous ses mots sont sur le bureau : une commande à livrer, une cliente à rappeler. Le reste est fait."],
+  ];
+  const ANCHORS = [[0, 1307], [0.2, 1390], [0.44, 1524], [0.66, 1792], [0.88, 1890], [1, 1890]];
+  document.documentElement.classList.add("js-abs");
+  let lastMoment = -1, frame = 0;
+  const minutesAt = (p) => {
+    for (let i = 1; i < ANCHORS.length; i++) {
+      const [p0, m0] = ANCHORS[i - 1], [p1, m1] = ANCHORS[i];
+      if (p <= p1) return Math.round(m0 + ((p - p0) / (p1 - p0 || 1)) * (m1 - m0));
+    }
+    return ANCHORS[ANCHORS.length - 1][1];
+  };
+  const smooth = (a, b, x) => { const v = Math.min(1, Math.max(0, (x - a) / (b - a))); return v * v * (3 - 2 * v); };
+  function renderNight() {
+    frame = 0;
+    const head = document.querySelector(".top").offsetHeight;
+    const r = track.getBoundingClientRect();
+    const span = r.height - (innerHeight - head);
+    const p = Math.min(1, Math.max(0, (head - r.top) / (span || 1)));
+    const m = minutesAt(p);
+    clock.textContent = `${two(Math.floor(m / 60) % 24)}:${two(m % 60)}`;
+    dayEl.textContent = m < 1440 ? "Jeudi soir" : m < 1800 ? "Dans la nuit de jeudi à vendredi" : "Vendredi matin";
+    section.style.setProperty("--dawn", smooth(0.68, 0.95, p).toFixed(3));
+    msgs.forEach((n) => n.classList.toggle("on", p >= Number(n.dataset.at)));
+    pad.classList.toggle("spread", p >= 0.9);
+    let i = 0;
+    MOMENTS.forEach(([at], k) => { if (p >= at) i = k; });
+    if (i !== lastMoment) {
+      lastMoment = i;
+      nowEl.innerHTML = `<b>${esc(MOMENTS[i][1])}</b><p>${esc(MOMENTS[i][2])}</p>`;
+    }
+  }
+  const onScroll = () => { if (!frame) frame = requestAnimationFrame(renderNight); };
+  addEventListener("scroll", onScroll, { passive: true });
+  addEventListener("resize", onScroll);
+  renderNight();
+  // Pendant la nuit, le bouton flottant du chat se retire : il cacherait le bloc de messages.
+  new IntersectionObserver(([e]) => document.documentElement.classList.toggle("stage", e.isIntersecting), { threshold: 0.3 }).observe(document.querySelector(".abs-sticky"));
+
+  /* ---------- Compte à rebours de la prise de poste (12 décembre 2026, minuit à Abidjan) ---------- */
+  const LAUNCH = Date.UTC(2026, 11, 12);
+  function countdown() {
+    const left = Math.max(0, LAUNCH - Date.now());
+    const j = Math.floor(left / 864e5), h = Math.floor(left / 36e5) % 24, mn = Math.floor(left / 6e4) % 60;
+    for (const [k, v] of Object.entries({ j, h, m: mn })) document.querySelector(`[data-n="${k}"]`).textContent = v;
+  }
+  countdown();
+  setInterval(countdown, 30000);
+
+  /* ---------- Le message pour l'équipe (formulaire « être rappelé ») ---------- */
   const form = document.getElementById("lead"), status = form.querySelector(".status"), button = form.querySelector("button");
   const ERRORS = {
     missing_fields: "Indiquez votre nom et le nom de votre entreprise.",
@@ -508,6 +961,7 @@
     status.className = "status err";
     status.textContent = ERRORS[code] || "L'envoi n'a pas fonctionné. Réessayez dans un instant.";
   }
+})();
 </script>
 </body>
 </html>

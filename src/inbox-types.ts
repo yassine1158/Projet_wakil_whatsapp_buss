@@ -55,3 +55,24 @@ export interface Overview {
   ordersThisWeek: number;
   newLeads: number;
 }
+
+/** Un message vu par Wakil Brain en mode ombre. */
+export interface BrainSampleRow {
+  id: number;
+  tenant: string;
+  at: number;
+  context: string;
+  text: string;
+  predicted: string;
+  confidence: number;
+  teacher: string;
+}
+
+/** Accord entre Wakil Brain et Claude. */
+export interface BrainStats {
+  total: number;
+  agreed: number;
+  /** Par action de Claude : combien de fois, et combien de fois Wakil Brain a dit pareil. */
+  byTeacher: Record<string, { total: number; agreed: number }>;
+  recent: BrainSampleRow[];
+}
