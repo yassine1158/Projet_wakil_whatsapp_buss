@@ -3,500 +3,628 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Wakil · Votre commercial IA sur WhatsApp</title>
-<meta name="description" content="Wakil répond à vos clients sur WhatsApp et sur votre site, de jour comme de nuit : il comprend leurs vocaux, conseille le bon produit et prend les commandes. Pour les commerces et PME d'Afrique.">
-<meta name="theme-color" content="#11154a">
-<meta property="og:title" content="Allô ? Ici Wakil.">
-<meta property="og:description" content="Le commercial qui répond à vos clients sur WhatsApp, même à minuit. Ce site vous appelle : décrochez.">
+<title>Wakil · Embauchez un commercial qui ne dort jamais</title>
+<meta name="description" content="Wakil répond à vos clients sur WhatsApp et sur votre site, de jour comme de nuit : il comprend leurs vocaux, conseille le bon produit et remplit votre carnet de commandes. 14 jours d'essai gratuits.">
+<meta name="theme-color" content="#2338b5">
+<meta property="og:title" content="Embauchez un commercial qui ne dort jamais.">
+<meta property="og:description" content="Wakil répond à vos clients sur WhatsApp, jour et nuit, et remplit votre carnet de commandes.">
 <meta property="og:image" content="/img/wakil-lancement.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 72'%3E%3Cpath d='M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z' fill='%23F4B23A'/%3E%3Cpath d='M17 20l8 22 11-15 11 15 8-22' fill='none' stroke='%231B2066' stroke-width='6.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script>document.documentElement.classList.add("js");</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Kufi+Arabic:wght@700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Kalam:wght@400;700&family=Noto+Kufi+Arabic:wght@700&display=swap">
 <style>
   /*
-   * Le site qui vous appelle. Le haut de page est un appel entrant : décrocher fait parler Wakil
-   * (voix de l'appareil, sous-titres géants mot à mot). Plus bas, une nuit passe au défilement
-   * sur l'écran verrouillé d'un patron. Le reste reste calme : le spectacle est en haut.
+   * Embauchez Wakil. Le site est le dossier d'embauche d'un commercial, dessiné avec les papiers
+   * du comptoir : le carnet de bons à souches (encre carbone), le bloc rose « pendant votre absence »,
+   * le tampon rouge. Archivo pour l'imprimé (largeur variable), Kalam pour ce qui est écrit à la main.
    */
   :root {
-    --night: #11154a; --night-2: #1a1f5e; --navy: #1b2066;
-    --gold: #f4b23a; --gold-2: #ffd27a; --gold-ink: #8a5800;
-    --paper: #ffffff; --mist: #eef0f8;
-    --ink: #161a3d; --ink-2: #4d5275; --line: rgba(22, 26, 61, .12); --line-night: rgba(236, 238, 250, .14);
-    --moon: #eceefa; --moon-2: #aeb3dc;
-    --go: #1fb35b; --stop: #e5484d;
-    --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-    --body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-    --wrap: 1180px; --head: 68px;
+    --desk: #e6e9f4;      /* le bureau, bleu-gris pâle */
+    --sheet: #fffefa;     /* le feuillet original */
+    --pink: #fad6dd;      /* le bloc « message téléphonique » */
+    --yellow: #fbeda6;    /* le 3e feuillet */
+    --carbon: #2338b5;    /* l'encre carbone */
+    --carbon-2: #5565c8;
+    --stamp: #d1372b;     /* le tampon */
+    --ink: #1a1d38;
+    --ink-2: #555975;
+    --rule: rgba(35, 56, 181, .2);
+    --night: #121540;
+    --gold: #f4b23a;
+    --print: "Archivo", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+    --hand: "Kalam", "Segoe Print", "Bradley Hand", cursive;
+    --wrap: 1180px; --head: 66px;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html { scroll-behavior: smooth; scroll-padding-top: var(--head); }
-  body { margin: 0; font-family: var(--body); font-size: 17px; line-height: 1.6; color: var(--ink); background: var(--paper); -webkit-font-smoothing: antialiased; }
+  body { margin: 0; font-family: var(--print); font-size: 17px; line-height: 1.6; color: var(--ink); background: var(--desk); -webkit-font-smoothing: antialiased; }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .55;
+                 background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1 0 0 0 0 .13 0 0 0 0 .35 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  header, main, footer { position: relative; z-index: 1; }
   img, svg { display: block; max-width: 100%; }
   a { color: inherit; }
-  h1, h2, h3 { font-family: var(--display); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
-  h2 { font-size: clamp(32px, 4.6vw, 54px); line-height: 1.04; font-weight: 800; }
-  h3 { font-size: 20px; line-height: 1.25; font-weight: 700; }
+  h1, h2, h3 { margin: 0; color: var(--carbon); text-wrap: balance; }
+  h2 { font: 800 clamp(34px, 5vw, 60px)/1 var(--print); font-stretch: 112%; letter-spacing: -.02em; }
+  h3 { font: 700 20px/1.25 var(--print); }
   p { margin: 0; }
   .wrap { max-width: var(--wrap); margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); }
-  .lead { font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); max-width: 60ch; }
-  .night .lead { color: var(--moon-2); }
-  section { padding-block: clamp(72px, 10vw, 128px); }
-  .night { background: var(--night); color: var(--moon); }
-  .mist { background: var(--mist); }
-  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 8px; }
+  .lead { font-size: clamp(17px, 1.6vw, 20px); color: var(--ink-2); max-width: 58ch; }
+  section { padding-block: clamp(72px, 10vw, 124px); }
+  :focus-visible { outline: 3px solid var(--stamp); outline-offset: 3px; border-radius: 6px; }
+  .hand { font-family: var(--hand); color: var(--carbon); }
 
-  /* Boutons */
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 0 26px; border-radius: 999px;
-         font: 700 16px/1 var(--body); text-decoration: none; border: 2px solid transparent; cursor: pointer; transition: background .15s, border-color .15s; }
+  /* Boutons : à l'encre carbone, ou au tampon */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 54px; padding: 0 24px; border-radius: 12px;
+         font: 700 16px/1 var(--print); font-stretch: 105%; text-decoration: none; border: 2px solid var(--carbon); cursor: pointer; transition: transform .12s, background .15s, color .15s; }
   .btn svg { width: 19px; height: 19px; flex: none; }
-  .btn-gold { background: var(--gold); color: var(--navy); }
-  .btn-gold:hover { background: var(--gold-2); }
-  .btn-line { border-color: var(--line-night); color: var(--moon); background: transparent; }
-  .btn-line:hover { border-color: var(--moon); }
-  .btn-navy { background: var(--navy); color: #fff; }
-  .btn-navy:hover { background: #262c86; }
+  .btn:active { transform: translateY(1px); }
+  .btn-ink { background: var(--carbon); color: #fff; box-shadow: 0 3px 0 #16248a; }
+  .btn-ink:hover { background: #2b42c9; }
+  .btn-paper { background: var(--sheet); color: var(--carbon); }
+  .btn-paper:hover { background: #fff; }
+  .btn-light { background: transparent; color: #fff; border-color: rgba(255, 255, 255, .45); }
+  .btn-light:hover { border-color: #fff; }
 
-  /* En-tête */
-  .top { position: sticky; top: 0; z-index: 50; background: rgba(17, 21, 74, .9); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--line-night); }
+  /* En-tête : la bande perforée du haut du carnet */
+  .top { position: sticky; top: 0; z-index: 50; background: rgba(255, 254, 250, .94); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .top::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 6px;
+                background: radial-gradient(circle at 6px 0, transparent 3px, rgba(255, 254, 250, .94) 3.5px) 0 0 / 12px 6px repeat-x; }
   .top .wrap { display: flex; align-items: center; gap: 24px; min-height: var(--head); }
-  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: #fff; font: 800 25px/1 var(--display); letter-spacing: -.03em; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--carbon); font: 900 26px/1 var(--print); font-stretch: 115%; letter-spacing: -.03em; }
   .brand svg { width: 34px; height: 34px; }
-  .nav { display: none; gap: 26px; margin-left: auto; }
-  .nav a, .login { color: var(--moon-2); text-decoration: none; font-weight: 500; font-size: 15.5px; }
-  .nav a:hover, .login:hover { color: #fff; }
+  .nav { display: none; gap: 24px; margin-left: auto; }
+  .nav a, .login { color: var(--ink-2); text-decoration: none; font-weight: 600; font-size: 15.5px; }
+  .nav a:hover, .login:hover { color: var(--carbon); }
   .login { display: none; }
-  .top .btn { min-height: 44px; padding: 0 18px; font-size: 15px; margin-left: auto; }
-  @media (min-width: 960px) { .nav { display: flex; } .login { display: inline; } .top .btn { margin-left: 0; } }
+  .top .btn { min-height: 42px; padding: 0 16px; font-size: 15px; margin-left: auto; }
+  @media (min-width: 1000px) { .nav { display: flex; } .login { display: inline; } .top .btn { margin-left: 0; } }
 
-  /* ---------- Haut de page : l'appel entrant ---------- */
-  .hero { position: relative; overflow: hidden; padding-block: clamp(36px, 6vw, 84px) clamp(56px, 8vw, 104px);
-          background: radial-gradient(55% 60% at 78% 42%, rgba(244, 178, 58, .17), transparent 70%), var(--night); }
-  .hero::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
-                 background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  .hero .wrap { position: relative; z-index: 1; display: grid; gap: 32px; align-items: center; }
-  @media (min-width: 960px) { .hero .wrap { grid-template-columns: minmax(0, 1.25fr) minmax(330px, .75fr); gap: 64px; } }
+  /* ---------- Les papiers ---------- */
+  .paper { background: var(--sheet); border-radius: 4px; position: relative;
+           box-shadow: 0 1px 1px rgba(26, 29, 56, .06), 0 14px 30px -18px rgba(26, 29, 56, .45); }
+  .row { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: baseline; gap: 10px; border-bottom: 1.5px solid var(--rule); padding: 8px 0 5px; }
+  .lab { font: 600 13.5px/1.3 var(--print); font-stretch: 78%; color: var(--carbon-2); white-space: nowrap; }
+  .val { font: 400 23px/1.15 var(--hand); color: var(--carbon); min-height: 1.15em; }
+  .num { font: 700 15px/1 var(--print); font-stretch: 85%; color: var(--stamp); font-variant-numeric: tabular-nums; letter-spacing: .04em; white-space: nowrap; }
+  .souche .num { font-size: 12.5px; letter-spacing: 0; }
 
-  .say { display: grid; align-content: center; min-height: clamp(250px, 36vw, 480px); }
-  .hello { font: 800 clamp(84px, 14vw, 200px)/.84 var(--display); letter-spacing: -.055em; color: var(--gold); }
-  .say h1, .say .big { font: 800 clamp(30px, 4.4vw, 58px)/1.04 var(--display); letter-spacing: -.025em; color: #fff; margin-top: 16px; }
-  .say .lead { margin-top: 18px; }
-  .say .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
-  .caption { font: 800 clamp(30px, 4.7vw, 62px)/1.1 var(--display); letter-spacing: -.025em; color: rgba(236, 238, 250, .26); text-wrap: balance; min-height: 3.3em; }
-  .caption span { transition: color .12s; }
-  .caption .done { color: #fff; }
-  .caption .now { color: var(--gold); }
-  .cap-dots { display: flex; gap: 8px; margin-top: 26px; }
-  .cap-dots i { width: 30px; height: 4px; border-radius: 2px; background: rgba(236, 238, 250, .18); transition: background .3s; }
-  .cap-dots i.on { background: var(--gold); }
-  .cap-note { margin-top: 16px; color: var(--moon-2); font-size: 15px; }
-  .transcript { margin-top: 22px; color: var(--moon-2); max-width: 60ch; }
-  .transcript summary { cursor: pointer; color: var(--moon); font-weight: 700; }
-  .transcript p { margin-top: 10px; }
+  /* Le tampon */
+  .stamp { color: var(--stamp); position: absolute; pointer-events: none; mix-blend-mode: multiply; }
+  .stamp text { font-family: var(--print); font-stretch: 90%; }
 
-  .call { justify-self: center; width: min(380px, 100%); border-radius: 42px; padding: 26px 22px 24px; text-align: center; display: grid; justify-items: center;
-          background: linear-gradient(180deg, rgba(255, 255, 255, .09), rgba(255, 255, 255, .03)); border: 1px solid rgba(255, 255, 255, .12);
-          box-shadow: 0 50px 90px -45px rgba(0, 0, 0, .85); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
-  .call-status { color: var(--moon-2); font-size: 15px; font-variant-numeric: tabular-nums; min-height: 1.6em; }
-  .face { position: relative; width: 132px; height: 132px; margin: 30px 0 18px; display: grid; place-items: center; }
-  .disc { position: relative; z-index: 1; width: 112px; height: 112px; border-radius: 50%; background: var(--navy); display: grid; place-items: center; box-shadow: 0 0 0 6px rgba(244, 178, 58, .2); }
-  .disc svg { width: 62px; height: 62px; }
-  .ring { position: absolute; inset: 10px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; }
-  .hero[data-state="ringing"] .ring { animation: ring 2.4s cubic-bezier(.2, .6, .3, 1) infinite; }
-  .hero[data-state="ringing"] .ring.r2 { animation-delay: .8s; }
-  .hero[data-state="ringing"] .ring.r3 { animation-delay: 1.6s; }
-  @keyframes ring { 0% { transform: scale(.85); opacity: .75; } 100% { transform: scale(2.15); opacity: 0; } }
-  .call-name { font: 800 30px/1.1 var(--display); color: #fff; }
-  .call-sub { color: var(--moon-2); font-size: 15px; margin-top: 2px; }
-  .bars { display: flex; justify-content: center; align-items: center; gap: 4px; height: 46px; margin-top: 16px; }
-  .bars i { width: 4px; height: 6px; border-radius: 2px; background: var(--gold); }
-  .hero[data-speaking] .bars i { animation: bar .9s ease-in-out infinite; }
-  .bars i:nth-child(3n) { animation-duration: .7s; } .bars i:nth-child(4n+1) { animation-duration: 1.1s; } .bars i:nth-child(5n+2) { animation-delay: .2s; } .bars i:nth-child(2n) { animation-delay: .35s; }
-  @keyframes bar { 0%, 100% { height: 6px; } 50% { height: 38px; } }
-  .actions { display: flex; justify-content: center; gap: 48px; margin-top: 28px; }
-  .round { display: grid; justify-items: center; gap: 9px; background: none; border: 0; padding: 0; color: var(--moon); font: 500 14.5px/1.2 var(--body); cursor: pointer; text-decoration: none; }
-  .round .ic { width: 70px; height: 70px; border-radius: 50%; display: grid; place-items: center; transition: transform .15s; }
-  .round .ic svg { width: 28px; height: 28px; }
-  .round:hover .ic { transform: scale(1.06); }
-  .round:active .ic { transform: scale(.95); }
-  .round.go .ic { background: var(--go); color: #fff; }
-  .hero[data-state="ringing"] .round.go .ic { animation: nudge 1.6s ease-in-out infinite; }
-  @keyframes nudge { 0%, 100% { box-shadow: 0 0 0 0 rgba(31, 179, 91, .55); } 60% { box-shadow: 0 0 0 14px rgba(31, 179, 91, 0); } }
-  .round.soft .ic { background: rgba(255, 255, 255, .14); color: #fff; }
-  .round.stop .ic { background: var(--stop); color: #fff; }
-  .round.gold .ic { background: var(--gold); color: var(--navy); }
+  /* ---------- Haut de page ---------- */
+  .hero { padding-block: clamp(40px, 6vw, 88px) clamp(64px, 8vw, 110px); }
+  .hero .wrap { display: grid; gap: 52px; align-items: center; }
+  @media (min-width: 1000px) { .hero .wrap { grid-template-columns: minmax(0, 1.18fr) minmax(0, .82fr); gap: 48px; } }
+  .hero h1 { font: 900 clamp(40px, 5vw, 72px)/.96 var(--print); font-stretch: 110%; letter-spacing: -.035em; }
+  .hero .lead { margin-top: 24px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .fine { margin-top: 16px; color: var(--ink-2); font-size: 15px; }
+
+  /* Le bon de commande qui se remplit tout seul */
+  .bon-zone { position: relative; padding: 88px 0 10px; justify-self: center; width: min(560px, 100%); }
+  .bon { display: grid; grid-template-columns: 76px minmax(0, 1fr); transform: rotate(-1.2deg); }
+  .bon::before { content: ""; position: absolute; top: 0; bottom: 0; left: 72px; width: 9px;
+                 background: radial-gradient(circle, var(--desk) 3.2px, transparent 3.7px) 0 4px / 9px 15px repeat-y; }
+  .souche { border-right: 2px dashed var(--rule); padding: 18px 10px; display: grid; align-content: start; gap: 10px; text-align: center; }
+  .souche .val { font-size: 17px; }
+  .bon-main { padding: 18px 22px 24px; }
+  .bon-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 2.5px solid var(--carbon); padding-bottom: 8px; }
+  .bon-head b { font: 800 22px/1 var(--print); font-stretch: 115%; color: var(--carbon); letter-spacing: -.01em; }
+  .bon-shop { font: 600 13px/1.3 var(--print); font-stretch: 85%; color: var(--ink-2); margin-top: 8px; }
+  .lines { margin-top: 10px; }
+  .lines .grid { display: grid; grid-template-columns: minmax(0, 1fr) 70px; gap: 10px; border-bottom: 1.5px solid var(--rule); padding: 7px 0 4px; align-items: baseline; }
+  .lines .grid.th { border-bottom: 2px solid var(--carbon-2); }
+  .lines .grid.th span { font: 600 13px/1.3 var(--print); font-stretch: 78%; color: var(--carbon-2); }
+  .sign { display: flex; justify-content: flex-end; align-items: baseline; gap: 10px; margin-top: 14px; }
+  .sign .val { font-weight: 700; font-size: 30px; transform: rotate(-4deg); }
+  .bon-zone .stamp { left: 28%; bottom: 1%; width: 196px; transform: rotate(-9deg); }
+  .voice { position: absolute; top: 0; left: 8%; z-index: 2; width: min(300px, 74%); transform: rotate(2.2deg); background: #fff; border-radius: 12px 12px 12px 3px;
+           padding: 10px 40px 10px 12px; box-shadow: 0 10px 24px -14px rgba(26, 29, 56, .55); display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px 10px; align-items: center; }
+  .voice .play { width: 26px; height: 26px; color: #54656f; }
+  .voice .wave { display: flex; align-items: center; gap: 2px; height: 22px; }
+  .voice .wave i { width: 3px; border-radius: 2px; background: #8696a0; }
+  .voice q { grid-column: 1 / -1; font: 400 15px/1.35 var(--print); color: #3b4a54; font-style: italic; quotes: "« " " »"; }
+  .clip { position: absolute; z-index: 3; top: 48px; left: calc(8% + min(300px, 74%) - 31px); width: 22px; height: 58px; color: #8b93a8; transform: rotate(8deg); }
+
+  /* L'écriture à la main, et le coup de tampon (une seule fois, au chargement) */
+  .js .bon .val[data-w] { clip-path: inset(-10% 100% -10% 0); }
+  .js .bon.writing .val[data-w] { animation: write var(--dur, .7s) linear var(--d, 0s) forwards; }
+  @keyframes write { to { clip-path: inset(-10% -2% -10% 0); } }
+  .js .bon-zone .voice { opacity: 0; transform: translateY(-10px) rotate(2.2deg); }
+  .js .bon-zone.go .voice { opacity: 1; transform: rotate(2.2deg); transition: opacity .5s, transform .5s; }
+  .js .bon-zone .stamp { opacity: 0; }
+  .js .bon-zone.stamped .stamp { animation: thump .38s cubic-bezier(.3, 1.6, .5, 1) forwards; }
+  @keyframes thump { 0% { opacity: 0; transform: scale(1.9) rotate(-16deg); } 65% { opacity: 1; transform: scale(.94) rotate(-8deg); } 100% { opacity: .92; transform: scale(1) rotate(-9deg); } }
+
+  /* ---------- La fiche de poste ---------- */
+  .poste .wrap { display: grid; gap: 40px; }
+  @media (min-width: 1000px) { .poste .wrap { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 64px; align-items: start; } }
+  .fiche { padding: 26px 26px 30px; transform: rotate(.6deg); }
+  .fiche-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-bottom: 2.5px solid var(--carbon); padding-bottom: 10px; margin-bottom: 6px; }
+  .fiche-head b { font: 800 24px/1 var(--print); font-stretch: 115%; color: var(--carbon); }
+  .fiche .cols { display: grid; gap: 0 28px; }
+  @media (min-width: 640px) { .fiche .cols { grid-template-columns: 1fr 1fr; } }
+  .tasks { margin-top: 22px; display: grid; gap: 20px; }
+  @media (min-width: 640px) { .tasks { grid-template-columns: 1fr 1fr; } }
+  .tasks h3 { font: 700 15px/1.3 var(--print); font-stretch: 85%; color: var(--carbon-2); margin-bottom: 8px; }
+  .tasks ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+  .tasks li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; font-size: 16px; line-height: 1.4; }
+  .tick { font: 700 22px/1 var(--hand); color: var(--carbon); }
+  .never li { color: var(--ink-2); }
+  .never .tick { color: var(--stamp); }
+  .new-tag { display: inline-block; margin-left: 6px; padding: 0 8px; border: 2px solid var(--stamp); border-radius: 6px; color: var(--stamp); font: 800 12px/1.6 var(--print); transform: rotate(-3deg); }
+  .ar { margin-top: 22px; display: flex; align-items: center; gap: 14px; color: var(--ink-2); font-size: 15.5px; }
+  .ar span { font: 700 34px/1 "Noto Kufi Arabic", serif; color: var(--carbon); }
+
+  /* ---------- Pendant votre absence : la nuit passe au défilement ---------- */
+  .absence { background: var(--night); color: #e7e9f8; padding-bottom: 0; position: relative; overflow: clip; }
+  .absence h2 { color: #fff; }
+  .absence .lead { color: #b6bae0; margin-top: 16px; }
+  .glow { position: absolute; inset: 0; pointer-events: none; opacity: var(--dawn, 0);
+          background: radial-gradient(110% 60% at 50% 110%, rgba(255, 168, 96, .55), rgba(255, 168, 96, 0) 62%), linear-gradient(180deg, rgba(38, 50, 120, 0), rgba(83, 74, 140, .5)); }
+  .abs-track { position: relative; height: 320vh; }
+  .abs-sticky { position: sticky; top: var(--head); height: calc(100vh - var(--head)); height: calc(100svh - var(--head)); display: grid; align-items: center; overflow: hidden; }
+  .abs-grid { display: grid; gap: 18px; justify-items: center; text-align: center; }
+  @media (min-width: 1000px) { .abs-grid { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 64px; text-align: left; justify-items: stretch; align-items: center; } }
+  .abs-clock { font: 900 clamp(64px, 11vw, 150px)/.9 var(--print); font-stretch: 118%; letter-spacing: -.04em; color: #fff; font-variant-numeric: tabular-nums; }
+  .abs-day { color: #b6bae0; font-size: 16px; margin-top: 8px; }
+  .abs-now { margin-top: 18px; min-height: 5.6em; max-width: 40ch; }
+  .abs-now b { display: block; font: 700 21px/1.3 var(--print); color: #fff; }
+  .abs-now p { color: #b6bae0; margin-top: 4px; }
+  .pad { position: relative; width: min(420px, 90vw); height: min(390px, calc(100svh - var(--head) - 290px)); justify-self: center; }
+  @media (min-width: 1000px) { .pad { height: 420px; } }
+  .pad::before { content: ""; position: absolute; inset: 14px -6px -10px 6px; background: #f3c3cd; border-radius: 4px; transform: rotate(2deg); box-shadow: 0 20px 40px -20px rgba(0, 0, 0, .6); }
+  .msg { position: absolute; inset: 0; background: var(--pink); color: var(--ink); border-radius: 4px; padding: 16px 18px 18px; text-align: left; overflow: hidden;
+         box-shadow: 0 1px 1px rgba(0, 0, 0, .08), 0 18px 34px -18px rgba(0, 0, 0, .55); transform: rotate(var(--r, 0deg)); }
+  .js-abs .msg { opacity: 0; transform: translate(40px, -30px) rotate(calc(var(--r, 0deg) + 8deg)); transition: opacity .35s ease, transform .45s cubic-bezier(.2, .9, .3, 1.1); }
+  .js-abs .msg.on { opacity: 1; transform: rotate(var(--r, 0deg)); }
+  .pad::before { transition: opacity .5s; }
+  .pad.spread::before { opacity: 0; }
+  .js-abs .pad.spread .msg.on { transform: translate(var(--sx), var(--sy)) rotate(var(--sr)) scale(.56); transition: transform .7s cubic-bezier(.2, .8, .2, 1); }
+  .msg-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 2px solid rgba(26, 29, 56, .35); padding-bottom: 6px; }
+  .msg-head b { font: 800 19px/1.1 var(--print); font-stretch: 112%; color: #8e1f2f; }
+  .msg-head small { font: 600 12.5px/1.2 var(--print); font-stretch: 82%; color: #8e1f2f; }
+  .msg .row { border-bottom-color: rgba(142, 31, 47, .22); }
+  .msg .lab { color: #8e1f2f; }
+  .msg .val { font-size: 21px; }
+  .boxes { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 9px 0 4px; border-bottom: 1.5px solid rgba(142, 31, 47, .22); }
+  .boxes span { display: inline-flex; align-items: center; gap: 6px; font: 600 13.5px/1.2 var(--print); font-stretch: 82%; color: #8e1f2f; }
+  .boxes i { width: 17px; height: 17px; border: 1.8px solid #8e1f2f; border-radius: 3px; display: grid; place-items: center; font: 700 20px/1 var(--hand); color: var(--carbon); font-style: normal; }
+  .msg-text { font: 400 20px/1.3 var(--hand); color: var(--carbon); margin-top: 8px; }
+  .msg .by { position: absolute; right: 18px; bottom: 12px; font: 700 22px/1 var(--hand); color: var(--carbon); transform: rotate(-4deg); }
+  .msg .stamp { right: 16px; top: 60%; width: 160px; transform: rotate(-11deg); }
+
+  /* ---------- L'entretien ---------- */
+  .interview .wrap { display: grid; gap: 34px; }
+  .interview .papers { display: grid; gap: 28px; align-items: start; }
+  @media (min-width: 1000px) { .interview .papers { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; } }
+  .pitch { background: var(--yellow); padding: 24px 24px 26px; transform: rotate(-.8deg); }
+  .pitch-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 2px solid rgba(35, 56, 181, .35); padding-bottom: 8px; }
+  .pitch-head b { font: 800 22px/1.1 var(--print); font-stretch: 112%; color: var(--carbon); }
+  .pitch-head small { color: var(--carbon-2); font: 600 14px/1 var(--print); font-variant-numeric: tabular-nums; }
+  .pitch-body { min-height: 230px; display: grid; align-content: center; padding: 18px 0 8px; }
+  .pitch-idle p { color: var(--ink-2); margin-top: 6px; }
+  .pitch-idle .q { font: 400 clamp(28px, 3.6vw, 40px)/1.15 var(--hand); color: var(--carbon); }
+  .caption { font: 400 clamp(26px, 3.4vw, 38px)/1.25 var(--hand); color: rgba(35, 56, 181, .3); min-height: 3.75em; }
+  .caption .done { color: var(--carbon); }
+  .caption .now { color: var(--stamp); }
+  .dots { display: flex; gap: 6px; margin-top: 12px; }
+  .dots i { width: 26px; height: 4px; border-radius: 2px; background: rgba(35, 56, 181, .2); }
+  .dots i.on { background: var(--carbon); }
+  .cap-note { margin-top: 10px; color: var(--ink-2); font-size: 14.5px; }
+  .pitch-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; }
+  .roundbtn { display: inline-flex; align-items: center; gap: 12px; background: none; border: 0; padding: 0; font: 700 16px/1.2 var(--print); color: var(--carbon); cursor: pointer; }
+  .roundbtn .ic { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; color: #fff; transition: transform .12s; }
+  .roundbtn:hover .ic { transform: scale(1.06); }
+  .roundbtn .ic svg { width: 24px; height: 24px; }
+  .go .ic { background: #1fb35b; box-shadow: 0 0 0 6px rgba(31, 179, 91, .18); }
+  .stop .ic { background: var(--stamp); }
   .down { transform: rotate(135deg); }
-  .sound { margin-top: 20px; color: var(--moon-2); font-size: 14px; display: inline-flex; gap: 8px; align-items: center; }
-  .sound svg { width: 18px; height: 18px; }
-  .mobile-lead { display: none; }
-  @media (max-width: 959px) {
-    .hero { padding-block: 22px 56px; }
-    .hero .wrap { gap: 20px; }
-    .say { min-height: 0; }
-    .hello { font-size: clamp(60px, 18vw, 96px); }
-    .say h1, .say .big { font-size: clamp(26px, 7vw, 34px); margin-top: 10px; }
-    .say [data-when="ringing"] .lead { display: none; }
-    .mobile-lead { display: block; text-align: center; color: var(--moon-2); font-size: 15.5px; max-width: 34ch; justify-self: center; }
-    .caption { font-size: clamp(26px, 7.6vw, 36px); min-height: 3.4em; }
-    .cap-dots { margin-top: 16px; }
-    .call { padding: 18px; border-radius: 34px; }
-    .face { width: 100px; height: 100px; margin: 12px 0 10px; }
-    .disc { width: 84px; height: 84px; }
-    .disc svg { width: 46px; height: 46px; }
-    .call-name { font-size: 26px; }
-    .hero[data-state="talking"] .call-sub { display: none; }
-    .bars { height: 32px; margin-top: 10px; }
-    .actions { margin-top: 16px; gap: 40px; }
-    .round .ic { width: 64px; height: 64px; }
-    .sound { margin-top: 12px; }
-  }
+  .quiz { padding: 24px 24px 26px; transform: rotate(.7deg); }
+  .quiz-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 2.5px solid var(--carbon); padding-bottom: 8px; }
+  .quiz-head b { font: 800 22px/1.1 var(--print); font-stretch: 112%; color: var(--carbon); }
+  .quiz ol { list-style: none; margin: 8px 0 0; padding: 0; counter-reset: q; }
+  .quiz li { border-bottom: 1.5px solid var(--rule); }
+  .ask { width: 100%; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; text-align: left; background: none; border: 0; padding: 13px 0; cursor: pointer; color: var(--ink); font: 500 17px/1.4 var(--print); }
+  .ask::before { counter-increment: q; content: counter(q) "."; font: 700 17px/1.4 var(--print); color: var(--carbon-2); }
+  .ask:hover { color: var(--carbon); }
+  .ask:hover span { text-decoration: underline; text-decoration-color: var(--stamp); text-underline-offset: 4px; }
+  .quiz .cta { margin-top: 20px; }
 
-  /* ---------- Une nuit sur votre téléphone : le défilement fait passer la nuit ---------- */
-  .lapse { padding-bottom: 0; }
-  .lapse-intro .lead { margin-top: 16px; }
-  .lapse-track { position: relative; height: 330vh; }
-  .lapse-sticky { position: sticky; top: var(--head); height: calc(100vh - var(--head)); height: calc(100svh - var(--head)); display: grid; align-items: center; overflow: hidden; }
-  .lapse-grid { display: grid; gap: 22px; justify-items: center; align-content: center; }
-  @media (min-width: 960px) { .lapse-grid { grid-template-columns: minmax(0, 1fr) auto; justify-items: stretch; align-items: center; gap: 80px; } }
-  .moments { list-style: none; margin: 0; padding: 0; display: none; gap: 2px; }
-  @media (min-width: 960px) { .moments { display: grid; } }
-  .moments li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 16px; padding: 12px 0; opacity: .32; transition: opacity .35s; }
-  .moments li.on { opacity: 1; }
-  .moments .t { font: 800 22px/1.25 var(--display); color: var(--navy); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
-  .moments h3 { font-size: 18.5px; }
-  .moments p { color: var(--ink-2); font-size: 15.5px; margin-top: 2px; }
-  .tag { display: inline-block; margin-top: 7px; padding: 2px 10px; border-radius: 999px; font: 700 13px/1.6 var(--body); background: var(--mist); color: var(--ink-2); }
-  .tag.ping { background: #fff1d1; color: var(--gold-ink); }
-
-  .lock { position: relative; height: min(620px, calc(100svh - var(--head) - 190px)); aspect-ratio: 9 / 19.5; border-radius: 46px; overflow: hidden; color: #fff;
-          border: 10px solid #0b0e33; box-shadow: 0 26px 50px -28px rgba(17, 21, 74, .55); justify-self: center; }
-  @media (min-width: 960px) { .lock { height: min(640px, calc(100svh - var(--head) - 90px)); } }
-  @media (max-width: 959px) {
-    .lapse-track { height: 290vh; }
-    .lock { aspect-ratio: auto; width: min(330px, 86vw); height: min(480px, calc(100svh - var(--head) - 175px)); border-radius: 36px; border-width: 8px; }
-    .lock-in { padding: 22px 12px 14px; }
-    .lock-clock { font-size: 50px; }
-    .notifs { margin-top: 14px; }
-    .notif { padding: 9px 11px; }
-    .js-lapse .notif:not(.on) { padding-block: 0; }
-    .notif b { font-size: 13.5px; }
-    .notif p { font-size: 12.5px; }
-  }
-  .sky, .sky-dawn, .stars { position: absolute; inset: 0; }
-  .sky { background: linear-gradient(180deg, #080b30 0%, #151a5a 55%, #262e7c 100%); }
-  .sky-dawn { background: linear-gradient(180deg, #2f4e9c 0%, #8e7bb8 42%, #ee9a68 74%, #f9cf8c 100%); opacity: var(--dawn, 0); }
-  .stars { opacity: calc(1 - var(--dawn, 0)); background: radial-gradient(1.5px 1.5px at 18% 22%, #fff, transparent 60%), radial-gradient(1px 1px at 72% 14%, #fff, transparent 60%),
-           radial-gradient(1px 1px at 40% 34%, rgba(255,255,255,.7), transparent 60%), radial-gradient(1.5px 1.5px at 84% 40%, rgba(255,255,255,.8), transparent 60%),
-           radial-gradient(1px 1px at 12% 56%, rgba(255,255,255,.6), transparent 60%), radial-gradient(1px 1px at 60% 62%, rgba(255,255,255,.5), transparent 60%); }
-  .lock-in { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; align-items: center; padding: 34px 12px 18px; }
-  .lock-date { font-size: 15px; font-weight: 500; opacity: .9; }
-  .lock-clock { font: 500 clamp(54px, 7.4vh, 78px)/1 var(--display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin-top: 2px; text-shadow: 0 2px 20px rgba(0, 0, 0, .25); }
-  .notifs { width: 100%; margin-top: 22px; display: flex; flex-direction: column; }
-  .notif { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; text-align: left; padding: 10px 12px; margin-bottom: 8px; border-radius: 18px; color: #12152e;
-           background: rgba(255, 255, 255, .78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 6px 18px -8px rgba(0, 0, 0, .35); }
-  /* Une notification pas encore arrivée ne prend aucune place : la suivante s'affiche juste sous l'heure. */
-  .js-lapse .notif { overflow: hidden; transition: max-height .45s ease, padding .45s ease, margin .45s ease, opacity .35s ease, transform .45s ease; }
-  .js-lapse .notif:not(.on) { max-height: 0; padding-block: 0; margin-bottom: 0; opacity: 0; transform: translateY(-10px) scale(.98); }
-  .js-lapse .notif.on { max-height: 180px; }
-  .app { width: 34px; height: 34px; border-radius: 9px; background: var(--navy); display: grid; place-items: center; }
-  .app svg { width: 22px; height: 22px; }
-  .notif .meta { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; color: #5a5f7a; }
-  .notif b { display: block; font-size: 14px; line-height: 1.3; margin-top: 1px; }
-  .notif p { font-size: 13px; line-height: 1.35; color: #2b2f4c; margin-top: 1px; }
-  .alarm { margin-top: auto; width: 100%; border-radius: 22px; padding: 12px 14px; background: rgba(255, 255, 255, .22); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-           display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .js-lapse .alarm { opacity: 0; transform: translateY(10px); transition: opacity .4s, transform .4s; }
-  .js-lapse .alarm.on { opacity: 1; transform: none; }
-  .alarm b { display: block; font-size: 15px; } .alarm small { font-size: 13px; opacity: .85; }
-  .alarm span { padding: 6px 14px; border-radius: 999px; background: var(--gold); color: var(--navy); font-weight: 700; font-size: 14px; }
-  .lapse-caption { text-align: center; max-width: 36ch; min-height: 7.4em; }
-  .lapse-caption .t { font: 800 20px/1.2 var(--display); color: var(--navy); font-variant-numeric: tabular-nums; }
-  .lapse-caption b { display: block; font-family: var(--display); font-size: 18px; margin-top: 2px; }
-  .lapse-caption p { color: var(--ink-2); font-size: 15px; }
-  @media (min-width: 960px) { .lapse-caption { display: none; } }
-  .ar-mark { display: inline-flex; align-items: center; gap: 14px; color: var(--ink-2); margin-top: 18px; }
-  .ar-mark span { font: 700 32px/1 "Noto Kufi Arabic", serif; color: var(--navy); }
-
-  /* ---------- Ce qu'il sait faire ---------- */
-  .skills { margin-top: 48px; display: grid; gap: 0 56px; }
-  @media (min-width: 860px) { .skills { grid-template-columns: 1fr 1fr; } }
-  .skill { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; padding: 22px 0; border-top: 1px solid var(--line); }
-  .skill .ic { width: 44px; height: 44px; border-radius: 12px; background: var(--paper); color: var(--navy); display: grid; place-items: center; box-shadow: inset 0 0 0 1px var(--line); }
-  .skill .ic svg { width: 22px; height: 22px; }
-  .skill p { color: var(--ink-2); margin-top: 4px; }
-  .skill.new .ic { background: var(--gold); box-shadow: none; }
-  .badge { display: inline-block; margin-left: 8px; padding: 2px 9px; border-radius: 999px; background: var(--navy); color: #fff; font: 700 12px/1.5 var(--body); vertical-align: 3px; }
-
-  /* ---------- Démonstration ---------- */
-  .demo .wrap { display: grid; gap: 40px; }
-  @media (min-width: 960px) { .demo .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 64px; } }
-  .demo .actions-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-  .tries { display: grid; gap: 10px; }
-  .try { text-align: left; background: var(--night-2); color: var(--moon); border: 1px solid var(--line-night); border-radius: 16px; padding: 16px 18px; font: 500 16px/1.4 var(--body); cursor: pointer; transition: border-color .15s, background .15s; }
-  .try:hover { border-color: var(--gold); background: #22286f; }
-  .try small { display: block; color: var(--moon-2); font-size: 13.5px; margin-top: 2px; }
-
-  /* ---------- Mise en route ---------- */
-  .steps { margin-top: 48px; display: grid; gap: 18px; counter-reset: step; }
-  @media (min-width: 860px) { .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; } }
-  .step { counter-increment: step; background: var(--paper); border-radius: 20px; padding: 26px 24px 28px; box-shadow: inset 0 0 0 1px var(--line); }
-  .step::before { content: counter(step); display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--navy); color: #fff; font: 800 17px/1 var(--display); margin-bottom: 18px; }
-  .step p { color: var(--ink-2); margin-top: 6px; }
-  .steps-cta { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  /* ---------- Trois étapes ---------- */
+  .steps { margin-top: 44px; display: grid; gap: 18px; }
+  @media (min-width: 900px) { .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; } }
+  .ticket { display: grid; grid-template-columns: 64px minmax(0, 1fr); }
+  .ticket:nth-child(1) { transform: rotate(-.8deg); } .ticket:nth-child(2) { transform: rotate(.5deg); } .ticket:nth-child(3) { transform: rotate(-.4deg); }
+  .ticket::before { content: ""; position: absolute; top: 0; bottom: 0; left: 60px; width: 9px; background: radial-gradient(circle, var(--desk) 3.2px, transparent 3.7px) 0 4px / 9px 15px repeat-y; }
+  .ticket .souche { padding: 18px 8px; align-content: center; }
+  .ticket .souche b { font: 900 34px/1 var(--print); font-stretch: 110%; color: var(--stamp); }
+  .ticket .body { padding: 20px 20px 22px; }
+  .ticket p { color: var(--ink-2); margin-top: 6px; }
+  .steps-cta { margin-top: 32px; display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
   .steps-cta p { color: var(--ink-2); font-size: 15px; }
 
-  /* ---------- Lancement ---------- */
+  /* ---------- Le salaire : un bulletin de paie ---------- */
+  .salaire .wrap { display: grid; gap: 40px; }
+  @media (min-width: 1000px) { .salaire .wrap { grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: 64px; align-items: center; } }
+  .paie { padding: 26px 26px 28px; transform: rotate(-.5deg); }
+  .paie-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; border-bottom: 2.5px solid var(--carbon); padding-bottom: 10px; }
+  .paie-head b { font: 800 22px/1.1 var(--print); font-stretch: 115%; color: var(--carbon); }
+  .paie-head span { font: 600 14px/1.3 var(--print); font-stretch: 85%; color: var(--ink-2); }
+  .paie table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 16px; }
+  .paie th { text-align: left; font: 600 13.5px/1.3 var(--print); font-stretch: 78%; color: var(--carbon-2); padding: 8px 0 6px; border-bottom: 2px solid var(--carbon-2); }
+  .paie td { padding: 10px 0 8px; border-bottom: 1.5px solid var(--rule); vertical-align: baseline; }
+  .paie td:last-child { text-align: right; font: 400 21px/1.2 var(--hand); color: var(--carbon); padding-left: 16px; }
+  .paie tfoot td { border-bottom: 0; padding-top: 14px; font-weight: 700; }
+  .paie tfoot td:last-child { font: 700 26px/1.1 var(--hand); color: var(--stamp); }
+  .incl { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 8px; }
+  .incl li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 8px; color: var(--ink-2); }
+
+  /* ---------- Prise de poste ---------- */
   .launch .wrap { display: grid; gap: 40px; align-items: center; }
-  @media (min-width: 900px) { .launch .wrap { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 64px; } }
-  .launch img { width: 100%; height: auto; border-radius: 20px; box-shadow: 0 30px 60px -30px rgba(22, 26, 61, .45); }
-  .count { display: flex; gap: 14px; margin: 26px 0 8px; }
-  .count div { min-width: 92px; padding: 14px 16px; border-radius: 16px; background: var(--mist); text-align: center; }
-  .count b { display: block; font: 800 40px/1 var(--display); color: var(--navy); font-variant-numeric: tabular-nums; }
+  @media (min-width: 900px) { .launch .wrap { grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); gap: 64px; } }
+  .launch img { width: 100%; height: auto; border-radius: 4px; transform: rotate(-1.5deg); box-shadow: 0 24px 46px -24px rgba(26, 29, 56, .55); }
+  .count { display: flex; gap: 12px; margin: 26px 0 8px; }
+  .count div { min-width: 90px; padding: 12px 14px; text-align: center; background: var(--sheet); border-radius: 4px; box-shadow: 0 10px 20px -16px rgba(26, 29, 56, .5); }
+  .count b { display: block; font: 900 40px/1 var(--print); font-stretch: 110%; color: var(--carbon); font-variant-numeric: tabular-nums; }
   .count span { font-size: 14px; color: var(--ink-2); }
   .launch ul { margin: 18px 0 0; padding-left: 20px; color: var(--ink-2); }
-  .launch .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
-
-  /* ---------- Tarifs ---------- */
-  .price { margin-top: 44px; display: grid; border-radius: 24px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--line); }
-  @media (min-width: 900px) { .price { grid-template-columns: 1.3fr 1fr; } }
-  .price .inc { padding: 32px 30px; background: var(--paper); }
-  .price .inc ul { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 12px; }
-  .price .inc li { display: grid; grid-template-columns: 24px 1fr; gap: 12px; }
-  .price .inc svg { width: 22px; height: 22px; color: #1e7a4c; margin-top: 2px; }
-  .price .talk { padding: 32px 30px; background: var(--night); color: var(--moon); display: grid; align-content: center; gap: 14px; }
-  .price .talk p { color: var(--moon-2); }
-  .price .talk .btn { justify-self: start; margin-top: 6px; }
-  .trial { font: 800 clamp(30px, 3.4vw, 40px)/1.05 var(--display); color: #fff; letter-spacing: -.02em; }
 
   /* ---------- Questions ---------- */
-  .faq { max-width: 820px; }
-  .faq .list { margin-top: 32px; }
-  .faq details { border-top: 1px solid var(--line); padding: 4px 0; }
-  .faq details:last-of-type { border-bottom: 1px solid var(--line); }
-  .faq summary { list-style: none; cursor: pointer; padding: 18px 40px 18px 0; position: relative; font: 700 19px/1.35 var(--display); }
+  .faq { max-width: 860px; }
+  .faq .list { margin-top: 30px; }
+  .faq details { background: var(--sheet); border-radius: 4px; margin-bottom: 10px; box-shadow: 0 8px 18px -16px rgba(26, 29, 56, .55); }
+  .faq summary { list-style: none; cursor: pointer; padding: 18px 52px 18px 20px; position: relative; font: 700 18.5px/1.35 var(--print); color: var(--ink); }
   .faq summary::-webkit-details-marker { display: none; }
-  .faq summary::after { content: ""; position: absolute; right: 6px; top: 50%; width: 12px; height: 12px; border-right: 2.5px solid var(--navy); border-bottom: 2.5px solid var(--navy); transform: translateY(-75%) rotate(45deg); transition: transform .2s; }
-  .faq details[open] summary::after { transform: translateY(-25%) rotate(-135deg); }
-  .faq details p { color: var(--ink-2); padding: 0 0 20px; max-width: 64ch; }
+  .faq summary::after { content: "+"; position: absolute; right: 20px; top: 50%; transform: translateY(-52%); font: 700 28px/1 var(--hand); color: var(--carbon); }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { color: var(--ink-2); padding: 0 20px 20px; max-width: 64ch; }
 
-  /* ---------- Dernier appel et formulaire ---------- */
-  .final .wrap { display: grid; gap: 40px; }
-  @media (min-width: 960px) { .final .wrap { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: start; } }
-  .final .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-  form#lead { background: var(--paper); color: var(--ink); border-radius: 24px; padding: 28px 24px; display: grid; gap: 14px; }
-  @media (min-width: 600px) { form#lead { grid-template-columns: 1fr 1fr; padding: 32px 30px; } }
-  form#lead h3, form#lead .intro, form#lead .full, form#lead button, form#lead .status { grid-column: 1 / -1; }
-  form#lead .intro { color: var(--ink-2); font-size: 15px; margin-top: -6px; }
-  form#lead label { display: grid; gap: 6px; font-weight: 700; font-size: 14.5px; }
-  form#lead label small { font-weight: 400; color: var(--ink-2); }
-  form#lead input, form#lead select, form#lead textarea { font: 400 16px/1.4 var(--body); padding: 12px 14px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); width: 100%; }
-  form#lead textarea { min-height: 96px; resize: vertical; }
-  form#lead input:focus, form#lead select:focus, form#lead textarea:focus { outline: none; border-color: var(--navy); box-shadow: 0 0 0 3px rgba(244, 178, 58, .5); }
+  /* ---------- Le contrat, et le message pour l'équipe ---------- */
+  .contrat-sec .wrap { display: grid; gap: 34px; }
+  @media (min-width: 1000px) { .contrat-sec .wrap { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 48px; align-items: start; } }
+  .contrat { padding: 30px 30px 32px; transform: rotate(-.4deg); }
+  .contrat h2 { font-size: clamp(30px, 3.8vw, 44px); }
+  .contrat .clauses { margin-top: 18px; display: grid; gap: 4px; }
+  .contrat .sigs { display: grid; gap: 22px; margin-top: 28px; }
+  @media (min-width: 560px) { .contrat .sigs { grid-template-columns: 1fr 1fr; } }
+  .sig { border-bottom: 1.5px dashed var(--carbon-2); padding-bottom: 6px; min-height: 76px; display: grid; align-content: end; }
+  .sig small { font: 600 13px/1.3 var(--print); font-stretch: 82%; color: var(--carbon-2); }
+  .sig .val { font-size: 30px; font-weight: 700; transform: rotate(-3deg); transform-origin: left; }
+  .sig .you { color: rgba(35, 56, 181, .35); }
+  .contrat .cta { margin-top: 28px; }
+  form#lead { background: var(--pink); color: var(--ink); border-radius: 4px; padding: 22px 22px 24px; transform: rotate(.8deg); display: grid; gap: 4px;
+              box-shadow: 0 1px 1px rgba(0, 0, 0, .06), 0 18px 34px -20px rgba(26, 29, 56, .55); }
+  form#lead .msg-head { margin-bottom: 4px; }
+  form#lead .intro { color: #6b2b37; font-size: 15px; margin: 6px 0 4px; }
+  form#lead label { display: grid; grid-template-columns: 110px minmax(0, 1fr); align-items: baseline; gap: 10px; border-bottom: 1.5px solid rgba(142, 31, 47, .25); padding: 6px 0 2px; }
+  form#lead label span { font: 600 13.5px/1.3 var(--print); font-stretch: 80%; color: #8e1f2f; }
+  form#lead input, form#lead select, form#lead textarea { font: 400 21px/1.3 var(--hand); color: var(--carbon); background: transparent; border: 0; padding: 4px 0; width: 100%; min-width: 0; }
+  form#lead input::placeholder, form#lead textarea::placeholder { color: rgba(35, 56, 181, .35); }
+  form#lead select { font-size: 19px; }
+  form#lead textarea { min-height: 64px; resize: vertical; }
+  form#lead input:focus, form#lead select:focus, form#lead textarea:focus { outline: 2px solid var(--carbon); outline-offset: 2px; border-radius: 4px; }
   form#lead .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
-  .status { min-height: 1.4em; font-size: 15px; color: var(--ink-2); }
-  .status.err { color: #b3261e; }
-  .thanks { background: var(--paper); color: var(--ink); border-radius: 24px; padding: 32px 30px; display: grid; gap: 10px; }
-  .thanks p { color: var(--ink-2); }
+  form#lead .boxes { border: 0; padding-top: 10px; }
+  form#lead button { margin-top: 14px; justify-self: start; }
+  .status { min-height: 1.4em; font-size: 15px; color: #6b2b37; margin-top: 6px; }
+  .status.err { color: #b3261e; font-weight: 700; }
+  .thanks { background: var(--pink); border-radius: 4px; padding: 26px 24px; transform: rotate(.8deg); box-shadow: 0 18px 34px -20px rgba(26, 29, 56, .55); }
+  .thanks p { margin-top: 8px; color: #6b2b37; }
 
-  footer { background: var(--night); color: var(--moon-2); padding-block: 36px calc(36px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line-night); font-size: 15px; }
+  footer { background: var(--carbon); color: #d9ddf6; padding-block: 32px calc(32px + env(safe-area-inset-bottom)); font-size: 15px; }
   footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; align-items: center; justify-content: space-between; }
+  footer .brand { color: #fff; font-size: 22px; }
   footer nav { display: flex; flex-wrap: wrap; gap: 8px 22px; }
   footer a { text-decoration: none; }
-  footer a:hover { color: #fff; }
+  footer a:hover { color: #fff; text-decoration: underline; }
 
   html.stage:not(.chat-used) #wakil-chat { visibility: hidden; }
 
+  @media (max-width: 999px) {
+    .bon { grid-template-columns: 58px minmax(0, 1fr); }
+    .bon::before { left: 54px; }
+    .souche { padding: 16px 6px; }
+    .bon-main { padding: 16px 16px 20px; }
+    .val { font-size: 21px; }
+    .bon-zone .stamp { width: 158px; left: 26%; }
+    .msg .stamp { width: 140px; }
+    .abs-now { min-height: 4.6em; margin-top: 10px; }
+    .abs-day { margin-top: 4px; }
+    .pitch-body { min-height: 200px; }
+    form#lead label { grid-template-columns: 92px minmax(0, 1fr); }
+  }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .hero[data-state] .ring, .hero[data-state] .round.go .ic, .hero[data-speaking] .bars i { animation: none; }
-    .caption span, .moments li, .js-lapse .notif, .js-lapse .alarm, .btn, .try, .round .ic { transition: none; }
+    .js .bon .val[data-w] { clip-path: none; animation: none !important; }
+    .js .bon-zone .voice, .js .bon-zone .stamp { opacity: 1; animation: none !important; transition: none; }
+    .js-abs .msg { transition: none; }
+    .btn, .roundbtn .ic { transition: none; }
   }
 </style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="ink" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="2" seed="7" result="n"/>
+      <feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 1.75" result="mask"/>
+      <feComposite in="SourceGraphic" in2="mask" operator="in"/>
+    </filter>
+  </defs>
   <symbol id="logo" viewBox="0 0 72 72"><path d="M15 5h42a11 11 0 0 1 11 11v29a11 11 0 0 1-11 11H31L16 68V56h-1A11 11 0 0 1 4 45V16A11 11 0 0 1 15 5z" fill="#F4B23A"/><path d="M17 20l8 22 11-15 11 15 8-22" fill="none" stroke="#1B2066" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" opacity=".15"/><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z" fill="currentColor"/></symbol>
   <symbol id="bubble" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.4-4.9A8 8 0 1 1 21 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="later" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
-  <symbol id="replay" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="play" viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" fill="currentColor"/></symbol>
-  <symbol id="speaker" viewBox="0 0 24 24"><path d="M11 5L6 9H3v6h3l5 4V5z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
 </svg>
 
 <header class="top">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Wakil, accueil"><svg aria-hidden="true"><use href="#logo"/></svg>wakil</a>
     <nav class="nav" aria-label="Sections">
-      <a href="#nuit">Une nuit avec Wakil</a>
-      <a href="#demo">Démo</a>
-      <a href="#tarifs">Tarifs</a>
+      <a href="#poste">Le poste</a>
+      <a href="#absence">Sa nuit</a>
+      <a href="#entretien">L'entretien</a>
+      <a href="#salaire">Son salaire</a>
       <a href="#questions">Questions</a>
     </nav>
     <a class="login" href="/app/">Se connecter</a>
-    <a class="btn btn-gold" href="/inscription">Essayer gratuitement</a>
+    <a class="btn btn-ink" href="/inscription">Embaucher Wakil</a>
   </div>
 </header>
 
 <main>
-  <section class="hero night" data-state="ringing" aria-labelledby="titre">
-    <div class="wrap">
-      <div class="say">
-        <div data-when="ringing">
-          <p class="hello" aria-hidden="true">Allô ?</p>
-          <h1 id="titre">Ici Wakil. Ce site vous appelle.</h1>
-          <p class="lead">Décrochez : en 25 secondes, Wakil vous explique comment il répond à vos clients sur WhatsApp, même à minuit, et prend leurs commandes pour vous.</p>
-        </div>
-        <div data-when="talking" hidden>
-          <p class="caption" id="caption" aria-live="polite"></p>
-          <div class="cap-dots" aria-hidden="true"></div>
-          <p class="cap-note" id="cap-note" hidden>Pas de voix française sur cet appareil : Wakil vous parle en sous-titres.</p>
-        </div>
-        <div data-when="ended" hidden>
-          <p class="hello" aria-hidden="true">À vous.</p>
-          <p class="big">Posez-lui vos questions, ou mettez-le au travail.</p>
-          <div class="cta">
-            <button class="btn btn-gold" type="button" data-talk><svg aria-hidden="true"><use href="#bubble"/></svg>Parler à Wakil</button>
-            <a class="btn btn-line" href="/inscription">Essayer 14 jours gratuits</a>
-          </div>
-        </div>
-        <div data-when="missed" hidden>
-          <p class="hello" aria-hidden="true">Pas de souci.</p>
-          <p class="big">Wakil vous a laissé un message vocal.</p>
-          <p class="lead">Comme il le fait avec vos clients quand vous ne pouvez pas répondre. Écoutez-le, ou lisez-le.</p>
-          <details class="transcript"><summary>Lire le message</summary><p id="transcript-text"></p></details>
-          <div class="cta"><a class="btn btn-gold" href="/inscription">Essayer 14 jours gratuits</a></div>
-        </div>
-      </div>
-
-      <div class="call" role="group" aria-label="Appel de Wakil">
-        <p class="call-status" aria-live="polite">
-          <span data-when="ringing">Appel entrant…</span>
-          <span data-when="talking" hidden>En cours · <time id="timer">00:00</time></span>
-          <span data-when="ended" hidden>Appel terminé · <time class="total">00:00</time></span>
-          <span data-when="missed" hidden>Appel manqué</span>
-        </p>
-        <div class="face" aria-hidden="true">
-          <span class="ring"></span><span class="ring r2"></span><span class="ring r3"></span>
-          <span class="disc"><svg><use href="#logo"/></svg></span>
-        </div>
-        <p class="call-name">Wakil</p>
-        <p class="call-sub">Votre futur commercial</p>
-        <div class="bars" data-when="talking" hidden aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="actions" data-when="ringing">
-          <button class="round soft" type="button" id="decline"><span class="ic"><svg aria-hidden="true"><use href="#later"/></svg></span>Plus tard</button>
-          <button class="round go" type="button" id="accept"><span class="ic"><svg aria-hidden="true"><use href="#phone"/></svg></span>Décrocher</button>
-        </div>
-        <div class="actions" data-when="talking" hidden>
-          <button class="round stop" type="button" id="hangup"><span class="ic"><svg class="down" aria-hidden="true"><use href="#phone"/></svg></span>Raccrocher</button>
-        </div>
-        <div class="actions" data-when="ended" hidden>
-          <button class="round soft" type="button" data-replay><span class="ic"><svg aria-hidden="true"><use href="#replay"/></svg></span>Réécouter</button>
-          <button class="round gold" type="button" data-talk><span class="ic"><svg aria-hidden="true"><use href="#bubble"/></svg></span>Lui parler</button>
-        </div>
-        <div class="actions" data-when="missed" hidden>
-          <button class="round go" type="button" data-replay><span class="ic"><svg aria-hidden="true"><use href="#play"/></svg></span>Écouter</button>
-          <button class="round gold" type="button" data-talk><span class="ic"><svg aria-hidden="true"><use href="#bubble"/></svg></span>Lui écrire</button>
-        </div>
-        <p class="sound" data-when="ringing"><svg aria-hidden="true"><use href="#speaker"/></svg>Mettez le son : Wakil parle.</p>
-      </div>
-      <p class="mobile-lead" data-when="ringing">En 25 secondes, Wakil vous explique comment il répond à vos clients sur WhatsApp, même à minuit.</p>
-    </div>
-  </section>
-
-  <section class="lapse" id="nuit" aria-labelledby="nuit-titre">
-    <div class="wrap lapse-intro">
-      <h2 id="nuit-titre">Une nuit sur votre téléphone.</h2>
-      <p class="lead">Faites défiler : la nuit passe. Wakil répond à tous vos clients, et ne vous dérange que pour l'essentiel.</p>
-    </div>
-    <div class="lapse-track">
-      <div class="lapse-sticky">
-        <div class="wrap lapse-grid">
-          <ol class="moments">
-            <li data-i="0"><span class="t">21:47</span><div><h3>Une question de prix</h3><p>Il répond avec le prix de votre catalogue.</p><span class="tag">Wakil répond seul</span></div></li>
-            <li data-i="1"><span class="t">23:10</span><div><h3>Une commande</h3><p>Récapitulatif, confirmation, référence.</p><span class="tag ping">Vous recevez la commande</span></div></li>
-            <li data-i="2"><span class="t">01:24</span><div><h3>Un vocal en pleine nuit</h3><p>Il écoute, comprend et envoie la photo du produit.</p><span class="tag">Wakil répond seul</span></div></li>
-            <li data-i="3"><span class="t">05:52</span><div><h3>Une négociation</h3><p>30 tonnes, un prix à discuter : il vous passe la main.</p><span class="tag ping">Vous êtes prévenu</span></div></li>
-            <li data-i="4"><span class="t">07:30</span><div><h3>Vous vous réveillez</h3><p>Les commandes de la nuit sont là. Un seul client vous attend.</p></div></li>
-          </ol>
-          <div class="lock" role="img" aria-label="Écran verrouillé d'un patron pendant la nuit : à 23 h 10, Wakil envoie une nouvelle commande ; à 5 h 52, il signale un client à rappeler ; à 7 h 30, le réveil sonne.">
-            <div class="sky"></div><div class="sky-dawn"></div><div class="stars"></div>
-            <div class="lock-in" aria-hidden="true">
-              <p class="lock-date" id="lock-date">Jeudi 19 novembre</p>
-              <p class="lock-clock" id="lock-clock">07:30</p>
-              <div class="notifs">
-                <div class="notif" data-at="0.68"><span class="app"><svg><use href="#logo"/></svg></span><div><div class="meta"><span>Wakil</span><span>05:52</span></div><b>Client à rappeler</b><p>Aya veut négocier le prix pour 30 t de sable. Elle attend votre appel.</p></div></div>
-                <div class="notif" data-at="0.22"><span class="app"><svg><use href="#logo"/></svg></span><div><div class="meta"><span>Wakil</span><span>23:10</span></div><b>Nouvelle commande <span style="white-space:nowrap">W-4K2P9Q</span></b><p>Koffi, Yopougon : gravier 15/25 14 t, sable 0/5 7 t. Livraison demain matin.</p></div></div>
-              </div>
-              <div class="alarm" data-at="0.9"><div><b>Réveil</b><small>07:30</small></div><span>Arrêter</span></div>
-            </div>
-          </div>
-          <div class="lapse-caption" aria-hidden="true"><span class="t">21:47</span><b>Une question de prix</b><p>Il répond avec le prix de votre catalogue.</p></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="mist" aria-labelledby="skills-titre">
-    <div class="wrap">
-      <h2 id="skills-titre">Un vrai commercial, pas un robot à menus.</h2>
-      <p class="lead" style="margin-top:16px">Le client parle normalement, comme à un vendeur. Wakil comprend, répond et fait avancer la vente.</p>
-      <p class="ar-mark"><span lang="ar" dir="rtl">وكيل</span>Wakil : celui qui agit en votre nom. Un mot compris de Tunis à Abidjan.</p>
-      <div class="skills">
-        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span><div><h3>Comprend les vocaux</h3><p>Écrits ou vocaux, en français d'ici. Il répond aussi en vocal quand le client préfère.</p></div></div>
-        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></span><div><h3>Connaît votre catalogue</h3><p>Il conseille vos produits, envoie leurs photos et n'invente jamais un prix.</p></div></div>
-        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2.5"/><path d="M8 7h8M8 11h2M12 11h2M8 15h2M12 15h2M8 18h2M12 18h2"/></svg></span><div><h3>Calcule les quantités</h3><p>« Une dalle de 10 sur 8 ? » Il estime ce qu'il faut, comme votre meilleur vendeur.</p></div></div>
-        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h9"/></svg></span><div><h3>Prend les commandes</h3><p>Il note tout, fait confirmer le client et vous envoie la commande sur WhatsApp.</p></div></div>
-        <div class="skill"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 11l2 2 4-4"/></svg></span><div><h3>Vous passe la main</h3><p>Réclamation, négociation, grosse commande : il vous prévient et se met en retrait.</p></div></div>
-        <div class="skill new"><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:20px;height:20px"><use href="#phone"/></svg></span><div><h3>Répond à voix haute<span class="badge">Nouveau</span></h3><p>Sur votre site, le client appelle Wakil et lui parle comme au téléphone. Prochaine étape : les appels WhatsApp.</p></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="night demo" id="demo" aria-labelledby="demo-titre">
+  <!-- Haut de page : le bon de commande se remplit tout seul -->
+  <section class="hero" aria-labelledby="titre">
     <div class="wrap">
       <div>
-        <h2 id="demo-titre">Mettez-le à l'épreuve.</h2>
-        <p class="lead" style="margin-top:16px">L'assistant de cette page, c'est Wakil lui-même. Demandez-lui ce qu'il peut faire pour votre entreprise, ou de vous répondre comme à un de vos clients.</p>
-        <div class="actions-row">
-          <button class="btn btn-gold" type="button" id="open-demo"><svg aria-hidden="true"><use href="#bubble"/></svg>Écrire à Wakil</button>
-          <button class="btn btn-line" type="button" id="call-demo" hidden><svg aria-hidden="true"><use href="#phone"/></svg>Appeler Wakil</button>
+        <h1 id="titre">Embauchez un commercial qui ne dort jamais.</h1>
+        <p class="lead">Wakil répond à vos clients sur WhatsApp, de jour comme de nuit. Il comprend leurs vocaux, conseille le bon produit et remplit votre carnet de commandes. Vous, vous livrez.</p>
+        <div class="cta">
+          <a class="btn btn-ink" href="/inscription">Commencer la période d'essai</a>
+          <a class="btn btn-paper" href="#entretien">Lui faire passer l'entretien</a>
         </div>
+        <p class="fine">14 jours d'essai gratuits, comptés à partir de son premier jour de travail. Sans carte bancaire.</p>
       </div>
-      <div class="tries">
-        <button class="try" type="button" data-q="J'ai une quincaillerie, qu'est-ce que Wakil peut faire pour moi ?">« J'ai une quincaillerie, qu'est-ce que tu peux faire pour moi ? »<small>Il vous explique, avec votre métier</small></button>
-        <button class="try" type="button" data-q="Je vends du ciment et du fer. Réponds-moi comme tu répondrais à un de mes clients : c'est combien le sac de ciment ?">« Réponds comme à un de mes clients »<small>Il se met dans la peau de votre vendeur</small></button>
-        <button class="try" type="button" data-q="Combien ça coûte, et il faut combien de temps pour démarrer ?">« Combien ça coûte, et pour démarrer ? »<small>Tarifs et mise en route</small></button>
-        <button class="try" type="button" data-q="Je veux parler à quelqu'un de l'équipe Wakil">« Je veux parler à quelqu'un de l'équipe »<small>Il passe la main, comme il le fera pour vous</small></button>
+
+      <div class="bon-zone" role="img" aria-label="Bon de commande rempli par Wakil à 21 h 47 : un client de Yopougon a envoyé un vocal pour une dalle de 10 mètres sur 8 ; Wakil a noté 14 tonnes de gravier 15/25 et 7 tonnes de sable 0/5, livraison demain matin, et la commande est tamponnée « confirmée ».">
+        <div class="voice" aria-hidden="true">
+          <svg class="play" aria-hidden="true"><use href="#play"/></svg>
+          <div class="wave"><i style="height:8px"></i><i style="height:14px"></i><i style="height:20px"></i><i style="height:11px"></i><i style="height:22px"></i><i style="height:16px"></i><i style="height:9px"></i><i style="height:21px"></i><i style="height:15px"></i><i style="height:8px"></i><i style="height:18px"></i><i style="height:12px"></i><i style="height:20px"></i><i style="height:10px"></i><i style="height:7px"></i><i style="height:14px"></i><i style="height:19px"></i><i style="height:9px"></i></div>
+          <q>Je coule une dalle de 10 sur 8, il me faut quoi ?</q>
+        </div>
+        <svg class="clip" viewBox="0 0 26 60" aria-hidden="true"><path d="M8 18V8a5 5 0 0 1 10 0v38a8 8 0 0 1-16 0V14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>
+        <div class="bon paper" aria-hidden="true">
+          <div class="souche">
+            <span class="num">N° 0001</span>
+            <span class="val" data-w>Koffi</span>
+            <span class="val" data-w>21:47</span>
+          </div>
+          <div class="bon-main">
+            <div class="bon-head"><b>Bon de commande</b><span class="num">N° 0001</span></div>
+            <p class="bon-shop">Carrière Kouamé, Abidjan</p>
+            <div class="row"><span class="lab">Date :</span><span class="val" data-w id="bon-date">20/11/2026</span></div>
+            <div class="row"><span class="lab">Client :</span><span class="val" data-w>Koffi, Yopougon</span></div>
+            <div class="lines">
+              <div class="grid th"><span>Désignation</span><span>Quantité</span></div>
+              <div class="grid"><span class="val" data-w>Gravier 15/25</span><span class="val" data-w>14 t</span></div>
+              <div class="grid"><span class="val" data-w>Sable 0/5</span><span class="val" data-w>7 t</span></div>
+            </div>
+            <div class="row"><span class="lab">Livraison :</span><span class="val" data-w>demain matin</span></div>
+            <div class="sign"><span class="lab">Pris par :</span><span class="val" data-w>Wakil</span></div>
+          </div>
+        </div>
+        <svg class="stamp" viewBox="0 0 220 92" aria-hidden="true"><g filter="url(#ink)"><rect x="4" y="4" width="212" height="84" rx="12" fill="none" stroke="currentColor" stroke-width="5"/><rect x="13" y="13" width="194" height="66" rx="7" fill="none" stroke="currentColor" stroke-width="2"/><text x="110" y="52" text-anchor="middle" font-size="31" font-weight="900" letter-spacing="1.5" fill="currentColor">CONFIRMÉE</text><text x="110" y="71" text-anchor="middle" font-size="14" font-weight="700" letter-spacing="2" fill="currentColor">W-4K2P9Q</text></g></svg>
       </div>
     </div>
   </section>
 
-  <section class="mist" id="demarrer" aria-labelledby="demarrer-titre">
+  <!-- La fiche de poste -->
+  <section class="poste" id="poste" aria-labelledby="poste-titre">
     <div class="wrap">
-      <h2 id="demarrer-titre">En ligne en trois étapes.</h2>
-      <p class="lead" style="margin-top:16px">Pas d'application à installer. Vous gardez votre numéro personnel : Wakil a son propre numéro WhatsApp, à votre nom.</p>
+      <div>
+        <h2 id="poste-titre">La fiche de poste.</h2>
+        <p class="lead" style="margin-top:18px">Un vrai commercial, pas un robot à menus : le client lui parle normalement, comme à un vendeur, et Wakil fait avancer la vente. Il sait aussi ce qui n'est pas son rôle.</p>
+        <p class="ar"><span lang="ar" dir="rtl">وكيل</span>Wakil : celui qui agit en votre nom. Un mot compris de Tunis à Abidjan.</p>
+      </div>
+      <div class="fiche paper">
+        <div class="fiche-head"><b>Fiche de poste</b><span class="num">Réf. COM-01</span></div>
+        <div class="cols">
+          <div class="row"><span class="lab">Poste :</span><span class="val">Commercial</span></div>
+          <div class="row"><span class="lab">Horaires :</span><span class="val">24 h/24, 7 j/7</span></div>
+          <div class="row"><span class="lab">Lieu :</span><span class="val">votre WhatsApp et votre site</span></div>
+          <div class="row"><span class="lab">Langue :</span><span class="val">français, écrit et vocal</span></div>
+        </div>
+        <div class="tasks">
+          <div>
+            <h3>Ses missions</h3>
+            <ul>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Répondre à chaque client en quelques secondes</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Comprendre les vocaux, et répondre en vocal</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Conseiller le bon produit, photo à l'appui</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Calculer les quantités pour un chantier</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Prendre la commande et vous l'envoyer</span></li>
+              <li><span class="tick" aria-hidden="true">✓</span><span>Parler à voix haute sur votre site<span class="new-tag">Nouveau</span></span></li>
+            </ul>
+          </div>
+          <div class="never">
+            <h3>Ce qu'il ne fera jamais</h3>
+            <ul>
+              <li><span class="tick" aria-hidden="true">✗</span><span>Inventer un prix : il donne ceux de votre catalogue</span></li>
+              <li><span class="tick" aria-hidden="true">✗</span><span>Promettre une livraison sans votre accord</span></li>
+              <li><span class="tick" aria-hidden="true">✗</span><span>Garder pour lui une réclamation : il vous passe la main</span></li>
+              <li><span class="tick" aria-hidden="true">✗</span><span>Se faire passer pour un humain : il dit qu'il est l'assistant virtuel</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pendant votre absence : la nuit passe au défilement -->
+  <section class="absence" id="absence" aria-labelledby="absence-titre">
+    <div class="glow" aria-hidden="true"></div>
+    <div class="wrap">
+      <h2 id="absence-titre">Pendant votre absence.</h2>
+      <p class="lead">Faites défiler : la nuit passe. Chaque fois qu'il se passe quelque chose, Wakil vous laisse un mot.</p>
+    </div>
+    <div class="abs-track">
+      <div class="abs-sticky">
+        <div class="wrap abs-grid">
+          <div>
+            <p class="abs-clock" id="abs-clock" aria-hidden="true">07:30</p>
+            <p class="abs-day" id="abs-day" aria-hidden="true">Vendredi matin</p>
+            <div class="abs-now" id="abs-now" aria-live="off"><b>Vous arrivez.</b><p>Une commande à livrer, une cliente à rappeler. Le reste est fait.</p></div>
+          </div>
+          <div class="pad" role="img" aria-label="Bloc de messages téléphoniques laissés par Wakil pendant la nuit : 21 h 47, question de prix, répondu ; 23 h 10, commande prise W-4K2P9Q ; 1 h 24, vocal, répondu avec photo ; 5 h 52, prière de rappeler Aya pour une négociation.">
+            <div class="msg" data-at="0" style="--r:-2deg;--sx:-24%;--sy:-25%;--sr:-4deg" aria-hidden="true">
+              <div class="msg-head"><b>Message téléphonique</b><small>Pendant votre absence</small></div>
+              <div class="row"><span class="lab">Heure :</span><span class="val">21:47</span></div>
+              <div class="row"><span class="lab">De :</span><span class="val">un client d'Adjamé</span></div>
+              <div class="boxes"><span><i>✓</i>Répondu</span><span><i></i>Commande prise</span><span><i></i>Prière de rappeler</span></div>
+              <p class="msg-text">Voulait le prix du ciment. Je lui ai donné celui du catalogue. Rien à faire.</p>
+              <span class="by">Wakil</span>
+            </div>
+            <div class="msg" data-at="0.2" style="--r:1.5deg;--sx:25%;--sy:-23%;--sr:3deg" aria-hidden="true">
+              <div class="msg-head"><b>Message téléphonique</b><small>Pendant votre absence</small></div>
+              <div class="row"><span class="lab">Heure :</span><span class="val">23:10</span></div>
+              <div class="row"><span class="lab">De :</span><span class="val">Koffi, Yopougon</span></div>
+              <div class="boxes"><span><i>✓</i>Répondu</span><span><i>✓</i>Commande prise</span><span><i></i>Prière de rappeler</span></div>
+              <p class="msg-text">Gravier 15/25 : 14 t, sable 0/5 : 7 t. Livraison demain matin.</p>
+              <svg class="stamp" viewBox="0 0 220 92" aria-hidden="true"><g filter="url(#ink)"><rect x="4" y="4" width="212" height="84" rx="12" fill="none" stroke="currentColor" stroke-width="5"/><text x="110" y="58" text-anchor="middle" font-size="30" font-weight="900" letter-spacing="1.5" fill="currentColor">W-4K2P9Q</text></g></svg>
+              <span class="by">Wakil</span>
+            </div>
+            <div class="msg" data-at="0.44" style="--r:-1deg;--sx:-23%;--sy:26%;--sr:2.5deg" aria-hidden="true">
+              <div class="msg-head"><b>Message téléphonique</b><small>Pendant votre absence</small></div>
+              <div class="row"><span class="lab">Heure :</span><span class="val">01:24</span></div>
+              <div class="row"><span class="lab">De :</span><span class="val">Mariam, Abobo</span></div>
+              <div class="boxes"><span><i>✓</i>Répondu</span><span><i></i>Commande prise</span><span><i></i>Prière de rappeler</span></div>
+              <p class="msg-text">Un vocal à 1 h du matin. J'ai compris, et envoyé la photo du fer de 10. Rien à faire.</p>
+              <span class="by">Wakil</span>
+            </div>
+            <div class="msg" data-at="0.66" style="--r:2.2deg;--sx:25%;--sy:25%;--sr:-3deg" aria-hidden="true">
+              <div class="msg-head"><b>Message téléphonique</b><small>Pendant votre absence</small></div>
+              <div class="row"><span class="lab">Heure :</span><span class="val">05:52</span></div>
+              <div class="row"><span class="lab">De :</span><span class="val">Aya, Cocody</span></div>
+              <div class="boxes"><span><i>✓</i>Répondu</span><span><i></i>Commande prise</span><span><i>✓</i>Prière de rappeler</span></div>
+              <p class="msg-text">Veut négocier le prix pour 30 t de sable. Elle attend votre appel.</p>
+              <svg class="stamp" viewBox="0 0 220 92" aria-hidden="true"><g filter="url(#ink)"><rect x="4" y="4" width="212" height="84" rx="12" fill="none" stroke="currentColor" stroke-width="5"/><text x="110" y="58" text-anchor="middle" font-size="29" font-weight="900" letter-spacing="1.5" fill="currentColor">À RAPPELER</text></g></svg>
+              <span class="by">Wakil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- L'entretien : il se présente, puis on lui pose des questions -->
+  <section class="interview" id="entretien" aria-labelledby="entretien-titre">
+    <div class="wrap">
+      <div>
+        <h2 id="entretien-titre">Faites-lui passer l'entretien.</h2>
+        <p class="lead" style="margin-top:18px">L'assistant de cette page, c'est Wakil lui-même. Écoutez-le se présenter, puis posez-lui vos questions : il répond pour de vrai.</p>
+      </div>
+      <div class="papers">
+        <div class="pitch paper" data-state="idle">
+          <div class="pitch-head"><b>« Présentez-vous. »</b><small id="pitch-timer" data-when="talking ended" hidden>00:00</small></div>
+          <div class="pitch-body">
+            <div class="pitch-idle" data-when="idle">
+              <p class="q">Il se présente en 25 secondes, à voix haute.</p>
+              <p>Mettez le son. Ses mots s'écrivent ici pendant qu'il parle.</p>
+            </div>
+            <div data-when="talking" hidden>
+              <p class="caption" id="caption" aria-live="polite"></p>
+              <div class="dots" aria-hidden="true"></div>
+              <p class="cap-note" id="cap-note" hidden>Pas de voix française sur cet appareil : Wakil se présente par écrit.</p>
+            </div>
+            <div data-when="ended" hidden>
+              <p class="q" style="font:400 clamp(28px,3.6vw,40px)/1.15 var(--hand);color:var(--carbon)">À vous : posez-lui une question.</p>
+              <p style="color:var(--ink-2);margin-top:6px">Choisissez-en une dans la liste, ou écrivez la vôtre.</p>
+            </div>
+          </div>
+          <div class="pitch-actions">
+            <button class="roundbtn go" type="button" id="pitch-start" data-when="idle"><span class="ic"><svg aria-hidden="true"><use href="#phone"/></svg></span>Décrocher : il se présente</button>
+            <button class="roundbtn stop" type="button" id="pitch-stop" data-when="talking" hidden><span class="ic"><svg class="down" aria-hidden="true"><use href="#phone"/></svg></span>Raccrocher</button>
+            <button class="roundbtn go" type="button" id="pitch-again" data-when="ended" hidden><span class="ic"><svg aria-hidden="true"><use href="#play"/></svg></span>Réécouter</button>
+          </div>
+        </div>
+
+        <div class="quiz paper">
+          <div class="quiz-head"><b>Questions d'entretien</b><span class="num">Candidat : Wakil</span></div>
+          <ol>
+            <li><button class="ask" type="button" data-q="Pourquoi devrais-je t'embaucher dans ma quincaillerie ?"><span>Pourquoi devrais-je vous embaucher ?</span></button></li>
+            <li><button class="ask" type="button" data-q="Je vends du ciment et du fer. Réponds-moi comme tu répondrais à un de mes clients : c'est combien le sac de ciment ?"><span>Répondez comme à un de mes clients : c'est combien le sac de ciment ?</span></button></li>
+            <li><button class="ask" type="button" data-q="Que fais-tu si un client se fâche ou veut négocier le prix ?"><span>Que faites-vous si un client se fâche ou veut négocier ?</span></button></li>
+            <li><button class="ask" type="button" data-q="Combien ça coûte, et il faut combien de temps pour démarrer ?"><span>Combien demandez-vous, et quand pouvez-vous commencer ?</span></button></li>
+          </ol>
+          <div class="cta">
+            <button class="btn btn-ink" type="button" id="open-demo"><svg aria-hidden="true"><use href="#bubble"/></svg>Lui poser ma question</button>
+            <button class="btn btn-paper" type="button" id="call-demo" hidden><svg aria-hidden="true"><use href="#phone"/></svg>L'appeler</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- L'embauche en trois étapes -->
+  <section id="embauche" aria-labelledby="embauche-titre" style="padding-top:0">
+    <div class="wrap">
+      <h2 id="embauche-titre">L'embauche en trois étapes.</h2>
+      <p class="lead" style="margin-top:18px">Pas d'application à installer. Vous gardez votre numéro personnel : Wakil a son propre numéro WhatsApp, à votre nom.</p>
       <div class="steps">
-        <div class="step"><h3>Inscrivez-vous</h3><p>Le nom de votre entreprise, vos produits et vos prix, et le numéro que Wakil utilisera : une nouvelle puce convient.</p></div>
-        <div class="step"><h3>Saisissez le code</h3><p>Nous validons votre inscription. Un code arrive par SMS sur le numéro de Wakil : vous le saisissez, c'est tout.</p></div>
-        <div class="step"><h3>Recevez les commandes</h3><p>Wakil répond à vos clients jour et nuit. Les commandes arrivent sur votre WhatsApp personnel.</p></div>
+        <div class="ticket paper"><div class="souche"><b>1</b></div><div class="body"><h3>Inscrivez-vous</h3><p>Le nom de votre entreprise, vos produits et vos prix, et le numéro que Wakil utilisera : une nouvelle puce convient.</p></div></div>
+        <div class="ticket paper"><div class="souche"><b>2</b></div><div class="body"><h3>Saisissez le code</h3><p>Nous validons votre inscription. Un code arrive par SMS sur le numéro de Wakil : vous le saisissez, c'est tout.</p></div></div>
+        <div class="ticket paper"><div class="souche"><b>3</b></div><div class="body"><h3>Premier jour de travail</h3><p>Wakil répond à vos clients jour et nuit. Les commandes arrivent sur votre WhatsApp personnel.</p></div></div>
       </div>
       <div class="steps-cta">
-        <a class="btn btn-navy" href="/inscription">Commencer l'inscription</a>
+        <a class="btn btn-ink" href="/inscription">Commencer la période d'essai</a>
         <p>Deux minutes, sans carte bancaire.</p>
       </div>
     </div>
   </section>
 
-  <section class="launch" id="lancement" aria-labelledby="lancement-titre">
+  <!-- Son salaire : un bulletin de paie -->
+  <section class="salaire" id="salaire" aria-labelledby="salaire-titre" style="padding-top:0">
+    <div class="wrap">
+      <div>
+        <h2 id="salaire-titre">Son salaire.</h2>
+        <p class="lead" style="margin-top:18px">Un tarif clair en FCFA, selon ce que vous vendez et le nombre de messages que vous recevez. Essayez-le d'abord, gratuitement.</p>
+        <ul class="incl">
+          <li><span class="tick" aria-hidden="true">✓</span>Son propre numéro WhatsApp, 24 h/24</li>
+          <li><span class="tick" aria-hidden="true">✓</span>Le chat sur votre site, avec l'appel à voix haute</li>
+          <li><span class="tick" aria-hidden="true">✓</span>Les commandes et les clients à rappeler sur votre WhatsApp</li>
+          <li><span class="tick" aria-hidden="true">✓</span>Votre espace pour suivre conversations et commandes</li>
+          <li><span class="tick" aria-hidden="true">✓</span>L'aide de notre équipe pour préparer votre catalogue</li>
+        </ul>
+      </div>
+      <div class="paie paper">
+        <div class="paie-head"><b>Bulletin de paie</b><span>Salarié : Wakil, commercial</span></div>
+        <table>
+          <thead><tr><th scope="col">Rubrique</th><th scope="col" style="text-align:right">Montant</th></tr></thead>
+          <tbody>
+            <tr><td>Salaire de base</td><td>selon vos messages</td></tr>
+            <tr><td>Heures supplémentaires</td><td>0 (il fait déjà 24 h/24)</td></tr>
+            <tr><td>Prime de nuit</td><td>offerte</td></tr>
+            <tr><td>Congés payés</td><td>il n'en prend pas</td></tr>
+          </tbody>
+          <tfoot><tr><td>Période d'essai</td><td>14 jours gratuits</td></tr></tfoot>
+        </table>
+        <div class="cta"><a class="btn btn-ink" href="/inscription">Commencer la période d'essai</a></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Prise de poste officielle -->
+  <section class="launch" id="lancement" aria-labelledby="lancement-titre" style="padding-top:0">
     <div class="wrap">
       <a href="/img/wakil-lancement.jpg" target="_blank" rel="noopener"><img src="/img/wakil-lancement.jpg" width="1080" height="1350" loading="lazy" alt="Affiche de lancement de Wakil : « Vos clients écrivent à 21 h. Wakil répond. » Lancement le 12 décembre 2026."></a>
       <div>
-        <h2 id="lancement-titre">Lancement le 12 décembre 2026.</h2>
-        <p class="lead" style="margin-top:16px">Wakil répond déjà aux clients de SICAR SARL et de SANA, en Côte d'Ivoire. Le 12 décembre, il ouvre à toutes les entreprises.</p>
+        <h2 id="lancement-titre">Prise de poste officielle le 12 décembre 2026.</h2>
+        <p class="lead" style="margin-top:18px">Wakil travaille déjà pour SICAR SARL et pour SANA, en Côte d'Ivoire. Le 12 décembre, il ouvre à toutes les entreprises.</p>
         <div class="count" role="timer" aria-live="off" aria-label="Temps restant avant le lancement">
           <div><b data-n="j">–</b><span>jours</span></div>
           <div><b data-n="h">–</b><span>heures</span></div>
@@ -506,39 +634,14 @@
           <li>Les entreprises inscrites avant le lancement démarrent en priorité.</li>
           <li>Vos produits sont prêts le jour J : Wakil répond dès la première minute.</li>
         </ul>
-        <div class="cta"><a class="btn btn-navy" href="/inscription">Réserver ma place</a></div>
       </div>
     </div>
   </section>
 
-  <section class="mist" id="tarifs" aria-labelledby="tarifs-titre">
-    <div class="wrap">
-      <h2 id="tarifs-titre">Un tarif adapté à votre activité.</h2>
-      <p class="lead" style="margin-top:16px">Le tarif dépend du nombre de conversations et des canaux choisis. Essayez d'abord, gratuitement.</p>
-      <div class="price">
-        <div class="inc">
-          <h3>Ce qui est inclus</h3>
-          <ul>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Wakil sur son propre numéro WhatsApp, 24 h/24</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Le chat sur votre site web, avec l'appel à voix haute</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Compréhension des vocaux, réponses en vocal</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Commandes et demandes de rappel envoyées sur votre WhatsApp</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>Votre espace pour suivre les conversations et les commandes</li>
-            <li><svg aria-hidden="true"><use href="#check"/></svg>L'aide de notre équipe pour préparer votre catalogue</li>
-          </ul>
-        </div>
-        <div class="talk">
-          <p class="trial">14 jours gratuits.</p>
-          <p>Ensuite, nous vous proposons un tarif clair en FCFA, selon ce que vous vendez et le nombre de messages que vous recevez.</p>
-          <a class="btn btn-gold" href="/inscription">Essayer gratuitement</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="questions" aria-labelledby="questions-titre">
+  <!-- Avant de signer -->
+  <section id="questions" aria-labelledby="questions-titre" style="padding-top:0">
     <div class="wrap faq">
-      <h2 id="questions-titre">Vous vous demandez sûrement…</h2>
+      <h2 id="questions-titre">Avant de signer.</h2>
       <div class="list">
         <details><summary>Mes clients sauront-ils qu'ils parlent à une IA ?</summary><p>Oui. Wakil se présente comme l'assistant virtuel de votre entreprise, et le dit si on lui demande. Les clients apprécient surtout d'avoir une réponse tout de suite.</p></details>
         <details><summary>Et s'il ne sait pas répondre ?</summary><p>Il ne devine pas. Pour une question hors catalogue, une réclamation ou une négociation, il vous prévient sur WhatsApp avec un résumé, et vous reprenez la conversation.</p></details>
@@ -551,22 +654,34 @@
     </div>
   </section>
 
-  <section class="night final" id="essayer" aria-labelledby="essayer-titre">
+  <!-- Le contrat, et le message pour l'équipe -->
+  <section class="contrat-sec" id="contrat" aria-labelledby="contrat-titre" style="padding-top:0">
     <div class="wrap">
-      <div>
-        <h2 id="essayer-titre">Ce soir, c'est Wakil qui répond.</h2>
-        <p class="lead" style="margin-top:16px">Inscrivez-vous maintenant : 14 jours gratuits à partir du jour où il répond à vos clients.</p>
-        <div class="cta"><a class="btn btn-gold" href="/inscription">Essayer 14 jours gratuits</a></div>
+      <div class="contrat paper">
+        <h2 id="contrat-titre">Contrat de période d'essai.</h2>
+        <div class="clauses">
+          <div class="row"><span class="lab">Entre :</span><span class="val">votre entreprise</span></div>
+          <div class="row"><span class="lab">Et :</span><span class="val">Wakil, commercial</span></div>
+          <div class="row"><span class="lab">Durée :</span><span class="val">14 jours, à partir de son premier jour</span></div>
+          <div class="row"><span class="lab">Horaires :</span><span class="val">24 h/24, 7 j/7</span></div>
+          <div class="row"><span class="lab">Mission :</span><span class="val">répondre à vos clients, remplir votre carnet</span></div>
+        </div>
+        <div class="sigs">
+          <div class="sig"><small>L'employeur</small><span class="val you">vous</span></div>
+          <div class="sig"><small>Le commercial</small><span class="val">Wakil</span></div>
+        </div>
+        <div class="cta"><a class="btn btn-ink" href="/inscription">Signer et commencer l'essai</a></div>
       </div>
+
       <div>
         <form id="lead" novalidate>
-          <h3>Vous préférez qu'on vous appelle ?</h3>
-          <p class="intro">Laissez vos coordonnées : nous vous recontactons sur WhatsApp pour préparer Wakil avec vous.</p>
-          <label>Votre nom<input name="name" autocomplete="name" required maxlength="80"></label>
-          <label>Entreprise<input name="company" autocomplete="organization" required maxlength="120"></label>
-          <label>Secteur
+          <div class="msg-head"><b>Message téléphonique</b><small>Pour l'équipe Wakil</small></div>
+          <p class="intro">Vous préférez qu'on vous appelle ? Laissez un mot : nous vous recontactons sur WhatsApp.</p>
+          <label><span>De :</span><input name="name" autocomplete="name" required maxlength="80" placeholder="votre nom"></label>
+          <label><span>Entreprise :</span><input name="company" autocomplete="organization" required maxlength="120" placeholder="le nom de votre entreprise"></label>
+          <label><span>Secteur :</span>
             <select name="sector">
-              <option value="">Choisir…</option>
+              <option value="">choisir…</option>
               <option>Matériaux de construction</option>
               <option>Carrière / granulats</option>
               <option>Quincaillerie</option>
@@ -576,16 +691,17 @@
               <option>Autre</option>
             </select>
           </label>
-          <label>Ville et pays<input name="city" autocomplete="address-level2" maxlength="80" placeholder="Abidjan, Côte d'Ivoire"></label>
-          <label class="full">Numéro WhatsApp <small>avec l'indicatif du pays</small><input name="phone" type="tel" autocomplete="tel" required placeholder="+225 07 00 00 00 00"></label>
-          <label class="full">Ce que vous vendez <small>(facultatif)</small><textarea name="message" maxlength="1000"></textarea></label>
+          <label><span>Ville :</span><input name="city" autocomplete="address-level2" maxlength="80" placeholder="Abidjan, Côte d'Ivoire"></label>
+          <label><span>WhatsApp :</span><input name="phone" type="tel" autocomplete="tel" required placeholder="+225 07 00 00 00 00"></label>
+          <label><span>Message :</span><textarea name="message" maxlength="1000" placeholder="ce que vous vendez (facultatif)"></textarea></label>
           <label class="hp" aria-hidden="true">Site web<input name="website" tabindex="-1" autocomplete="off"></label>
-          <button class="btn btn-navy" type="submit">Être rappelé sur WhatsApp</button>
+          <div class="boxes"><span><i>✓</i>Prière de rappeler</span></div>
+          <button class="btn btn-ink" type="submit">Laisser le message</button>
           <p class="status" role="status" aria-live="polite"></p>
         </form>
         <div class="thanks" hidden tabindex="-1">
-          <h3>Merci, c'est bien reçu.</h3>
-          <p>Nous vous écrivons sur WhatsApp très bientôt pour préparer Wakil avec vous. En attendant, vous pouvez parler à Wakil en bas de cette page.</p>
+          <div class="msg-head"><b>Message reçu</b><small>Pour l'équipe Wakil</small></div>
+          <p>Merci. Nous vous écrivons sur WhatsApp très bientôt pour préparer Wakil avec vous. En attendant, vous pouvez lui parler en bas de cette page.</p>
         </div>
       </div>
     </div>
@@ -594,7 +710,7 @@
 
 <footer>
   <div class="wrap">
-    <a class="brand" href="/" aria-label="Wakil, accueil" style="font-size:21px"><svg aria-hidden="true" style="width:28px;height:28px"><use href="#logo"/></svg>wakil</a>
+    <a class="brand" href="/" aria-label="Wakil, accueil"><svg aria-hidden="true" style="width:28px;height:28px"><use href="#logo"/></svg>wakil</a>
     <nav aria-label="Liens">
       <a href="/inscription">Inscription</a>
       <a href="/app/">Se connecter</a>
@@ -604,113 +720,106 @@
   </div>
 </footer>
 
-<script src="/wakil-chat.js" data-tenant="wakil" data-accent="#f4b23a" data-on-accent="#1b2066" data-position="right" data-title="Wakil" data-teaser="off" data-greeting="Bonjour 👋 Je suis Wakil, le commercial virtuel qui répond à vos clients sur WhatsApp et sur votre site. Que vendez-vous ? Je vous montre ce que je peux faire pour votre entreprise." defer></script>
+<script src="/wakil-chat.js" data-tenant="wakil" data-accent="#2338b5" data-on-accent="#ffffff" data-position="right" data-title="Wakil" data-teaser="off" data-greeting="Bonjour 👋 Je suis Wakil, le commercial virtuel qui répond à vos clients sur WhatsApp et sur votre site. Que vendez-vous ? Je vous montre ce que je peux faire pour votre entreprise." defer></script>
 <script>
 (() => {
   document.getElementById("year").textContent = new Date().getFullYear();
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const two = (n) => String(n).padStart(2, "0");
+  const fetchConfig = fetch("/chat/config?tenant=wakil").then((r) => (r.ok ? r.json() : null)).catch(() => null);
   const withChat = (fn, tries = 0) => {
     document.documentElement.classList.add("chat-used");
     return window.WakilChat ? fn(window.WakilChat) : tries < 50 && setTimeout(() => withChat(fn, tries + 1), 200);
   };
-  // Pendant l'appel et la nuit, le bouton flottant du chat se retire : ces moments ont leurs propres boutons.
-  const onStage = new Set();
-  const stage = new IntersectionObserver((entries) => {
-    entries.forEach((e) => (e.isIntersecting ? onStage.add(e.target) : onStage.delete(e.target)));
-    document.documentElement.classList.toggle("stage", onStage.size > 0);
-  }, { threshold: 0.25 });
-  ["hero", "lapse-sticky"].forEach((c) => stage.observe(document.querySelector(`.${c}`)));
-  const fetchConfig = fetch("/chat/config?tenant=wakil").then((r) => (r.ok ? r.json() : null)).catch(() => null);
 
-  /* =====================================================================
-   * L'appel : décrocher fait parler Wakil avec la voix française de l'appareil,
-   * mot à mot en sous-titres géants. Sans voix, les sous-titres défilent seuls.
-   * ===================================================================== */
+  /* ---------- Le bon de commande s'écrit à la main, puis le tampon tombe ---------- */
+  const today = new Date();
+  document.getElementById("bon-date").textContent = `${two(today.getDate())}/${two(today.getMonth() + 1)}/${today.getFullYear()}`;
+  const zone = document.querySelector(".bon-zone");
+  const bon = zone.querySelector(".bon");
+  const fields = [...bon.querySelectorAll(".bon-main .val[data-w]"), ...bon.querySelectorAll(".souche .val[data-w]")];
+  let t = 0.9;
+  fields.forEach((el) => {
+    const dur = Math.min(0.95, Math.max(0.32, el.textContent.length * 0.055));
+    el.style.setProperty("--d", `${t.toFixed(2)}s`);
+    el.style.setProperty("--dur", `${dur.toFixed(2)}s`);
+    t += dur + 0.12;
+  });
+  const start = () => {
+    zone.classList.add("go");
+    bon.classList.add("writing");
+    setTimeout(() => zone.classList.add("stamped"), reduced ? 0 : (t + 0.25) * 1000);
+  };
+  // L'écriture commence quand le bon est à l'écran (sur téléphone, il est sous le titre).
+  const fontsReady = document.fonts?.ready || Promise.resolve();
+  new IntersectionObserver((entries, obs) => {
+    if (!entries.some((e) => e.isIntersecting)) return;
+    obs.disconnect();
+    fontsReady.then(() => setTimeout(start, 150));
+  }, { threshold: 0.45 }).observe(bon);
+
+  /* ---------- « Présentez-vous. » : la voix de l'appareil, et ses mots écrits à la main ---------- */
   const LINES = [
-    "Allô ? Bonjour ! Ici Wakil.",
-    "Je suis le commercial qui répond à vos clients sur WhatsApp, même à minuit.",
+    "Bonjour ! Je suis Wakil, votre futur commercial.",
+    "Je réponds à vos clients sur WhatsApp, même à minuit.",
     "Je comprends leurs vocaux, je conseille le bon produit, et je calcule les quantités.",
     "Quand un client est prêt, je prends sa commande, et vous la recevez sur votre téléphone.",
     "Une réclamation, une négociation ? Je vous passe la main.",
-    "Alors, on travaille ensemble ? À vous de me parler.",
+    "Alors, vous m'embauchez ? Posez-moi vos questions.",
   ];
-  const hero = document.querySelector(".hero");
+  const pitch = document.querySelector(".pitch");
   const caption = document.getElementById("caption");
-  const dots = document.querySelector(".cap-dots");
+  const dots = pitch.querySelector(".dots");
   const note = document.getElementById("cap-note");
-  const timerEl = document.getElementById("timer");
-  const totalEl = document.querySelector(".call-status .total");
-  document.getElementById("transcript-text").textContent = LINES.join(" ");
+  const timerEl = document.getElementById("pitch-timer");
   dots.innerHTML = LINES.map(() => "<i></i>").join("");
-
-  function setState(state) {
-    hero.dataset.state = state;
-    hero.querySelectorAll("[data-when]").forEach((el) => (el.hidden = !el.dataset.when.split(" ").includes(state)));
-  }
-
+  const setState = (s) => {
+    pitch.dataset.state = s;
+    pitch.querySelectorAll("[data-when]").forEach((el) => (el.hidden = !el.dataset.when.split(" ").includes(s)));
+  };
   const synth = "speechSynthesis" in window ? window.speechSynthesis : null;
   let voices = [];
   const loadVoices = () => { try { voices = synth ? synth.getVoices() : []; } catch { voices = []; } };
   if (synth) { loadVoices(); synth.addEventListener?.("voiceschanged", loadVoices); }
   function frenchVoice() {
     const fr = voices.filter((v) => /^fr([-_]|$)/i.test(v.lang));
-    const prefer = [/Denise|Eloise|Vivienne|Henri|Remy/i, /Google/i, /Thomas|Amélie|Amelie|Audrey|Aurélie|Marie|Daniel/i];
-    for (const re of prefer) {
+    for (const re of [/Denise|Eloise|Vivienne|Henri|Remy/i, /Google/i, /Thomas|Amélie|Amelie|Audrey|Aurélie|Marie|Daniel/i]) {
       const v = fr.find((x) => re.test(x.name) && /fr[-_]FR/i.test(x.lang)) || fr.find((x) => re.test(x.name));
       if (v) return v;
     }
     return fr.find((x) => /fr[-_]FR/i.test(x.lang)) || fr[0] || null;
   }
-
   let run = 0, started = 0, tick = null, wordTimer = null, gotBoundary = false;
   const timers = new Set();
   const later = (fn, ms) => { const id = setTimeout(() => { timers.delete(id); fn(); }, ms); timers.add(id); };
   const clearAll = () => { timers.forEach(clearTimeout); timers.clear(); clearInterval(wordTimer); };
   const duration = (text) => Math.max(1400, text.length * 68);
-
-  function mark(upto) {
-    caption.querySelectorAll("span").forEach((s, k) => (s.className = k < upto ? "done" : k === upto ? "now" : ""));
-  }
+  const mark = (upto) => caption.querySelectorAll("span").forEach((s, k) => (s.className = k < upto ? "done" : k === upto ? "now" : ""));
   function showLine(i) {
     const words = LINES[i].split(" ");
     caption.innerHTML = words.map((w) => `<span>${esc(w)}</span>`).join(" ");
     dots.querySelectorAll("i").forEach((d, k) => d.classList.toggle("on", k <= i));
-    // Le mot en cours est estimé ; les vrais repères de la voix le remplacent quand l'appareil en donne.
     clearInterval(wordTimer);
     let k = 0;
     mark(0);
-    wordTimer = setInterval(() => {
-      if (gotBoundary || ++k >= words.length) return clearInterval(wordTimer);
-      mark(k);
-    }, duration(LINES[i]) / words.length);
+    wordTimer = setInterval(() => { if (gotBoundary || ++k >= words.length) return clearInterval(wordTimer); mark(k); }, duration(LINES[i]) / words.length);
   }
-  const wordAt = (i, charIndex) => LINES[i].slice(0, charIndex).split(" ").length - 1;
-
-  function startClock() {
+  const wordAt = (i, c) => LINES[i].slice(0, c).split(" ").length - 1;
+  function speak() {
+    const id = ++run;
+    clearAll();
+    try { synth?.cancel(); } catch {}
+    setState("talking");
+    note.hidden = true;
     started = Date.now();
     timerEl.textContent = "00:00";
     clearInterval(tick);
-    tick = setInterval(() => {
-      const s = Math.floor((Date.now() - started) / 1000);
-      timerEl.textContent = `${two(Math.floor(s / 60))}:${two(s % 60)}`;
-    }, 500);
-  }
-
-  function answer() {
-    const id = ++run;
-    clearAll();
-    if (hero.getBoundingClientRect().top < 0) scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
-    try { synth?.cancel(); } catch {}
-    setState("talking");
-    hero.setAttribute("data-speaking", "");
-    note.hidden = true;
-    startClock();
+    tick = setInterval(() => { const s = Math.floor((Date.now() - started) / 1000); timerEl.textContent = `${two(Math.floor(s / 60))}:${two(s % 60)}`; }, 500);
     showLine(0);
     if (!synth) return silent(id, 0);
     loadVoices();
     const voice = frenchVoice();
-    // L'appareil a des voix, mais aucune en français : sous-titres seuls plutôt qu'un accent étranger.
     if (!voice && voices.length) return silent(id, 0);
     gotBoundary = false;
     let began = false;
@@ -722,17 +831,11 @@
       u.onstart = () => { if (id === run) { began = true; showLine(i); } };
       u.onboundary = (e) => { if (id === run && typeof e.charIndex === "number" && e.charIndex > 0) { gotBoundary = true; mark(wordAt(i, e.charIndex)); } };
       u.onend = () => { if (id === run && i === LINES.length - 1) { mark(99); later(() => finish(id), 500); } };
-      u.onerror = (e) => {
-        if (id !== run || e.error === "interrupted" || e.error === "canceled") return;
-        try { synth.cancel(); } catch {}
-        silent(id, i);
-      };
+      u.onerror = (e) => { if (id !== run || e.error === "interrupted" || e.error === "canceled") return; try { synth.cancel(); } catch {} silent(id, i); };
       synth.speak(u);
     });
-    // Certains appareils annoncent une voix mais ne parlent jamais : on passe aux sous-titres seuls.
     later(() => { if (id === run && !began) { try { synth.cancel(); } catch {} silent(id, 0); } }, 2600);
   }
-
   function silent(id, from) {
     note.hidden = false;
     const step = (i) => {
@@ -743,63 +846,52 @@
     };
     step(from);
   }
-
-  function stop() {
-    clearAll();
-    clearInterval(tick);
-    hero.removeAttribute("data-speaking");
-    totalEl.textContent = timerEl.textContent;
-    setState("ended");
-  }
+  function stop() { clearAll(); clearInterval(tick); setState("ended"); }
   function finish(id) { if (id === run) stop(); }
-  function hangUp() {
-    run++;
-    try { synth?.cancel(); } catch {}
-    stop();
-  }
-  function hangUpQuietly() { if (hero.dataset.state === "talking") hangUp(); }
-  function talkToWakil() {
-    hangUpQuietly();
-    fetchConfig.then((c) => withChat((w) => (c?.call && w.call ? w.call() : w.open())));
-  }
-
-  document.getElementById("accept").addEventListener("click", answer);
-  document.getElementById("decline").addEventListener("click", () => setState("missed"));
-  document.getElementById("hangup").addEventListener("click", hangUp);
-  hero.querySelectorAll("[data-replay]").forEach((b) => b.addEventListener("click", answer));
-  hero.querySelectorAll("[data-talk]").forEach((b) => b.addEventListener("click", talkToWakil));
+  function hangUp() { run++; try { synth?.cancel(); } catch {} stop(); }
+  const hangUpQuietly = () => { if (pitch.dataset.state === "talking") hangUp(); };
+  document.getElementById("pitch-start").addEventListener("click", speak);
+  document.getElementById("pitch-again").addEventListener("click", speak);
+  document.getElementById("pitch-stop").addEventListener("click", hangUp);
   addEventListener("pagehide", () => { try { synth?.cancel(); } catch {} });
 
-  /* =====================================================================
-   * Une nuit sur l'écran verrouillé : le défilement fait avancer l'heure,
-   * le ciel passe de la nuit à l'aube, et les notifications de Wakil arrivent.
-   * ===================================================================== */
-  const track = document.querySelector(".lapse-track");
-  const lock = document.querySelector(".lock");
-  const clock = document.getElementById("lock-clock");
-  const dateEl = document.getElementById("lock-date");
-  const pings = [...document.querySelectorAll(".notif, .alarm")];
-  const moments = [...document.querySelectorAll(".moments li")];
-  const cap = document.querySelector(".lapse-caption");
-  const MOMENT_AT = [0, 0.16, 0.4, 0.62, 0.86];
-  // Heures repères, en minutes depuis minuit la veille (au-delà de 1440, c'est le lendemain).
-  const ANCHORS = [[0, 1307], [0.2, 1390], [0.45, 1524], [0.7, 1792], [0.9, 1890], [1, 1890]];
-  const today = new Date();
-  const tomorrow = new Date(today.getTime() + 864e5);
-  const fmtDate = (d) => { const t = d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }); return t.charAt(0).toUpperCase() + t.slice(1); };
-  document.documentElement.classList.add("js-lapse");
-  let lastMoment = -1, frame = 0;
+  /* ---------- Questions d'entretien : elles ouvrent le chat de Wakil ---------- */
+  document.querySelectorAll(".ask").forEach((b) => b.addEventListener("click", () => { hangUpQuietly(); withChat((c) => c.send(b.dataset.q)); }));
+  document.getElementById("open-demo").addEventListener("click", () => { hangUpQuietly(); withChat((c) => c.open()); });
+  fetchConfig.then((c) => {
+    if (!c?.call || !navigator.mediaDevices?.getUserMedia) return;
+    const btn = document.getElementById("call-demo");
+    btn.hidden = false;
+    btn.addEventListener("click", () => { hangUpQuietly(); withChat((w) => (w.call ? w.call() : w.open())); });
+  });
 
-  function minutesAt(p) {
+  /* ---------- Pendant votre absence : le défilement fait passer la nuit ---------- */
+  const track = document.querySelector(".abs-track");
+  const section = document.querySelector(".absence");
+  const clock = document.getElementById("abs-clock");
+  const dayEl = document.getElementById("abs-day");
+  const nowEl = document.getElementById("abs-now");
+  const msgs = [...document.querySelectorAll(".msg")];
+  const pad = document.querySelector(".pad");
+  const MOMENTS = [
+    [0, "Une question de prix", "Wakil répond avec le prix de votre catalogue. Il ne vous dérange pas."],
+    [0.2, "Une commande", "Récapitulatif, confirmation, référence : la commande est notée et vous est envoyée."],
+    [0.44, "Un vocal en pleine nuit", "Il écoute, comprend, et envoie la photo du produit."],
+    [0.66, "Une négociation", "30 tonnes, un prix à discuter : il vous laisse un mot pour rappeler la cliente."],
+    [0.88, "Vous arrivez.", "Tous ses mots sont sur le bureau : une commande à livrer, une cliente à rappeler. Le reste est fait."],
+  ];
+  const ANCHORS = [[0, 1307], [0.2, 1390], [0.44, 1524], [0.66, 1792], [0.88, 1890], [1, 1890]];
+  document.documentElement.classList.add("js-abs");
+  let lastMoment = -1, frame = 0;
+  const minutesAt = (p) => {
     for (let i = 1; i < ANCHORS.length; i++) {
       const [p0, m0] = ANCHORS[i - 1], [p1, m1] = ANCHORS[i];
       if (p <= p1) return Math.round(m0 + ((p - p0) / (p1 - p0 || 1)) * (m1 - m0));
     }
     return ANCHORS[ANCHORS.length - 1][1];
-  }
-  const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
-
-  function renderLapse() {
+  };
+  const smooth = (a, b, x) => { const v = Math.min(1, Math.max(0, (x - a) / (b - a))); return v * v * (3 - 2 * v); };
+  function renderNight() {
     frame = 0;
     const head = document.querySelector(".top").offsetHeight;
     const r = track.getBoundingClientRect();
@@ -807,24 +899,25 @@
     const p = Math.min(1, Math.max(0, (head - r.top) / (span || 1)));
     const m = minutesAt(p);
     clock.textContent = `${two(Math.floor(m / 60) % 24)}:${two(m % 60)}`;
-    dateEl.textContent = fmtDate(m >= 1440 ? tomorrow : today);
-    lock.style.setProperty("--dawn", smooth(0.7, 0.95, p).toFixed(3));
-    pings.forEach((n) => n.classList.toggle("on", p >= Number(n.dataset.at)));
+    dayEl.textContent = m < 1440 ? "Jeudi soir" : m < 1800 ? "Dans la nuit de jeudi à vendredi" : "Vendredi matin";
+    section.style.setProperty("--dawn", smooth(0.68, 0.95, p).toFixed(3));
+    msgs.forEach((n) => n.classList.toggle("on", p >= Number(n.dataset.at)));
+    pad.classList.toggle("spread", p >= 0.9);
     let i = 0;
-    MOMENT_AT.forEach((at, k) => { if (p >= at) i = k; });
+    MOMENTS.forEach(([at], k) => { if (p >= at) i = k; });
     if (i !== lastMoment) {
       lastMoment = i;
-      moments.forEach((li, k) => li.classList.toggle("on", k === i));
-      const li = moments[i];
-      cap.innerHTML = `<span class="t">${esc(li.querySelector(".t").textContent)}</span><b>${esc(li.querySelector("h3").textContent)}</b><p>${esc(li.querySelector("p").textContent)}</p>`;
+      nowEl.innerHTML = `<b>${esc(MOMENTS[i][1])}</b><p>${esc(MOMENTS[i][2])}</p>`;
     }
   }
-  const onScroll = () => { if (!frame) frame = requestAnimationFrame(renderLapse); };
+  const onScroll = () => { if (!frame) frame = requestAnimationFrame(renderNight); };
   addEventListener("scroll", onScroll, { passive: true });
   addEventListener("resize", onScroll);
-  renderLapse();
+  renderNight();
+  // Pendant la nuit, le bouton flottant du chat se retire : il cacherait le bloc de messages.
+  new IntersectionObserver(([e]) => document.documentElement.classList.toggle("stage", e.isIntersecting), { threshold: 0.3 }).observe(document.querySelector(".abs-sticky"));
 
-  /* ---------- Compte à rebours du lancement (12 décembre 2026, minuit à Abidjan) ---------- */
+  /* ---------- Compte à rebours de la prise de poste (12 décembre 2026, minuit à Abidjan) ---------- */
   const LAUNCH = Date.UTC(2026, 11, 12);
   function countdown() {
     const left = Math.max(0, LAUNCH - Date.now());
@@ -834,18 +927,7 @@
   countdown();
   setInterval(countdown, 30000);
 
-  /* ---------- Démonstration : les exemples ouvrent le chat de Wakil ---------- */
-  document.querySelectorAll(".try").forEach((b) => b.addEventListener("click", () => { hangUpQuietly(); withChat((c) => c.send(b.dataset.q)); }));
-  document.getElementById("open-demo").addEventListener("click", () => { hangUpQuietly(); withChat((c) => c.open()); });
-  // « Appeler Wakil » seulement quand la voix est prête (le serveur le dit dans /chat/config).
-  fetchConfig.then((c) => {
-    if (!c?.call || !navigator.mediaDevices?.getUserMedia) return;
-    const btn = document.getElementById("call-demo");
-    btn.hidden = false;
-    btn.addEventListener("click", () => { hangUpQuietly(); withChat((w) => (w.call ? w.call() : w.open())); });
-  });
-
-  /* ---------- Formulaire « être rappelé » ---------- */
+  /* ---------- Le message pour l'équipe (formulaire « être rappelé ») ---------- */
   const form = document.getElementById("lead"), status = form.querySelector(".status"), button = form.querySelector("button");
   const ERRORS = {
     missing_fields: "Indiquez votre nom et le nom de votre entreprise.",
