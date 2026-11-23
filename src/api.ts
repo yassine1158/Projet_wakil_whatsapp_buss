@@ -1,11 +1,17 @@
 import { createToken, hashPassword, samePassword, verifyPassword, verifyToken, type Role } from "./auth";
 import { loadCatalog } from "./catalog";
 import { completeWhatsappSignup, parseTenantInput, TENANT_ID_RE } from "./companies";
-import { checkClaude } from "./diagnostic";
+import { defaultBrain } from "./brain";
+import { checkClaude, checkWhatsApp } from "./diagnostic";
+import { MetaError, registerHostedNumber, requestHostedCode, verifyHostedCode } from "./hosted-number";
+import type { InboxDO } from "./inbox-do";
+import { notifyWakilTeam } from "./leads";
 import { LEAD_STATUSES, ORDER_STATUSES, type LeadStatus, type OrderStatus } from "./inbox-types";
 import { INBOX_NAME, webConversation } from "./names";
 import { configTenantIds, invalidateTenants, listTenants, tenantById } from "./registry";
-import type { Env, Tenant } from "./types";
+import { handleSignup } from "./signup";
+import { changeSubscription, startTrial, subscriptionView } from "./subscription";
+import { PLANS, type Env, type HostedNumber, type Plan, type Tenant } from "./types";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -16,7 +22,8 @@ const json = (body: unknown, status = 200) =>
 const SESSION_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
 /**
- * API de l'application (/app). Tout passe par un jeton de session, sauf /api/login.
+ * API de l'application (/app). Tout passe par un jeton de session, sauf /api/login et
+ * /api/signup (inscription d'une nouvelle entreprise, avec un essai gratuit).
  * L'administrateur voit toutes les entreprises ; un patron ne voit que la sienne.
  */
 export async function handleApi(request: Request, env: Env, url: URL): Promise<Response> {
@@ -26,6 +33,8 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
   const method = request.method;
   const inbox = env.INBOX.get(env.INBOX.idFromName(INBOX_NAME));
   const body = method === "POST" ? ((await request.json().catch(() => ({}))) as Record<string, unknown>) : {};
+
+  if (route[0] === "signup" && method === "POST") return handleSignup(request, env, url, body, Date.now());
 
   if (route[0] === "login" && method === "POST") {
     if (env.CHAT_LIMITER) {
@@ -62,14 +71,20 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
       return json({
         role: role.kind,
         tenantId: role.kind === "tenant" ? role.tenantId : null,
-        metaSignup: isAdmin && env.META_APP_ID && env.META_CONFIG_ID ? { appId: env.META_APP_ID, configId: env.META_CONFIG_ID } : null,
+        metaSignup: env.META_APP_ID && env.META_CONFIG_ID ? { appId: env.META_APP_ID, configId: env.META_CONFIG_ID } : null,
       });
 
     case "GET tenants":
       return json(
         (await listTenants(env))
           .filter((t) => mine(t.id))
-          .map((t) => ({ id: t.id, businessName: t.businessName, assistantName: t.assistantName, demo: !!t.demo })),
+          .map((t) => ({
+            id: t.id,
+            businessName: t.businessName,
+            assistantName: t.assistantName,
+            demo: !!t.demo,
+            subscription: subscriptionView(t, Date.now()),
+          })),
       );
 
     case "GET overview": {
@@ -127,6 +142,17 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
     case "GET leads":
       return isAdmin ? json(await inbox.listLeads()) : adminOnly();
 
+    // Wakil Brain en mode ombre : accord avec Claude (route[1] vide) ou export pour l'entraîner (route[1] = "export").
+    case "GET brain": {
+      if (!isAdmin) return adminOnly();
+      const only = url.searchParams.get("tenant") || null;
+      if (route[1] === "export") {
+        const samples = (await inbox.brainSamples(only, 20000)).map(({ context, text, predicted, teacher, at }) => ({ context, text, predicted, teacher, at }));
+        return json({ format: "wakil-brain-samples-1", samples });
+      }
+      return json({ stats: await inbox.brainStats(only), model: defaultBrain().metadata });
+    }
+
     case "POST leads": {
       if (!isAdmin) return adminOnly();
       const status = body.status as LeadStatus;
@@ -146,12 +172,20 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
     case "GET diagnostic":
       return isAdmin ? json(await checkClaude(env)) : adminOnly();
 
+    case "GET diagnostic-whatsapp":
+      if (!isAdmin) return adminOnly();
+      if (!tenant) return json({ error: "unknown_tenant" }, 404);
+      return json(await checkWhatsApp(env, tenant, (await inbox.tenantSecrets(tenant.id))?.whatsappToken ?? null));
+
     case "GET settings": {
       if (!tenant) return json({ error: "unknown_tenant" }, 404);
       let products: { name: string; available: boolean; price: string; unit: string }[] = [];
       let catalogError = false;
+      let infoFilled = false;
       try {
-        products = (await loadCatalog(tenant)).products.map(({ name, available, price, unit }) => ({ name, available, price, unit }));
+        const catalog = await loadCatalog(tenant);
+        products = catalog.products.map(({ name, available, price, unit }) => ({ name, available, price, unit }));
+        infoFilled = !!(catalog.info.hours || catalog.info.address || catalog.info.about);
       } catch {
         catalogError = true;
       }
@@ -168,19 +202,31 @@ export async function handleApi(request: Request, env: Env, url: URL): Promise<R
         catalogUrl: tenant.catalog.productsUrl ?? null,
         products,
         catalogError,
+        infoFilled,
         model: env.CLAUDE_MODEL ?? "claude-opus-5-5",
       });
     }
 
     case "GET companies":
     case "POST companies":
-      if (!isAdmin) return adminOnly();
+      if (role.kind === "tenant" && !ownCompanyRoute(method, route.slice(1), body, role.tenantId)) return adminOnly();
       return handleCompanies(method, route.slice(1), body, env, url);
   }
   return json({ error: "not_found" }, 404);
 }
 
-/** Entreprises (administrateur seulement) : liste, fiche, mot de passe du patron, WhatsApp. */
+/**
+ * Ce qu'un patron peut faire sur sa propre entreprise : lire et modifier sa fiche,
+ * connecter son WhatsApp par l'inscription de Meta, ou le délier. Le reste (liste,
+ * création, mot de passe, suppression, liaison à la main, abonnement) reste à l'administrateur.
+ */
+function ownCompanyRoute(method: string, [id, action, step]: string[], body: Record<string, unknown>, own: string): boolean {
+  if (method === "GET") return id === own && !action;
+  if (!id) return body.id === own;
+  return id === own && action === "whatsapp" && (step === "signup" || step === "disconnect" || step === "verify");
+}
+
+/** Entreprises : liste, fiche, mot de passe du patron, WhatsApp, abonnement. */
 async function handleCompanies(
   method: string,
   [id, action, step]: string[],
@@ -232,6 +278,16 @@ async function handleCompanies(
     return json({ ok: true, login: id });
   }
 
+  if (action === "subscription") {
+    if (!tenant.subscription) return json({ error: "no_subscription" }, 400);
+    const plan = PLANS.find((p) => p === body.plan) as Plan | undefined;
+    const count = (v: unknown, max: number) => Math.min(max, Math.max(0, Math.round(Number(v) || 0)));
+    return saved({
+      ...tenant,
+      subscription: changeSubscription(tenant.subscription, { plan, trialDays: count(body.trialDays, 60), paidMonths: count(body.paidMonths, 12) }, Date.now()),
+    });
+  }
+
   if (action === "delete") {
     await inbox.deleteTenant(id);
     invalidateTenants();
@@ -246,22 +302,30 @@ async function handleCompanies(
       const { whatsapp: _removed, ...rest } = tenant;
       return saved(rest);
     }
+    if (step === "hosted" || step === "verify") return hostedNumberStep(step, tenant, others, body, env, inbox, saved, url);
     if (step === "signup") {
       if (!env.META_APP_ID || !env.WHATSAPP_APP_SECRET) return json({ error: "meta_not_configured" }, 400);
       const code = String(body.code ?? ""), phoneNumberId = String(body.phoneNumberId ?? ""), wabaId = String(body.wabaId ?? "");
-      if (!code || !/^\d{5,25}$/.test(phoneNumberId) || !/^\d{5,25}$/.test(wabaId)) return json({ error: "bad_request" }, 400);
-      if (others.some((t) => t.whatsapp?.phoneNumberId === phoneNumberId)) return json({ error: "number_in_use" }, 409);
+      const coexistence = body.coexistence === true;
+      if (!code || (phoneNumberId && !/^\d{5,25}$/.test(phoneNumberId)) || !/^\d{5,25}$/.test(wabaId)) return json({ error: "bad_request" }, 400);
+      if (phoneNumberId && others.some((t) => t.whatsapp?.phoneNumberId === phoneNumberId)) return json({ error: "number_in_use" }, 409);
       try {
         const result = await completeWhatsappSignup({
           appId: env.META_APP_ID,
           appSecret: env.WHATSAPP_APP_SECRET,
           apiVersion: env.GRAPH_API_VERSION ?? "v23.0",
           code,
-          phoneNumberId,
+          ...(phoneNumberId ? { phoneNumberId } : {}),
           wabaId,
+          coexistence,
         });
+        if (others.some((t) => t.whatsapp?.phoneNumberId === result.phoneNumberId)) return json({ error: "number_in_use" }, 409);
         await inbox.setTenantWhatsappSecrets(id, result.token, result.pin);
-        return saved({ ...tenant, whatsapp: { phoneNumberId, wabaId, displayPhone: result.displayPhone } });
+        if (result.syncError) console.error(`Synchronisation WhatsApp Business de ${id} échouée`, result.syncError);
+        return saved({
+          ...tenant,
+          whatsapp: { phoneNumberId: result.phoneNumberId, wabaId, displayPhone: result.displayPhone, ...(coexistence ? { coexistence: true } : {}) },
+        });
       } catch (err) {
         return json({ error: "meta_error", message: (err as Error).message }, 502);
       }
@@ -278,4 +342,83 @@ async function handleCompanies(
 
   void url;
   return json({ error: "not_found" }, 404);
+}
+
+/**
+ * Numéro hébergé par Wakil (demandé à l'inscription) :
+ *   POST companies/:id/whatsapp/hosted { method: "SMS" | "VOICE" }   l'équipe valide : ajout du numéro et envoi du code
+ *   POST companies/:id/whatsapp/verify { code }                       le patron saisit le code : Wakil répond sur ce numéro
+ */
+async function hostedNumberStep(
+  step: "hosted" | "verify",
+  tenant: Tenant,
+  others: Tenant[],
+  body: Record<string, unknown>,
+  env: Env,
+  inbox: DurableObjectStub<InboxDO>,
+  saved: (t: Tenant) => Promise<Response>,
+  url: URL,
+): Promise<Response> {
+  const request = tenant.hostedNumber;
+  if (!request) return json({ error: "no_request" }, 400);
+  if (request.state === "connected") return json({ error: "already_connected" }, 409);
+  if (!env.WHATSAPP_WABA_ID || !env.WHATSAPP_TOKEN) return json({ error: "waba_not_configured" }, 400);
+  const ctx = { apiVersion: env.GRAPH_API_VERSION ?? "v23.0", token: env.WHATSAPP_TOKEN };
+  const now = Date.now();
+  const { error: _previous, ...current } = request;
+  const fail = async (err: unknown, changes: Partial<HostedNumber> = {}) => {
+    const message = (err as Error).message || "Erreur Meta";
+    await inbox.saveTenant({ ...tenant, hostedNumber: { ...current, ...changes, error: message } }, now);
+    invalidateTenants();
+    return message;
+  };
+
+  // Numéro vérifié : on l'active et Wakil répond dessus.
+  const connect = async (phoneNumberId: string) => {
+    if (others.some((t) => t.whatsapp?.phoneNumberId === phoneNumberId)) return json({ error: "number_in_use" }, 409);
+    let registered: { pin: string; displayPhone?: string };
+    try {
+      registered = await registerHostedNumber(ctx, phoneNumberId);
+    } catch (err) {
+      return json({ error: "meta_error", message: await fail(err, { phoneNumberId, state: "verified" }) }, 502);
+    }
+    await inbox.setTenantWhatsappSecrets(tenant.id, null, registered.pin);
+    // L'essai gratuit commence le jour où Wakil répond vraiment sur WhatsApp.
+    const subscription =
+      tenant.subscription && subscriptionView(tenant, now).status === "trial" ? startTrial(tenant.subscription.plan, now) : tenant.subscription;
+    const response = await saved({
+      ...tenant,
+      whatsapp: { phoneNumberId, wabaId: env.WHATSAPP_WABA_ID!, ...(registered.displayPhone ? { displayPhone: registered.displayPhone } : {}) },
+      hostedNumber: { ...current, phoneNumberId, state: "connected", connectedAt: now },
+      ...(subscription ? { subscription } : {}),
+    });
+    await notifyWakilTeam(env, `✅ ${tenant.businessName} : Wakil répond maintenant sur +${request.phone}.\n${url.origin}/app/#entreprises/${encodeURIComponent(tenant.id)}`).catch(() => {});
+    return response;
+  };
+
+  if (step === "hosted") {
+    const method = body.method === "VOICE" ? "VOICE" : "SMS";
+    if (request.state === "verified" && request.phoneNumberId) return connect(request.phoneNumberId);
+    try {
+      const { phoneNumberId, alreadyVerified } = await requestHostedCode(
+        { ...ctx, wabaId: env.WHATSAPP_WABA_ID },
+        { phone: request.phone, countryCode: request.countryCode, displayName: tenant.businessName, phoneNumberId: request.phoneNumberId, method },
+      );
+      if (alreadyVerified) return connect(phoneNumberId);
+      return saved({ ...tenant, hostedNumber: { ...current, phoneNumberId, state: "code_sent", codeMethod: method, codeSentAt: now } });
+    } catch (err) {
+      const phoneNumberId = (err as MetaError).phoneNumberId ?? request.phoneNumberId;
+      return json({ error: "meta_error", message: await fail(err, phoneNumberId ? { phoneNumberId } : {}) }, 502);
+    }
+  }
+
+  const code = String(body.code ?? "").replace(/\D/g, "");
+  if (!/^\d{6}$/.test(code)) return json({ error: "invalid", field: "code" }, 400);
+  if (request.state !== "code_sent" || !request.phoneNumberId) return json({ error: "no_code_requested" }, 400);
+  try {
+    await verifyHostedCode(ctx, request.phoneNumberId, code);
+  } catch (err) {
+    return json({ error: "wrong_code", message: await fail(err) }, 400);
+  }
+  return connect(request.phoneNumberId);
 }

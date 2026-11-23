@@ -4,10 +4,13 @@ import { tenantByPhoneNumberId } from "./registry";
 import type { Env, IncomingMessage, Tenant } from "./types";
 import { handleLead } from "./leads";
 import { handleChat } from "./web";
-import { parseWebhook, verifySignature, WhatsAppClient } from "./whatsapp";
+import { handleVoice } from "./voice";
+import { handleCall } from "./call/route";
+import { parseEchoes, parseWebhook, verifySignature, WhatsAppClient } from "./whatsapp";
 
 export { ConversationDO } from "./conversation-do";
 export { InboxDO } from "./inbox-do";
+export { CallDO } from "./call/call-do";
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -43,12 +46,26 @@ export default {
         }
         await conversation(env, phoneNumberId, message.from).enqueue(tenant.id, phoneNumberId, message);
       }
+      // Numéro en coexistence : le patron a répondu depuis son application WhatsApp Business.
+      for (const echo of parseEchoes(payload)) {
+        const tenant = await tenantByPhoneNumberId(env, echo.phoneNumberId);
+        if (!tenant || !echo.to) continue;
+        await conversation(env, echo.phoneNumberId, echo.to).ownerEcho(tenant.id, echo.phoneNumberId, echo.to, { id: echo.id, text: echo.text, at: echo.timestamp });
+      }
       // Répondre vite : Meta renvoie la notification si le 200 tarde.
       return new Response("OK");
     }
 
     if (url.pathname === "/chat" || url.pathname === "/chat/config") {
       return handleChat(request, env, url);
+    }
+
+    if (url.pathname === "/voice") {
+      return handleVoice(request, env, url);
+    }
+
+    if (url.pathname === "/call") {
+      return handleCall(request, env, url);
     }
 
     if (url.pathname.startsWith("/api/")) {

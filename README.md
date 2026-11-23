@@ -25,6 +25,18 @@ Pour l'activer : `ADMIN_PASSWORD` dans les secrets (choisissez un mot de passe l
 
 ## Ajouter une entreprise cliente
 
+**Inscription libre, avec le numéro WhatsApp de Wakil** : une entreprise s'inscrit seule sur `/inscription`. Elle donne son numéro personnel (pour recevoir les commandes), **le numéro que Wakil utilisera** (une puce sans compte WhatsApp), ses produits et prix en texte libre, et ses horaires. Puis :
+
+1. **L'équipe valide** : dans l'application, la fiche affiche « Numéro à valider ». Le bouton **Valider et envoyer le code** ajoute le numéro au compte WhatsApp de Wakil (`WHATSAPP_WABA_ID`), au nom de l'entreprise, et Meta envoie un code au numéro, par SMS ou par appel.
+2. **Le patron saisit le code** sur sa page d'inscription, qui suit l'avancement toute seule (ou dans **Mon entreprise**, ou avec l'équipe sur la fiche).
+3. **Wakil répond sur ce numéro** : le numéro est activé avec un code PIN, et l'essai gratuit de 14 jours (offre Pro) commence ce jour-là.
+
+Le patron n'a pas besoin de l'application : ses produits donnés à l'inscription servent à Wakil dès le premier jour, et les commandes arrivent sur son WhatsApp personnel. Il peut quand même compléter sa fiche dans **Mon entreprise**. Si Meta refuse (numéro déjà sur WhatsApp, trop d'essais, nom refusé), la cause s'affiche sur la fiche et sur la page du patron ; une fois le problème réglé, l'équipe relance la validation sans recréer le numéro.
+
+Limites de Meta : le numéro **ne doit pas avoir de compte WhatsApp** (le patron le supprime d'abord, ou prend une nouvelle puce) ; un portefeuille d'entreprise vérifié peut avoir jusqu'à 20 numéros ; le nom affiché passe par la vérification de Meta. Pour garder le numéro de l'application WhatsApp Business, utiliser plutôt **Connecter WhatsApp** (coexistence, ci-dessous).
+
+À la fin de l'essai, Wakil ne répond plus aux clients : leurs messages sont transférés au patron sur WhatsApp. L'administrateur prolonge l'essai ou enregistre un paiement reçu depuis la fiche (carte **Abonnement**). Les entreprises créées par l'équipe n'ont pas d'abonnement et ne sont jamais coupées.
+
 Dans l'application, **Entreprises → Nouvelle entreprise** :
 
 1. **La fiche** : nom, identifiant de connexion (proposé à partir du nom), numéro WhatsApp du patron (il y reçoit les commandes), horaires, adresse, moyens de paiement, consignes pour l'assistant.
@@ -45,6 +57,7 @@ Les entreprises de `config/tenants.json` (SICAR, la démonstration) apparaissent
 |---|---|
 | Messages texte | Réponse en quelques secondes, dans la langue du client |
 | Vocaux | Transcrits par Whisper (Workers AI), avec les noms des produits comme vocabulaire |
+| Réponses vocales | À un client qui envoie un vocal, Wakil répond aussi en vocal (MeloTTS, français), après le texte. Réglable par entreprise : après un vocal, à chaque message, ou jamais |
 | Photos | Le client peut envoyer une photo de son chantier ; Wakil la voit |
 | Position | Une position partagée est comprise comme lieu de livraison |
 | Messages en rafale | Wakil attend 4 s de calme (15 s au plus) et répond une seule fois |
@@ -52,6 +65,7 @@ Les entreprises de `config/tenants.json` (SICAR, la démonstration) apparaissent
 | Commande / devis | Récapitulatif, confirmation du client, référence `W-XXXXXX`, envoi au patron |
 | Passage à un humain | Sur demande, réclamation, négociation… : le patron est prévenu et Wakil se tait 12 h |
 | Prix | Jamais inventés : « sur devis » quand le site n'en affiche pas |
+| Appel vocal (chat du site) | Bouton 🎤 : le visiteur parle, Wakil répond à voix haute (voir « Appel vocal » plus bas) |
 | Chat du site web | Même assistant, même catalogue ; il demande le numéro du client avant d'enregistrer une commande, puis propose au visiteur un bouton pour envoyer aussi sa demande sur le WhatsApp de l'entreprise (numéro relié à Wakil, sinon celui du site) |
 
 ## Architecture
@@ -75,10 +89,14 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/index.ts` | Webhook (vérification Meta, signature), commandes du patron |
 | `src/api.ts`, `src/auth.ts` | API de l'application, connexions (administrateur, patrons) |
 | `src/companies.ts` | Fiche d'une entreprise (vérification), inscription WhatsApp de Meta |
+| `src/hosted-number.ts` | Numéro donné à l'inscription : ajout au compte WhatsApp de Wakil, code, activation |
 | `src/registry.ts` | Registre des entreprises : fichier de configuration + base, numéro WhatsApp de chacune |
 | `src/inbox-do.ts` | Boîte de réception (SQLite) : conversations, commandes, demandes, entreprises |
 | `public/app/index.html` | L'application |
 | `src/web.ts` | Chat du site web : `/chat` et `/chat/config`, contrôle du site d'origine et du débit |
+| `src/voice.ts` | Appel vocal du chat : `/voice` (Whisper → même conversation → voix MeloTTS) |
+| `src/call/` | Appel en direct : `/call` (WebSocket), salle `CallDO`, repérage des fins de phrase, déroulé de l'appel |
+| `src/speech.ts` | La voix de Wakil : ElevenLabs si la clé est là, sinon Workers AI |
 | `public/wakil-chat.js` | Le chat à intégrer dans un site (une seule balise `<script>`) |
 | `public/index.html` | Le site de Wakil (servi à l'adresse du Worker) |
 | `src/leads.ts` | Formulaire « Essayer Wakil » du site : `/leads` |
@@ -87,11 +105,71 @@ Visiteur du site ──► wakil-chat.js ──► POST /chat ───┘  (mê
 | `src/engine.ts` | File d'attente, vocaux/photos, réponse, notifications au patron |
 | `src/agent.ts` | Appel à Claude et boucle d'outils |
 | `src/free-model.ts` | Relais gratuit (Workers AI) quand Claude ne répond pas |
+| `src/brain.ts`, `src/brain-model.json` | Wakil Brain : modèle maison, en mode ombre (voir plus bas) |
 | `src/tools.ts` | Outils : `send_product_photo`, `record_order`, `request_human` |
 | `src/prompt.ts` | Le « caractère » du commercial et ses règles |
 | `src/catalog.ts` | Lecture et mise en forme du catalogue |
 | `src/whatsapp.ts` | Client de l'API WhatsApp Cloud |
 | `config/tenants.json` | Entreprises de départ (SICAR, démonstration) ; les autres se créent dans l'application |
+
+## Wakil Brain : notre propre modèle, en mode ombre
+
+Le cerveau de Wakil est aujourd'hui Claude (avec un relais gratuit). **Wakil Brain** est un premier modèle à nous, construit et entraîné de zéro dans le projet [WAKIL-AI](https://github.com/yassine1158/WAKIL-AI) (`train_intent.py`). À partir du dernier message de l'assistant et du message du client, il devine ce qu'il faut faire : **répondre**, **passer à un conseiller**, **enregistrer la commande** ou **envoyer une photo**.
+
+Il tourne en **mode ombre** : après chaque réponse réelle (pas les essais), sa prédiction est comparée à ce que Claude a vraiment fait et enregistrée. **Il ne change jamais la réponse envoyée au client**, et une panne de Wakil Brain est ignorée.
+
+- **Application → Wakil Brain** (administrateur) : nombre de messages observés, accord avec Claude par action, derniers messages.
+- **Télécharger les exemples** : chaque message réel avec ce que Claude a fait. Claude est le professeur, Wakil Brain l'élève. Les numéros de téléphone et les e-mails sont retirés avant l'enregistrement.
+- **Réentraîner** : dans WAKIL-AI, `python train_intent.py --teacher brain-samples.json --out <ce projet>/src/brain-model.json`, puis tests et mise en ligne comme d'habitude.
+
+Premier modèle : 65 700 paramètres, entraîné sur 640 exemples écrits à la main (SICAR, SANA). Sur 12 phrases nouvelles, il en a reconnu 11. Son vrai niveau se lira dans l'onglet Wakil Brain, sur les messages réels. Quand il sera d'accord avec Claude sur presque tout pour une action, on pourra lui confier cette action.
+
+## Appel vocal dans le chat du site
+
+Le chat du site a un bouton **🎤** : le visiteur parle, Wakil l'écoute et lui répond **à voix haute** (le texte reste affiché). Pas de numéro de téléphone ni de compte en plus : tout passe par Cloudflare.
+
+```
+🎤 navigateur (MediaRecorder) ──► POST /voice?tenant=…&session=…
+      Whisper (Workers AI) : voix → texte
+      la même conversation que le chat écrit : catalogue, commandes, conseiller
+      MeloTTS (Workers AI, français) : réponse → voix (MP3)
+◄── { transcript, replies, audio }   le chat affiche et lit la réponse
+```
+
+- L'enregistrement s'arrête tout seul après une courte pause (ou au toucher du bouton rouge), 30 secondes au plus. Toucher le micro pendant que Wakil parle le coupe.
+- Le message arrive marqué `[Appel vocal]` : le modèle répond en 1 à 3 phrases courtes, sans liste ni émoji, fait répéter ce qui est mal compris et relit le numéro de téléphone chiffre par chiffre. Avant la voix, les émojis, liens et mises en forme sont retirés, et `m3`, `5/15`, `25 000 FCFA` sont rendus faciles à dire.
+- Mêmes protections que le chat : sites autorisés, 20 requêtes par minute et par adresse, 60 messages par jour et par visiteur, enregistrement de 2 Mo au plus.
+- Coût : la transcription et la voix utilisent Workers AI (quota gratuit quotidien, puis facturé à l'usage) ; la réponse elle-même coûte comme un message écrit.
+- `data-voice="off"` sur la balise `<script>` masque le bouton.
+
+Limites : le visiteur parle, puis Wakil répond (pour une conversation en continu, voir « Appel en direct » ci-dessous) ; la transcription peut se tromper sur les noms propres et les accents. Le navigateur demande l'autorisation du micro, et la page doit être en HTTPS.
+
+## Appel en direct dans le chat du site
+
+Le bouton **Appeler** en haut du chat ouvre un appel : le visiteur parle comme au téléphone, sans toucher de bouton. Wakil repère quand il a fini sa phrase, répond à voix haute, puis l'écoute de nouveau. Le texte de l'appel s'affiche dans le chat, et c'est la même conversation que le chat écrit (catalogue, commandes, conseiller).
+
+```
+micro (16 kHz) ──► WebSocket /call?tenant=…&session=… ──► CallDO (un par appel)
+                   fin de phrase repérée (silence de 0,7 s)
+                   Deepgram Nova-3 (Workers AI) : voix → texte, Whisper en secours
+                   ConversationDO.chat : la même conversation que le chat écrit
+                   voix française, phrase par phrase (MP3)
+◄── heard / replies / audio / state      le chat affiche et joue la réponse
+```
+
+- **Interrompre** : si le visiteur parle fort pendant que Wakil parle, Wakil se tait et l'écoute.
+- **Raccrocher** : bouton rouge, ou automatiquement après 1 minute de silence, 40 phrases ou 10 minutes d'appel.
+- **Délais** : chaque échange envoie ses délais (transcription, réponse, premier son) ; ils apparaissent dans les journaux Cloudflare (« Appel : délais »). Mesuré sur Cloudflare le 19/11/2026 : Nova-3 transcrit une phrase en 0,3 à 0,4 s (Whisper prenait de 4 à 16 s), Claude répond en 1,5 à 2,5 s, et la voix démarre 3,5 à 5 s après la fin de la phrase avec la voix gratuite.
+- **Protections** : sites autorisés, 20 ouvertures d'appel par minute et par adresse, 60 messages par jour et par visiteur (comme le chat).
+- `data-voice="off"` masque aussi ce bouton.
+
+**La voix.** Cloudflare a annoncé le retrait de MeloTTS, la seule voix française gratuite de Workers AI (date annoncée : 20/11/2026). Pour une voix française fiable et naturelle, ajoutez une clé ElevenLabs :
+
+1. Créez un compte sur elevenlabs.io, puis une clé d'API (Profile → API Keys).
+2. Ajoutez-la dans GitHub : Settings → Secrets and variables → Actions → **New repository secret**, nom `ELEVENLABS_API_KEY`.
+3. Relancez le workflow « Mettre en ligne ».
+
+Sans clé, Wakil garde la voix gratuite de Workers AI tant qu'elle existe. Avec la clé, si ElevenLabs ne répond pas, la voix gratuite prend le relais pour la phrase. Facultatif, dans `vars` de `wrangler.jsonc` : `ELEVENLABS_VOICE_ID` (une autre voix de votre compte) et `ELEVENLABS_MODEL` (par défaut `eleven_flash_v2_5`, le plus rapide). Cette voix sert aussi au bouton 🎤.
 
 ## Mise en ligne depuis GitHub (recommandé)
 
@@ -112,6 +190,7 @@ Tout se règle dans GitHub ; Cloudflare fait tourner Wakil sans qu'on ait à y r
 | `ADMIN_PASSWORD` | le mot de passe de l'application | oui |
 | `WHATSAPP_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_VERIFY_TOKEN` | les valeurs de Meta | quand WhatsApp est prêt |
 | `META_APP_ID`, `META_CONFIG_ID` | l'App ID et la configuration de l'inscription intégrée | pour le bouton « Connecter WhatsApp » |
+| `WHATSAPP_WABA_ID` | l'identifiant du compte WhatsApp Business de Wakil (WhatsApp Manager → Comptes WhatsApp) | pour valider les numéros donnés à l'inscription |
 
 **Lancer** : onglet **Actions → Mettre en ligne → Run workflow**. Ensuite, chaque changement sur `main` est vérifié (tests) puis mis en ligne tout seul. Le résumé de chaque mise en ligne donne les adresses du site, de l'application et du webhook. Une clé ajoutée ou changée dans GitHub part au prochain lancement.
 
@@ -123,7 +202,11 @@ Tout se règle dans GitHub ; Cloudflare fait tourner Wakil sans qu'on ait à y r
 2. Dans **WhatsApp → API Setup** : noter le **Phone number ID** du numéro de test et ajouter votre numéro personnel comme destinataire de test.
 3. Créer un **jeton permanent** : Business Settings → System users → créer un utilisateur système admin, lui donner l'application et le compte WhatsApp, générer un jeton avec les permissions `whatsapp_business_messaging` et `whatsapp_business_management`. (Le jeton temporaire de la page API Setup expire en 24 h.)
 4. Noter la **clé secrète de l'application** : App settings → Basic → App secret.
-5. Pour **Connecter WhatsApp** (chaque client relie son propre numéro) : ajouter le produit **Facebook Login for Business**, y créer une **configuration** de type « WhatsApp Embedded Signup » et noter son **Configuration ID** (`META_CONFIG_ID`) ; noter l'**App ID** (`META_APP_ID`). Dans Facebook Login → Settings, ajouter l'adresse du Worker aux domaines autorisés. L'application doit passer la vérification d'entreprise de Meta (Tech Provider) avant d'être utilisée par de vrais clients.
+5. Pour **Connecter WhatsApp** (chaque entreprise relie son propre numéro, en un clic, depuis « Mon entreprise ») :
+   - Wakil doit être **Tech Provider** (vérification d'entreprise + accès avancé à `whatsapp_business_messaging` et `whatsapp_business_management`, vidéo d'App Review).
+   - **Facebook Login for Business → Configurations → Créer** : variante **Embedded Signup**, produit WhatsApp. Noter le **Configuration ID** (`META_CONFIG_ID`) et l'**App ID** (`META_APP_ID`), à mettre dans les secrets GitHub. Dans Facebook Login → Settings, ajouter l'adresse du Worker aux domaines autorisés. Une configuration d'avant la v4 ne marche plus : Meta a retiré les versions 2 et 3 le 15 octobre 2026.
+   - L'application lance l'inscription intégrée en **version 5**. Le patron peut connecter **le numéro de son application WhatsApp Business et la garder** (coexistence) : le numéro n'est pas réenregistré, Wakil lance la synchronisation des contacts et de l'historique (une seule fois, dans les 24 h exigées par Meta), et quand le patron répond depuis son téléphone, Wakil se tait pour ce client. Abonner le webhook aux champs **messages**, **smb_message_echoes**, **history**, **smb_app_state_sync** et **account_update**.
+   - En coexistence, si le numéro du patron est celui de l'assistant, les commandes ne lui sont pas renvoyées sur WhatsApp (un numéro ne s'écrit pas à lui-même) : il les suit dans l'application Wakil.
 
 ### 2. Configuration
 
@@ -158,8 +241,14 @@ Envoyez « Bonjour » au numéro de test : Wakil répond.
 ## Le site de Wakil
 
 Le Worker sert aussi le site de présentation de Wakil (`public/index.html`), à sa propre adresse : `https://wakil-whatsapp.<votre-compte>.workers.dev/`. On y trouve :
-- **Wakil en direct** : le chat de la page est Wakil lui-même (`wakil` dans `config/tenants.json`), qui présente l'offre aux patrons, répond à leurs questions et peut jouer le rôle de leur assistant ; il les invite à remplir le formulaire ;
-- **le formulaire « Essayer Wakil »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
+- **« Embauchez Wakil »** : le site est le dossier d'embauche d'un commercial, dessiné avec les papiers du comptoir (carnet de bons à souches à l'encre carbone, bloc rose « message téléphonique », tampon rouge). Archivo pour l'imprimé, Kalam pour ce qui est écrit à la main ;
+- **le bon de commande qui se remplit tout seul** (haut de page) : quand il arrive à l'écran, le bon N° 0001 s'écrit à la main, le vocal du client tenu par un trombone, puis le tampon « CONFIRMÉE » tombe ;
+- **la fiche de poste** (horaires, missions, et ce qu'il ne fera jamais : inventer un prix, promettre une livraison sans vous…), **« Pendant votre absence »** (le défilement fait passer la nuit de 21:47 à 07:30 : les messages roses s'empilent, puis s'étalent sur le bureau à l'aube), **l'entretien** (« Présentez-vous » : Wakil parle avec la voix française de l'appareil, ses mots s'écrivent à la main en direct ; puis les questions d'entretien ouvrent le vrai chat), **l'embauche en trois étapes**, **le bulletin de paie** (le tarif), **la prise de poste** (lancement), **avant de signer** (questions), **le contrat de période d'essai** et le formulaire « être rappelé » en message rose ;
+- **Wakil en direct** : le chat de la page est Wakil lui-même (`wakil` dans `config/tenants.json`), qui présente l'offre aux patrons et peut jouer le rôle de leur assistant. Le bouton **Appeler Wakil** n'apparaît que lorsque la voix est prête (`call` dans `/chat/config`) ;
+- **l'inscription** (`/inscription`) mise en avant partout, avec les trois étapes : s'inscrire, saisir le code, recevoir les commandes ;
+- **le formulaire « être rappelé »** : chaque demande est gardée, et envoyée sur WhatsApp au numéro indiqué dans `config/wakil.json` (`ownerPhone`, avec `senderPhoneNumberId` = le Phone number ID qui envoie le message).
+
+Sur ce site, la bulle d'invitation du chat n'est pas montrée (`data-teaser="off"`) : l'entretien invite déjà à parler à Wakil. Le bouton flottant du chat se retire pendant la nuit (il cacherait les messages), tant que le visiteur ne l'a pas utilisé.
 
 Les messages de la démonstration sont de vrais appels au modèle : les limites du chat web s'appliquent aussi.
 
@@ -223,6 +312,10 @@ WhatsApp n'autorise un message libre que dans les 24 h qui suivent le dernier me
    ```
 
 Sans modèle, le patron doit avoir écrit au numéro de Wakil dans les dernières 24 h.
+
+## Comment Wakil parle aux clients
+
+Une personnalité (chaleureux, serviable, honnête, calme, efficace) et une méthode de conversation tirée de méthodes reconnues de vente et de service client (principe de coopération de Grice, *SPIN Selling*, LAER pour les objections, HEARD pour les réclamations), communes à toutes les entreprises : `src/playbook.ts`. Le détail, les sources et la façon d'ajuster le ton pour une entreprise : [`docs/conversation.md`](docs/conversation.md).
 
 ## Réglages
 
