@@ -25,6 +25,11 @@ jobs:
           get() { curl -s -G "$@"; }
           auth="Authorization: Bearer $TOKEN"
 
+          echo "== Sans jeton (si la réponse est aussi « API access blocked », c'est l'adresse de GitHub qui est bloquée)"
+          get "$GRAPH/me" | jq .
+          echo "== Jeton bidon"
+          get "$GRAPH/me" -H "Authorization: Bearer EAAbidon" | jq .
+
           echo "== Application du jeton"
           app=$(get "$GRAPH/app" -H "$auth")
           echo "$app" | jq '{id, name, error}'
