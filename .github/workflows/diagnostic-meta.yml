@@ -1,0 +1,52 @@
+# Diagnostic ponctuel de la liaison WhatsApp, lancé en poussant la branche diagnostic-meta.
+# Lecture seule : rien n'est modifié chez Meta ni chez Cloudflare, et aucune clé n'est affichée.
+name: Diagnostic Meta
+
+on:
+  push:
+    branches: [diagnostic-meta]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lire:
+    name: Lire la configuration WhatsApp chez Meta
+    runs-on: ubuntu-latest
+    env:
+      TOKEN: ${{ secrets.WHATSAPP_TOKEN }}
+      APP_SECRET: ${{ secrets.WHATSAPP_APP_SECRET }}
+      WABA: "1144913691522206"
+      GRAPH: https://graph.facebook.com/v23.0
+    steps:
+      - name: Lire
+        run: |
+          get() { curl -s -G "$@"; }
+          auth="Authorization: Bearer $TOKEN"
+
+          echo "== Application du jeton"
+          app=$(get "$GRAPH/app" -H "$auth")
+          echo "$app" | jq '{id, name, error}'
+          app_id=$(echo "$app" | jq -r '.id // empty')
+
+          echo "== Jeton"
+          if [ -n "$app_id" ] && [ -n "$APP_SECRET" ]; then
+            get "$GRAPH/debug_token" --data-urlencode "input_token=$TOKEN" --data-urlencode "access_token=$app_id|$APP_SECRET" \
+              | jq '{valide: .data.is_valid, type: .data.type, expire: .data.expires_at, scopes: .data.scopes, acces: .data.granular_scopes, erreur: (.error // .data.error)}'
+          fi
+          get "$GRAPH/me" --data-urlencode "fields=id,name" -H "$auth" | jq .
+
+          echo "== Compte WhatsApp"
+          get "$GRAPH/$WABA" --data-urlencode "fields=id,name,account_review_status" -H "$auth" | jq .
+
+          echo "== Numéros"
+          get "$GRAPH/$WABA/phone_numbers" --data-urlencode "fields=id,display_phone_number,verified_name,status,platform_type,quality_rating,webhook_configuration" -H "$auth" | jq .
+
+          echo "== Applications abonnées au compte WhatsApp"
+          get "$GRAPH/$WABA/subscribed_apps" -H "$auth" | jq .
+
+          echo "== Webhook de l'application"
+          if [ -n "$app_id" ] && [ -n "$APP_SECRET" ]; then
+            get "$GRAPH/$app_id/subscriptions" --data-urlencode "access_token=$app_id|$APP_SECRET" | jq .
+          fi
