@@ -2,7 +2,7 @@
   "company": {
     "name": "SANA",
     "fullName": "Société Afriqaine de Nutrition Animale",
-    "phone": "+225 07 89 69 58 12",
+    "phone": "+225 05 66 27 30 30",
     "whatsapp": "2250715500000",
     "email": "contact@sana.com",
     "address": "Yamoussoukro, Côte d'Ivoire",
@@ -11,7 +11,7 @@
   "hero": {
     "title": "L'aliment de tous vos animaux,",
     "highlight": "formulé par nos experts.",
-    "lead": "Les œufs à couver SANA sont disponibles et les précommandes de poussins de chair sont ouvertes pour le 14 et le 27 novembre. Aliments pour tous les animaux, poulets et œufs frais arrivent bientôt."
+    "lead": "Grande promotion sur les poussins de chair : sorties le 27 et le 28 novembre et le 7 décembre, à 570 FCFA le poussin en prix de gros. Les œufs à couver SANA sont aussi disponibles. Aliments pour tous les animaux, poulets et œufs frais arrivent bientôt."
   },
   "hatching": {
     "title": "Œufs à couver",
@@ -90,13 +90,13 @@
   "marketing": {
     "promo": {
       "visible": true,
-      "text": "Poussins de chair à 640 FCFA : précommandes ouvertes pour le 14 et le 27 novembre · Œufs à couver à 400 FCFA.",
+      "text": "Grande promotion : poussins de chair à 570 FCFA (prix de gros selon la quantité), sorties le 27 et le 28 novembre et le 7 décembre · Œufs à couver à 400 FCFA.",
       "linkText": "Commander",
       "link": "#disponible"
     },
     "cta": {
       "title": "Des œufs à couver ou des poussins pour votre élevage ?",
-      "text": "Appelez le 07 89 69 58 12 ou écrivez-nous sur WhatsApp au 07 15 50 00 00 : disponibilité, quantité et réservation, nous vous répondons rapidement.",
+      "text": "Appelez le 05 66 27 30 30 ou écrivez-nous sur WhatsApp au 07 15 50 00 00 : disponibilité, quantité et réservation, nous vous répondons rapidement.",
       "button": "Commander sur WhatsApp"
     },
     "social": {
@@ -142,14 +142,14 @@
         "id": "poussins",
         "icon": "chick",
         "title": "Poussins de chair",
-        "usage": "Précommandes ouvertes",
-        "desc": "Prochaines sorties : samedi 14 novembre et vendredi 27 novembre 2026.",
+        "usage": "Grande promotion",
+        "desc": "Prochaines sorties : vendredi 27 novembre, samedi 28 novembre et lundi 7 décembre 2026.",
         "items": [
-          "Poussins de qualité, bien vaccinés",
-          "Places limitées à chaque sortie",
+          "Poussins de qualité et bien robustes",
+          "Prix de gros selon la quantité commandée",
           "Réservation par appel ou sur WhatsApp"
         ],
-        "price": "640 FCFA le poussin",
+        "price": "570 FCFA le poussin",
         "visible": true,
         "status": "available"
       },
